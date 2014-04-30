@@ -17,10 +17,6 @@ available_tabs:
     - datastores-tab
     - vnets-tab
     - zones-tab
-    - marketplace-tab
-    - oneflow-dashboard
-    - oneflow-services
-    - oneflow-templates
     - provision-tab
 groups:
     oneadmin:
