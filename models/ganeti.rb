@@ -14,23 +14,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
+begin # require 'rubygems'
+    require 'rubygems'
+rescue Exception
+end
+
+require 'digest/sha1'
+require 'rexml/document'
+require 'pp'
+require 'ganeti/client'
+require 'opennebula/error'
+require 'ganeti/user'
+require 'ganeti/hosts'
+require 'ganeti/clusters'
+
+
+
 module Ganeti
-  class Clusters
-    def initialize(client)
-      @path = "/2/info"
-      @client = client
-    end
 
-    #######################################################################
-    # XML-RPC Methods for the User Object
-    #######################################################################
-
-    # Retrieves the information of the given User.
-    def info
-      cc = @client.call(@path, 'GET')
-      cc
-      #{:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
-    end
-
-  end
-end 
+    # OpenNebula version
+    VERSION = '4.5.85'
+end

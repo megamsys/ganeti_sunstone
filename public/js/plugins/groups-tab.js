@@ -168,9 +168,7 @@ var group_quotas_tmpl = '<div class="row" class="subheader">\
   </div>\
 </div>\
 <div class="reveal-body">\
-<form id="group_quotas_form" action="">'+
-  quotas_tmpl +
-  '<div class="reveal-footer">\
+<form id="group_quotas_form" action="">quotas_tmpl<div class="reveal-footer">\
     <div class="form_buttons">\
         <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
     </div>\

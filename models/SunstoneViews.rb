@@ -16,7 +16,7 @@
 
 require 'yaml'
 require 'json'
-
+require 'ganeti'
 require 'pp'
 
 VIEWS_CONFIGURATION_FILE = "config/sunstone-views.yaml"
@@ -53,35 +53,12 @@ class SunstoneViews
     #
     def available_views(user_name, group_name)
         onec = $cloud_auth.client(user_name)
-        user = OpenNebula::User.new_with_id(OpenNebula::User::SELF, onec)
+        #user = Ganeti::User.new(onec)
 
-        user.info(user_name)
+        #user_info = user.info(user_name)
 
         available = Array.new
-
-        user.groups.each { |gid|
-            group = OpenNebula::Group.new_with_id(gid, onec)
-
-            group.info
-
-            if group["TEMPLATE/SUNSTONE_VIEWS"]
-                available << group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
-            end
-
-            gadmins = group["TEMPLATE/GROUP_ADMINS"]
-
-            if !gadmins.nil? && gadmins =~ /#{user_name}/ && group["TEMPLATE/GROUP_ADMIN_VIEWS"]
-                available << group["TEMPLATE/GROUP_ADMIN_VIEWS"].split(",")
-            end
-        }
-
-        available.flatten!
-
-        available.reject!{|v| !@views.has_key?(v)} #sanitize array views
-
-        return available.uniq if !available.empty?
-
-        # Fallback to default views if none is defined in templates
+      
 
         available << @views_config['users'][user_name] if @views_config['users']
         available << @views_config['groups'][group_name] if @views_config['groups']
@@ -90,11 +67,15 @@ class SunstoneViews
         available.flatten!
 
         available.reject!{|v| !@views.has_key?(v)} #sanitize array views
-
+         puts "-----------------------------------------------------------------------------------------------"
+          puts available
+         puts "-----------------------------------------------------------------------------------------------"
         return available.uniq
     end
 
     def available_tabs
+        puts "====================available tabs==============="
+        puts @views_config['available_tabs']
         @views_config['available_tabs']
     end
 

@@ -126,7 +126,7 @@ $views_config = SunstoneViews.new
 
 #start VNC proxy
 
-$vnc = OpenNebulaVNC.new($conf, logger)
+#$vnc = OpenNebulaVNC.new($conf, logger)
 
 configure do
   set :run, false
@@ -135,6 +135,7 @@ configure do
 end
 
 DEFAULT_TABLE_ORDER = "desc"
+require 'ganeti'
 
 ##############################################################################
 # Helpers
@@ -161,10 +162,10 @@ helpers do
       client  = $cloud_auth.client(result)
       logger.info { "-----------------client result---------------------" }
       logger.info { client.inspect }
-      user_id = OpenNebula::User::SELF
+      user_id = Ganeti::User::SELF
       logger.info { "------------------user id--------------------" }
       logger.info { user_id }
-      user_initialize    = OpenNebula::User.new_with_id(user_id, client)
+      user_initialize    = Ganeti::User.new(client)
       user = user_initialize.info(result)
       logger.info { "-----------------user---------------------" }
       logger.info { user[:NAME] }
@@ -265,8 +266,8 @@ before do
   end
 
   if env['HTTP_ZONE_NAME']
-    client=$cloud_auth.client(session[:user])
-    zpool = ZonePoolJSON.new(client)
+    @client=$cloud_auth.client(session[:user])
+    zpool = ZonePoolJSON.new(@client)
 
     rc = zpool.info
 
@@ -280,10 +281,10 @@ before do
     }
   end
 
-  client=$cloud_auth.client(session[:user],
+  @client=$cloud_auth.client(session[:user],
   session[:active_zone_endpoint])
 
-  @SunstoneServer = SunstoneServer.new(client,$conf,logger)
+  @SunstoneServer = SunstoneServer.new(@client,$conf,logger)
 end
 
 after do
@@ -317,7 +318,6 @@ get '/' do
   end
 
   response.set_cookie("one-user", :value=>"#{session[:user]}")
-
   erb :index
 end
 
@@ -437,19 +437,28 @@ end
 ##############################################################################
 get '/:pool' do
   zone_client = nil
-
-  if params[:zone_id]
-    zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
-    $cloud_auth.client(session[:user]))
-    rc   = zone.info
-    return [500, rc.message] if OpenNebula.is_error?(rc)
-    zone_client = $cloud_auth.client(session[:user],
-    zone['TEMPLATE/ENDPOINT'])
+=begin
+if params[:zone_id]
+zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
+$cloud_auth.client(session[:user]))
+rc   = zone.info
+return [500, rc.message] if OpenNebula.is_error?(rc)
+zone_client = $cloud_auth.client(session[:user],
+zone['TEMPLATE/ENDPOINT'])
+end
+=end
+  zone_res = Ganeti::Clusters.new(@client)
+  if zone_res.data[:status] != 200
+    return [500, "server error"] 
+  else
+    zone = zone_res.data[:body]
   end
-
-  @SunstoneServer.get_pool(params[:pool],
-  session[:user_gid],
-  zone_client)
+  res = Array.new
+  res << 200
+  res << {"ZONE_POOL" => {"ZONE" => {"ID" => session[:user_gid], "NAME" => zone[:name],"TEMPLATE" => {"ENDPOINT" => "http://localhost:2633/RPC2"}}}}
+  #zone_client = $cloud_auth.client(session[:user])
+  #@SunstoneServer.get_pool(params[:pool], session[:user_gid], zone_client)
+  res
 end
 
 ##############################################################################

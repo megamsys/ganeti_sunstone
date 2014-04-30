@@ -113,27 +113,7 @@ module OpenNebula
       else
         Excon.defaults[:ssl_verify_peer] = false
       end
-      @con = Excon.new("https://192.168.2.3:5080")
-
-      @one_endpoint = "http://localhost:2633/RPC2"
-
-      puts "++++++++++++++++++++++++++++++________________________________"
-      puts options
-      timeout=nil
-      timeout=options[:timeout] if options[:timeout]
-
-      http_proxy=nil
-      http_proxy=options[:http_proxy] if options[:http_proxy]
-
-      @server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
-
-      if defined?(OxStreamParser)
-        @server.set_parser(OxStreamParser.new)
-      elsif OpenNebula::NOKOGIRI
-        @server.set_parser(NokogiriStreamParser.new)
-      elsif XMLPARSER
-        @server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
-      end
+      @con = Excon.new("https://192.168.2.3:5080")     
       @con
     end
 
@@ -142,6 +122,17 @@ module OpenNebula
       @options[:method] = 'GET'
       res = @con.request(@options)
       res
+    end
+
+    def call(path, *args)
+      begin
+        @options[:path] = path
+        @options[:method] = 'GET'
+        res = @con.request(@options)
+        res
+      rescue Exception => e
+        Error.new(e.message)
+      end
     end
 
 =begin
@@ -188,17 +179,6 @@ elsif XMLPARSER
 end
 end
 =end
-
-    def call(path, *args)
-      begin
-        @options[:path] = path
-        @options[:method] = 'GET'
-        res = @con.request(@options)
-        res
-      rescue Exception => e
-        Error.new(e.message)
-      end
-    end
 
 =begin
 def call(action, *args)

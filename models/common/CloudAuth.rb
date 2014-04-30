@@ -117,7 +117,7 @@ class CloudAuth
     # specific do_auth module method. It updates the user cache (if needed)
     # before calling the do_auth module.
     def auth(env, params={})
-        update_userpool_cache if @conf[:use_user_pool_cache]
+       # update_userpool_cache if @conf[:use_user_pool_cache]
         return do_auth(env, params)
     end
 
