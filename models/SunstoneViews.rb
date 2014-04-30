@@ -55,7 +55,7 @@ class SunstoneViews
         onec = $cloud_auth.client(user_name)
         user = OpenNebula::User.new_with_id(OpenNebula::User::SELF, onec)
 
-        user.info
+        user.info(user_name)
 
         available = Array.new
 

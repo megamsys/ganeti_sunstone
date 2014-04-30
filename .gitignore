@@ -4,3 +4,4 @@ tmp
 mails
 tmp/gems.json
 keys
+logs/

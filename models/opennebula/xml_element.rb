@@ -24,6 +24,8 @@ module OpenNebula
         # xml:: _opaque xml object_ an xml object as returned by build_xml
         def initialize(xml=nil)
             @xml = xml
+            puts "---------------------------------xml=============================="
+            puts @xml
         end
 
         # Initialize a XML document for the element
@@ -31,7 +33,8 @@ module OpenNebula
         # root_element:: _String_ Base xml element
         def initialize_xml(xml, root_element)
             @xml = XMLElement.build_xml(xml, root_element)
-
+            puts "---------------------------------xmlllll=============================="
+            puts @xml
             if OpenNebula.is_error?(@xml)
                 @xml = nil
             else
@@ -61,7 +64,8 @@ module OpenNebula
             rescue Exception => e
                 return OpenNebula::Error.new(e.message)
             end
-
+            puts "======================="
+            puts doc
             return doc
         end
 
@@ -143,7 +147,8 @@ module OpenNebula
         # using  the XPATH  expression passed as filter
         def retrieve_elements(filter)
             elements_array = Array.new
-
+             puts "---------------+++======"
+             puts @xml.inspect
             if NOKOGIRI
                 @xml.xpath(filter.to_s).each { |pelem|
                     elements_array << pelem.text if pelem.text
@@ -153,7 +158,7 @@ module OpenNebula
                     elements_array << pelem.text if pelem.text
                 }
             end
-
+ 
             if elements_array.size == 0
                 return nil
             else
