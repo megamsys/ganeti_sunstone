@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
+require 'UserDB'
 module SunstoneCloudAuth
     def do_auth(env, params={})
         auth = Rack::Auth::Basic::Request.new(env)           
@@ -22,7 +22,7 @@ module SunstoneCloudAuth
             require 'sqlite3'
             db = SQLite3::Database.new( "ganeti.db" )
             rows = db.execute( "select * from users where user_name = '" + username +"'" )           
-            one_pass = rows[0][2]
+            one_pass = rows[0][2]           
             #one_pass = get_password(username, 'core')                   
             #if one_pass && one_pass == Digest::SHA1.hexdigest(password)
             if one_pass && one_pass == password

@@ -33,7 +33,11 @@ module OpenNebula
             else
                 @pe_id = nil
             end
+            puts "++++++++++++++++++++++++++++"
+            puts @name
+            puts @pe_id
             @name = self['NAME'] if self['NAME']
+            
         end
 
         #######################################################################

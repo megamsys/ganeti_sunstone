@@ -103,9 +103,13 @@ class CloudAuth
         }       
         token = @server_auth.login_token(expiration_time,username)
         if endpoint and endpoint != "-"
-            return OpenNebula::Client.new(token,endpoint)
+            logger.info { "---------1111111-" }
+            #return OpenNebula::Client.new(token,endpoint)
+            return OpenNebula::Client.new("", "")
         else
+          logger.info { "-------222222--------" }
             return OpenNebula::Client.new(token,@conf[:one_xmlrpc])
+            #return OpenNebula::Client.new("", "")
         end
     end
 
@@ -113,7 +117,7 @@ class CloudAuth
     # specific do_auth module method. It updates the user cache (if needed)
     # before calling the do_auth module.
     def auth(env, params={})
-        #update_userpool_cache if @conf[:use_user_pool_cache]
+        update_userpool_cache if @conf[:use_user_pool_cache]
         return do_auth(env, params)
     end
 

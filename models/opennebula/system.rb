@@ -82,7 +82,7 @@ module OpenNebula
 
             config = XMLElement.new
             config.initialize_xml(rc, 'TEMPLATE')
-
+             
             return config
         end
 
