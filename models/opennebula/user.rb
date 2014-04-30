@@ -16,13 +16,12 @@
 
 
 require 'opennebula/pool_element'
-
 module OpenNebula
     class User < PoolElement
         #######################################################################
         # Constants and Class Methods
         #######################################################################
-
+     
         USER_METHODS = {
             :info     => "user.info",
             :allocate => "user.allocate",
@@ -37,7 +36,7 @@ module OpenNebula
         }
 
         SELF      = -1
-
+      
         # Driver name for default core authentication
         CORE_AUTH = "core"
 
@@ -66,7 +65,8 @@ module OpenNebula
             else
                 user_xml = "<USER></USER>"
             end
-
+            puts "------------build-xml-------"
+            puts user_xml
             XMLElement.build_xml(user_xml, 'USER')
         end
 
@@ -82,8 +82,12 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given User.
-        def info()
-            super(USER_METHODS[:info], 'USER')
+        def info(username)
+           # super(USER_METHODS[:info], 'USER')
+            require 'sqlite3'
+            db = SQLite3::Database.new( "ganeti.db" )
+            rows = db.execute( "select * from users where user_name = '" + username +"'" )           
+            {:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}        
         end
 
         alias_method :info!, :info
@@ -198,7 +202,7 @@ module OpenNebula
         # Returns a list with all the group IDs for the user including primary
         # [return] _Array_ with the group ID's (as integers)
         def groups
-            all_groups = self.retrieve_elements("GROUPS/ID")
+            all_groups = self.retrieve_elements("GROUPS/ID")           
             all_groups.collect! {|x| x.to_i}
         end
     end

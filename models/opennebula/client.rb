@@ -17,152 +17,206 @@
 require 'xmlrpc/client'
 require 'bigdecimal'
 require 'stringio'
-
+require "excon"
 
 module OpenNebula
-    attr_accessor   :pool_page_size
+  attr_accessor   :pool_page_size
 
-    if OpenNebula::OX
-        class OxStreamParser < XMLRPC::XMLParser::AbstractStreamParser
-            def initialize
-                @parser_class = OxParser
-            end
+  if OpenNebula::OX
+    class OxStreamParser < XMLRPC::XMLParser::AbstractStreamParser
+      def initialize
+        @parser_class = OxParser
+      end
 
-            class OxParser < Ox::Sax
-                include XMLRPC::XMLParser::StreamParserMixin
+      class OxParser < Ox::Sax
+        include XMLRPC::XMLParser::StreamParserMixin
 
-                alias :text :character
-                alias :end_element :endElement
-                alias :start_element :startElement
-
-                def parse(str)
-                    Ox.sax_parse(self, StringIO.new(str),
-                        :symbolize => false,
-                        :convert_special => true)
-                end
-            end
+        alias :text :character
+        alias :end_element :endElement
+        alias :start_element :startElement
+        def parse(str)
+          Ox.sax_parse(self, StringIO.new(str),
+          :symbolize => false,
+          :convert_special => true)
         end
-    elsif OpenNebula::NOKOGIRI
-        class NokogiriStreamParser < XMLRPC::XMLParser::AbstractStreamParser
-            def initialize
-                @parser_class = NokogiriParser
-            end
-
-            class NokogiriParser < Nokogiri::XML::SAX::Document
-                include XMLRPC::XMLParser::StreamParserMixin
-
-                alias :cdata_block :character
-                alias :characters :character
-                alias :end_element :endElement
-                alias :start_element :startElement
-
-                def parse(str)
-                    parser = Nokogiri::XML::SAX::Parser.new(self)
-                    parser.parse(str)
-                end
-            end
-        end
+      end
     end
+  elsif OpenNebula::NOKOGIRI
+    class NokogiriStreamParser < XMLRPC::XMLParser::AbstractStreamParser
+      def initialize
+        @parser_class = NokogiriParser
+      end
 
-    DEFAULT_POOL_PAGE_SIZE = 2000
+      class NokogiriParser < Nokogiri::XML::SAX::Document
+        include XMLRPC::XMLParser::StreamParserMixin
 
-    if size=ENV['ONE_POOL_PAGE_SIZE']
-        if size.strip.match(/^\d+$/) && size.to_i >= 2
-            @pool_page_size = size.to_i
-        else
-            @pool_page_size = nil
+        alias :cdata_block :character
+        alias :characters :character
+        alias :end_element :endElement
+        alias :start_element :startElement
+        def parse(str)
+          parser = Nokogiri::XML::SAX::Parser.new(self)
+          parser.parse(str)
         end
+      end
+    end
+  end
+
+  DEFAULT_POOL_PAGE_SIZE = 2000
+
+  if size=ENV['ONE_POOL_PAGE_SIZE']
+    if size.strip.match(/^\d+$/) && size.to_i >= 2
+      @pool_page_size = size.to_i
     else
-        @pool_page_size = DEFAULT_POOL_PAGE_SIZE
+      @pool_page_size = nil
+    end
+  else
+    @pool_page_size = DEFAULT_POOL_PAGE_SIZE
+  end
+
+  # The client class, represents the connection with the core and handles the
+  # xml-rpc calls.
+  class Client
+    attr_accessor :one_auth
+    attr_reader   :one_endpoint
+
+    begin
+      require 'xmlparser'
+      XMLPARSER=true
+    rescue LoadError
+    XMLPARSER=false
     end
 
+    # Creates a new client object that will be used to call OpenNebula
+    # functions.
+    #
+    # @param [String, nil] secret user credentials ("user:password") or
+    #   nil to get the credentials from user auth file
+    # @param [String, nil] endpoint OpenNebula server endpoint
+    #   (http://host:2633/RPC2) or nil to get it form the environment
+    #   variable ONE_XMLRPC or use the default endpoint
+    # @param [Hash] options
+    # @option params [Integer] :timeout connection timeout in seconds,
+    #   defaults to 30
+    # @option params [String] :http_proxy HTTP proxy string used for
+    #  connecting to the endpoint; defaults to no proxy
+    #
+    # @return [OpenNebula::Client]
+    #def initialize(host, port)
+    def initialize(secret=nil, endpoint=nil, options={})
+      @options = {}
+      Excon.defaults[:ssl_ca_file] = File.expand_path(File.join(File.dirname(__FILE__), "../..", "certs", "rapi_pub.pem"))
 
-    # The client class, represents the connection with the core and handles the
-    # xml-rpc calls.
-    class Client
-        attr_accessor :one_auth
-        attr_reader   :one_endpoint
+      if !File.exist?(File.expand_path(File.join(File.dirname(__FILE__), "../..", "certs", "rapi_pub.pem")))
+        puts "Certificate file does not exist. SSL_VERIFY_PEER set as false"
+        Excon.defaults[:ssl_verify_peer] = false
+      else
+        Excon.defaults[:ssl_verify_peer] = false
+      end
+      @con = Excon.new("https://192.168.2.3:5080")
 
-        begin
-            require 'xmlparser'
-            XMLPARSER=true
-        rescue LoadError
-            XMLPARSER=false
-        end
+      @one_endpoint = "http://localhost:2633/RPC2"
 
-        # Creates a new client object that will be used to call OpenNebula
-        # functions.
-        #
-        # @param [String, nil] secret user credentials ("user:password") or
-        #   nil to get the credentials from user auth file
-        # @param [String, nil] endpoint OpenNebula server endpoint
-        #   (http://host:2633/RPC2) or nil to get it form the environment
-        #   variable ONE_XMLRPC or use the default endpoint
-        # @param [Hash] options
-        # @option params [Integer] :timeout connection timeout in seconds,
-        #   defaults to 30
-        # @option params [String] :http_proxy HTTP proxy string used for
-        #  connecting to the endpoint; defaults to no proxy
-        #
-        # @return [OpenNebula::Client]
-        def initialize(secret=nil, endpoint=nil, options={})
-         
-            if secret
-                @one_auth = secret
-            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and
-                    File.file?(ENV["ONE_AUTH"])
-                @one_auth = File.read(ENV["ONE_AUTH"])
-            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-                @one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
-            else
-                raise "ONE_AUTH file not present"
-            end
+      puts "++++++++++++++++++++++++++++++________________________________"
+      puts options
+      timeout=nil
+      timeout=options[:timeout] if options[:timeout]
 
-            @one_auth.rstrip!
+      http_proxy=nil
+      http_proxy=options[:http_proxy] if options[:http_proxy]
 
-            if endpoint
-                @one_endpoint = endpoint
-            elsif ENV["ONE_XMLRPC"]
-                @one_endpoint = ENV["ONE_XMLRPC"]
-            elsif File.exists?(ENV['HOME']+"/.one/one_endpoint")
-                @one_endpoint = File.read(ENV['HOME']+"/.one/one_endpoint")
-            else
-                @one_endpoint = "http://localhost:2633/RPC2"
-            end
+      @server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
 
-            timeout=nil
-            timeout=options[:timeout] if options[:timeout]
-
-            http_proxy=nil
-            http_proxy=options[:http_proxy] if options[:http_proxy]
-
-            @server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
-
-            if defined?(OxStreamParser)
-                @server.set_parser(OxStreamParser.new)
-            elsif OpenNebula::NOKOGIRI
-                @server.set_parser(NokogiriStreamParser.new)
-            elsif XMLPARSER
-                @server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
-            end
-        end
-
-        def call(action, *args)
-            begin
-                response = @server.call_async("one."+action, @one_auth, *args)
-
-                if response[0] == false
-                    Error.new(response[1], response[2])
-                else
-                    response[1] #response[1..-1]
-                end
-            rescue Exception => e
-                Error.new(e.message)
-            end
-        end
-
-        def get_version()
-            call("system.version")
-        end
+      if defined?(OxStreamParser)
+        @server.set_parser(OxStreamParser.new)
+      elsif OpenNebula::NOKOGIRI
+        @server.set_parser(NokogiriStreamParser.new)
+      elsif XMLPARSER
+        @server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
+      end
+      @con
     end
+
+    def get(path)
+      @options[:path] = path
+      @options[:method] = 'GET'
+      res = @con.request(@options)
+      res
+    end
+
+=begin
+def initialize(secret=nil, endpoint=nil, options={})
+
+if secret
+@one_auth = secret
+elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and
+File.file?(ENV["ONE_AUTH"])
+@one_auth = File.read(ENV["ONE_AUTH"])
+elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+@one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+else
+raise "ONE_AUTH file not present"
+end
+
+@one_auth.rstrip!
+
+if endpoint
+@one_endpoint = endpoint
+elsif ENV["ONE_XMLRPC"]
+@one_endpoint = ENV["ONE_XMLRPC"]
+elsif File.exists?(ENV['HOME']+"/.one/one_endpoint")
+@one_endpoint = File.read(ENV['HOME']+"/.one/one_endpoint")
+else
+#@one_endpoint = "http://localhost:2633/RPC2"
+@one_endpoint = "https://192.168.2.3:5080"
+end
+
+timeout=nil
+timeout=options[:timeout] if options[:timeout]
+
+http_proxy=nil
+http_proxy=options[:http_proxy] if options[:http_proxy]
+
+@server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
+
+if defined?(OxStreamParser)
+@server.set_parser(OxStreamParser.new)
+elsif OpenNebula::NOKOGIRI
+@server.set_parser(NokogiriStreamParser.new)
+elsif XMLPARSER
+@server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
+end
+end
+=end
+
+    def call(path, *args)
+      begin
+        @options[:path] = path
+        @options[:method] = 'GET'
+        res = @con.request(@options)
+        res
+      rescue Exception => e
+        Error.new(e.message)
+      end
+    end
+
+=begin
+def call(action, *args)
+begin
+response = @server.call_async("one."+action, @one_auth, *args)
+
+if response[0] == false
+Error.new(response[1], response[2])
+else
+response[1] #response[1..-1]
+end
+rescue Exception => e
+Error.new(e.message)
+end
+end
+=end
+    def get_version()
+      call("system.version")
+    end
+  end
 end

@@ -12,6 +12,7 @@ gem 'nokogiri'
 gem "sqlite3"
 gem "activerecord"
 gem "sinatra-activerecord"
+gem "excon"
 
 group :development do
   gem "shotgun"
