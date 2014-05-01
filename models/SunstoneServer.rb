@@ -23,8 +23,6 @@ require 'OpenNebulaVNC'
 require 'OpenNebulaJSON/JSONUtils'
 include JSONUtils
 
-require 'SunstoneMarketplace'
-
 class SunstoneServer < CloudServer
     # FLAG that will filter the elements retrieved from the Pools
     POOL_FILTER = Pool::INFO_ALL
@@ -32,7 +30,6 @@ class SunstoneServer < CloudServer
     # Secs to sleep between checks to see if image upload to repo is finished
     IMAGE_POLL_SLEEP_TIME = 5
 
-    include SunstoneMarketplace
 
     def initialize(client, config, logger)
         super(config, logger)

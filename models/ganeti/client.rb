@@ -36,10 +36,10 @@ module Ganeti
     end
 
 
-    def call(path, *args)
+    def call(path, method)
       begin
         @options[:path] = path
-        @options[:method] = 'GET'
+        @options[:method] = method
         res = @con.request(@options)
         res
       rescue Exception => e

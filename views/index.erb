@@ -34,14 +34,14 @@
     <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <script src="js/opennebula.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="js/sunstone.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
     <script>
-
       var view = JSON.parse('<%= view.to_json %>')
       var available_views = JSON.parse('["<%=
         $views_config.available_views(session[:user], session[:user_gname]).join('","')
       %>"]')
-
+            
       config = {
         'user_config' : {
             'lang' : '<%= session[:lang] %>',
@@ -50,8 +50,6 @@
             'default_view' : '<%= session[:default_view] %>'
         },
         'system_config' : {
-            'marketplace_url' : '<%= $conf[:marketplace_url] %>',
-            'vnc_proxy_port' : '<%= $vnc.proxy_port %>'
         },
         'view' : view,
         'available_views' : available_views,
@@ -60,14 +58,13 @@
         'instance_types' : JSON.parse('<%= cloud_view_instance_types().to_json %>')
       };
 
-
+    
     </script>
     <script src="js/plugins/config-tab.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-
     <!-- enabled tabs: -->
-    <%- $views_config.available_tabs.each do |tab_name| -%>
+    <% $views_config.available_tabs.each do |tab_name| %>
         <script src="js/plugins/<%= tab_name %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <%- end -%>
+    <% end %>
     <!-- end tabs -->
   </head>
   <body class="row antialiased">
