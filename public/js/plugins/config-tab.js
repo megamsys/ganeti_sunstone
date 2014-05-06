@@ -372,8 +372,7 @@ function setupConfigDialog() {
 }
 
 function tr(str){
-	alert(str);
-   // var tmp = locale[str];
+    var tmp = locale[str];
 	var tmp;
     if ( tmp == null || tmp == "" ) {
         //console.debug("Missing translation: "+str);

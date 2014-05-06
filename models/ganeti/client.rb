@@ -3,7 +3,18 @@ require 'stringio'
 require "excon"
 
 module Ganeti
+ attr_accessor   :pool_page_size
+ DEFAULT_POOL_PAGE_SIZE = 2000
 
+  if size=ENV['ONE_POOL_PAGE_SIZE']
+    if size.strip.match(/^\d+$/) && size.to_i >= 2
+      @pool_page_size = size.to_i
+    else
+      @pool_page_size = nil
+    end
+  else
+    @pool_page_size = DEFAULT_POOL_PAGE_SIZE
+  end
 
 
   class Client

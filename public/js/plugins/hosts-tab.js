@@ -352,15 +352,12 @@ var hosts_tab = {
           <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
           <th>' + tr("ID") + '</th>\
           <th>' + tr("Name") + '</th>\
-          <th>' + tr("Cluster") + '</th>\
           <th>' + tr("RVMs") + '</th>\
-          <th>' + tr("Real CPU") + '</th>\
-          <th>' + tr("Allocated CPU") + '</th>\
-          <th>' + tr("Real MEM") + '</th>\
+          <th>' + tr("DISK USAGE") + '</th>\
+          <th>' + tr("Allocated Disks") + '</th>\
+          <th>' + tr("MEMORY USAGE") + '</th>\
           <th>' + tr("Allocated MEM") + '</th>\
           <th>' + tr("Status") + '</th>\
-          <th>' + tr("IM MAD") + '</th>\
-          <th>' + tr("VM MAD") + '</th>\
           <th>' + tr("Last monitored on") + '</th>\
         </tr>\
       </thead>\
@@ -378,36 +375,36 @@ function hostElements(){
     return getSelectedNodes(dataTable_hosts);
 }
 
-function generateCPUProgressBar(host) {
-    var max_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
+function generateDISKProgressBar(host) {
+    var max_disk = parseInt(host.HOST_SHARE.MAX_DISK);
 
     var info_str;
 
-    var allocated_cpu = parseInt(host.HOST_SHARE.CPU_USAGE);
+    var allocated_disk = parseInt(host.HOST_SHARE.DISK_USAGE);
 
-    if (max_cpu > 0) {
-        var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
-        info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+    if (max_disk > 0) {
+        var ratio_allocated_disk = Math.round((allocated_disk / max_disk) * 100);
+        info_str = humanize_size(allocated_disk) + ' / ' + humanize_size(max_disk) + ' (' + ratio_allocated_disk + '%)';
     } else {
         info_str = "";
     }
 
-    var pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
+    var pb_allocated_disk = quotaBarHtml(allocated_disk, max_disk, info_str);
 
-    var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
+    var real_disk = parseInt(host.HOST_SHARE.USED_DISK);
 
-    if (max_cpu > 0) {
-        var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
-        info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+    if (max_disk > 0) {
+        var ratio_real_disk = Math.round((real_disk / max_disk) * 100);
+        info_str = humanize_size(real_disk) + ' / ' + humanize_size(max_disk) + ' (' + ratio_real_disk + '%)';
     } else {
         info_str = "";
     }
 
-    var pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
+    var pb_real_disk = quotaBarHtml(real_disk, max_disk, info_str);
 
     return {
-      real: pb_real_cpu,
-      allocated: pb_allocated_cpu
+      real: pb_real_disk,
+      allocated: pb_allocated_disk
     }
 }
 
@@ -446,8 +443,7 @@ function generateMEMProgressBar(host){
 //Creates an array to be added to the dataTable from the JSON of a host.
 function hostElementArray(host_json){
     var host = host_json.HOST;
-
-    var cpu_bars = generateCPUProgressBar(host);
+    var disk_bars = generateDISKProgressBar(host);
     var mem_bars = generateMEMProgressBar(host);
 
     var state_simple = OpenNebula.Helper.resource_state("host_simple",host.STATE);
@@ -469,13 +465,12 @@ function hostElementArray(host_json){
     }
 
     return [
-        '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.NAME+'"/>',
         host.ID,
         host.NAME,
-        host.CLUSTER.length ? host.CLUSTER : "-",
         host.HOST_SHARE.RUNNING_VMS, //rvm
-        cpu_bars.real,
-        cpu_bars.allocated,
+        disk_bars.real,
+        disk_bars.allocated,
         mem_bars.real,
         mem_bars.allocated,
         state_simple,
@@ -506,15 +501,14 @@ function addHostElement(request,host_json){
 
 //callback to update the list of hosts.
 function updateHostsView (request,host_list){
-    var host_list_array = [];
-
+    var host_list_array = []; 
     on_hosts = 0;
     off_hosts = 0;
     error_hosts = 0;
 
-    var max_cpu = 0;
-    var allocated_cpu = 0;
-    var real_cpu = 0;
+    var max_disk = 0;
+    var allocated_disk = 0;
+    var real_disk = 0;
 
     var max_mem = 0;
     var allocated_mem = 0;
@@ -525,9 +519,9 @@ function updateHostsView (request,host_list){
         //Grab table data from the host_list
         host_list_array.push(hostElementArray(this));
 
-        max_cpu += parseInt(this.HOST.HOST_SHARE.MAX_CPU);
-        allocated_cpu += parseInt(this.HOST.HOST_SHARE.CPU_USAGE);
-        real_cpu += parseInt(this.HOST.HOST_SHARE.USED_CPU);
+        max_disk += parseInt(this.HOST.HOST_SHARE.MAX_DISK);
+        allocated_disk += parseInt(this.HOST.HOST_SHARE.DISK_USAGE);
+        real_disk += parseInt(this.HOST.HOST_SHARE.USED_DISK);
 
         max_mem += parseInt(this.HOST.HOST_SHARE.MAX_MEM);
         allocated_mem += parseInt(this.HOST.HOST_SHARE.MEM_USAGE);
@@ -536,24 +530,24 @@ function updateHostsView (request,host_list){
 
     updateView(host_list_array,dataTable_hosts);
 
-    if (max_cpu > 0) {
-        var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
-        info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+    if (max_disk > 0) {
+        var ratio_allocated_disk = Math.round((allocated_disk / max_disk) * 100);
+        info_str = humanize_size(allocated_disk) + ' / ' + humanize_size(max_disk) + ' (' + ratio_allocated_disk + '%)';
     } else {
         info_str = "";
     }
 
-    $("#dash_host_allocated_cpu").html(usageBarHtml(allocated_cpu, max_cpu, info_str, true));
+    $("#dash_host_allocated_disk").html(usageBarHtml(allocated_disk, max_disk, info_str, true));
 
 
-    if (max_cpu > 0) {
-        var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
-        info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+    if (max_disk > 0) {
+        var ratio_real_disk = Math.round((real_disk / max_disk) * 100);
+        info_str = humanize_size(real_disk) + ' / ' + humanize_size(max_disk) + ' (' + ratio_real_disk + '%)';
     } else {
         info_str = "";
     }
 
-    $("#dash_host_real_cpu").html(usageBarHtml(real_cpu, max_cpu, info_str, true));
+    $("#dash_host_real_disk").html(usageBarHtml(real_disk, max_disk, info_str, true));
 
 
     if (max_mem > 0) {
@@ -622,7 +616,7 @@ function insert_datastores_capacity_table(host_share) {
 function updateHostInfo(request,host){
     var host_info = host.HOST;
 
-    var cpu_bars = generateCPUProgressBar(host_info);
+    var cpu_bars = generateDISKProgressBar(host_info);
     var mem_bars = generateMEMProgressBar(host_info);
 
     //Information tab
@@ -653,15 +647,15 @@ function updateHostInfo(request,host){
                 <td class="key_td">' + tr("State") + '</td>\
                 <td class="value_td" colspan="2">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
             </tr>\
-            <tr>\
+            <tr style="display: none;">\
                 <td class="key_td">' + tr("IM MAD") + '</td>\
                 <td class="value_td" colspan="2">'+host_info.IM_MAD+'</td>\
             </tr>\
-            <tr>\
+            <tr style="display: none;">\
                 <td class="key_td">' + tr("VM MAD") + '</td>\
                 <td class="value_td" colspan="2">'+host_info.VM_MAD+'</td>\
             </tr>\
-            <tr>\
+            <tr style="display: none;">\
                 <td class="key_td">'+ tr("VN MAD") +'</td>\
                 <td class="value_td" colspan="2">'+host_info.VN_MAD+'</td>\
             </tr>\
@@ -679,14 +673,14 @@ function updateHostInfo(request,host){
               <td class="value_td" colspan="2" style="width:50%;">'+mem_bars.allocated+'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Allocated CPU") + '</td>\
+              <td class="key_td">' + tr("Allocated DISK") + '</td>\
               <td class="value_td" colspan="2" style="width:50%;">'+cpu_bars.allocated+'</td>\
             </tr>\
-            <tr>\
+            <tr style="display: none;">\
               <td class="key_td">' + tr("Real Memory") + '</td>\
               <td class="value_td" colspan="2" style="width:50%;">'+mem_bars.real+'</td>\
             </tr>\
-            <tr>\
+            <tr style="display: none;">\
               <td class="key_td">' + tr("Real CPU") + '</td>\
               <td class="value_td" colspan="2" style="width:50%;">'+cpu_bars.real+'</td>\
             </tr>\

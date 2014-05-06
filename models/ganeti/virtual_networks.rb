@@ -15,9 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 module Ganeti
-  class Zones
+  class VirtualNetworks
     def initialize(client)
-      @path = "/2/info"
+      @path = "/2/networks"
       @client = client
     end
 
@@ -29,19 +29,8 @@ module Ganeti
     end
 
     def to_json
-      zone = JSON.parse(@cc.data[:body])
-      json = {
-        "ZONE_POOL" => {
-          "ZONE" => {
-              #"ID" => session[:user_gid],
-            "ID" => 0,
-            "NAME" => zone["name"],
-            "TEMPLATE" => {
-              "ENDPOINT" => "http://localhost:2633/RPC2"
-            }
-          }
-        }
-      }
+      #zone = JSON.parse(@cc.data[:body])
+      json = {"VNET_POOL"=>{}}
       json.to_json
     end
 

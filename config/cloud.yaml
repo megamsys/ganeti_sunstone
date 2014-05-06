@@ -13,7 +13,7 @@ enabled_tabs:
     infra-tab: false
     clusters-tab: false
     hosts-tab: false
-    datastores-tab: false
+    datastores-tab: true
     vnets-tab: false
     marketplace-tab: false
     oneflow-dashboard: false

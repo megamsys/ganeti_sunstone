@@ -104,23 +104,23 @@ var widgets = {
               <div class="small-6 large-6 columns">\
                 <div class="row graph_legend text-center">\
                   <div class="small-6 large-6 columns">\
-                    <h4 class="subheader"><small>'+tr("CPU")+'</small></h4>\
+                    <h4 class="subheader"><small>'+tr("DISK")+'</small></h4>\
                   </div>\
                 </div>\
                 <div class="row">\
                   <h4 class="subheader">\
-                    <small class="subheader small-4 large-4 columns right">'+tr("Allocated")+
+                    <small class="subheader small-4 large-4 columns right">'+tr("USAGE")+
                     '</small>\
                   </h4>\
-                  <div class="small-8 large-8 columns" id="dash_host_allocated_cpu" >\
+                  <div class="small-8 large-8 columns" id="dash_host_allocated_disk" >\
                   </div>\
                 </div>\
-                <div class="row">\
+                <div class="row" style="display: none;">\
                   <h4 class="subheader">\
                     <small class="subheader small-4 large-4 columns right">'+tr("Real")+
                     '</small>\
                   </h4>\
-                  <div class="small-8 large-8 columns" id="dash_host_real_cpu" >\
+                  <div class="small-8 large-8 columns" id="dash_host_real_disk" >\
                   </div>\
                 </div>\
               </div>\
@@ -132,13 +132,13 @@ var widgets = {
                 </div>\
                 <div class="row">\
                   <h4 class="subheader">\
-                    <small class="subheader small-4 large-4 columns right">'+tr("Allocated")+
+                    <small class="subheader small-4 large-4 columns right">'+tr("USAGE")+
                     '</small>\
                   </h4>\
                   <div class="small-8 large-8 columns" id="dash_host_allocated_mem" >\
                   </div>\
                 </div>\
-                <div class="row">\
+                <div class="row" style="display: none;">\
                   <h4 class="subheader">\
                     <small class="subheader small-4 large-4 columns right">'+tr("Real")+
                     '</small>\
@@ -253,7 +253,7 @@ var widgets = {
 
 var widget_refresh = {
     "storage" : function(){
-            Sunstone.runAction("Datastore.list");
+         //   Sunstone.runAction("Datastore.list");
         },
     "users" : function(){
             Sunstone.runAction("User.list");

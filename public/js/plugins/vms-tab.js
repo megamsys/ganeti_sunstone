@@ -1145,7 +1145,7 @@ var vms_tab = {
             <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
             <th>'+tr("ID")+'</th>\
             <th>'+tr("Owner")+'</th>\
-            <th>'+tr("Group")+'</th>\
+            <th>'+tr("HostGroup")+'</th>\
             <th>'+tr("Name")+'</th>\
             <th>'+tr("Status")+'</th>\
             <th>'+tr("Used CPU")+'</th>\
@@ -1153,7 +1153,7 @@ var vms_tab = {
             <th>'+tr("Host")+'</th>\
             <th>'+tr("IPs")+'</th>\
             <th>'+tr("Start Time")+'</th>\
-            <th>'+tr("VNC")+'</th>\
+            <th>'+tr("OS")+'</th>\
           </tr>\
         </thead>\
         <tbody id="tbodyvmachines">\
@@ -1183,15 +1183,15 @@ function str_start_time(vm){
 
 // Return the IP or several IPs of a VM
 function ip_str(vm){
-    var nic = vm.TEMPLATE.NIC;
+    var nic = vm.NIC_IPS;
     var ip = '--';
     if ($.isArray(nic)) {
         ip = '';
         $.each(nic, function(index,value){
-            ip += value.IP+'<br />';
+            ip += value+'<br />';
         });
-    } else if (nic && nic.IP) {
-        ip = nic.IP;
+    } else if (nic) {
+        ip = nic;
     };
     return ip;
 };
@@ -1239,18 +1239,18 @@ function vMachineElementArray(vm_json){
 
 
     return [
-        '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.NAME+'"/>',
         vm.ID,
         vm.UNAME,
         vm.GNAME,
         vm.NAME,
-        state,
+        vm.STATE,
         vm.CPU,
         humanize_size(vm.MEMORY),
-        hostname,
+        vm.HOST,
         ip_str(vm),
         str_start_time(vm),
-        vncIcon(vm)
+        vm.OS
     ];
 };
 
@@ -1295,10 +1295,10 @@ function updateVMachinesView(request, vmachine_list){
 
         if(this.VM.STATE == 3 && this.VM.STATE == 3){ // ACTIVE, RUNNING
             total_real_cpu += parseInt(this.VM.CPU);
-            total_allocated_cpu += parseInt(this.VM.TEMPLATE.CPU * 100);
+            total_allocated_cpu += parseInt(this.VM.CPU * 100);
 
             total_real_mem += parseInt(this.VM.MEMORY);
-            total_allocated_mem += parseInt(this.VM.TEMPLATE.MEMORY);
+            total_allocated_mem += parseInt(this.VM.MEMORY);
         }
     });
 
@@ -1469,6 +1469,7 @@ function generatePlacementTable(vm){
 
 // Refreshes the information panel for a VM
 function updateVMInfo(request,vm){
+	console.log(vm);
     var vm_info = vm.VM;
     var vm_state = OpenNebula.Helper.resource_state("vm",vm_info.STATE);
     var hostname = "--"
@@ -1524,7 +1525,7 @@ function updateVMInfo(request,vm){
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Host")+'</td>\
-              <td class="value_td">'+ hostname +'</td>\
+              <td class="value_td">'+ vm_info.HOST +'</td>\
                  <td></td>\
               </tr>\
               <tr>\
@@ -1533,13 +1534,13 @@ function updateVMInfo(request,vm){
                  <td></td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("Deploy ID")+'</td>\
-                 <td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
+                 <td class="key_td">'+tr("Os")+'</td>\
+                 <td class="value_td">'+vm_info.OS+'</td>\
                  <td></td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("Reschedule")+'</td>\
-                 <td class="value_td">'+(parseInt(vm_info.RESCHED) ? tr("yes") : tr("no"))+'</td>\
+                 <td class="key_td"></td>\
+                 <td class="value_td"></td>\
                  <td></td>\
               </tr>\
               </tbody>\
@@ -1628,8 +1629,8 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_network_tab",network_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_snapshot_tab",snapshot_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_placement_tab",placement_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_actions_tab",actions_tab);
+   // Sunstone.updateInfoPanelTab("vm_info_panel","vm_placement_tab",placement_tab);
+   // Sunstone.updateInfoPanelTab("vm_info_panel","vm_actions_tab",actions_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
 
@@ -2456,6 +2457,7 @@ function setup_vm_network_tab(){
 }
 
 function printCapacity(vm_info){
+	console.log("memory"+vm_info.MEMORY);
    var html ='\
            <form id="tab_capacity_form" vmid="'+vm_info.ID+'" >'
 
@@ -2474,8 +2476,8 @@ function printCapacity(vm_info){
              <tbody>\
                 <tr>\
                   <td id="cpu_info">' + vm_info.TEMPLATE.CPU + '</td>\
-                  <td id="vcpu_info">' + (vm_info.TEMPLATE.VCPU ? vm_info.TEMPLATE.VCPU : '-') + '</td>\
-                  <td id="memory_info" one_value="'+vm_info.TEMPLATE.MEMORY+'">' + humanize_size_from_mb(vm_info.TEMPLATE.MEMORY) + '</td>\
+                  <td id="vcpu_info">' + (vm_info.CPU ? vm_info.CPU : '-') + '</td>\
+                  <td id="memory_info" one_value="'+vm_info.MEMORY+'">' + humanize_size_from_mb(vm_info.MEMORY) + '</td>\
                   <td>';
 
     if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {

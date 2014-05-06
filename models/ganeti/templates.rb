@@ -15,9 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 module Ganeti
-  class Zones
+  class Templates
     def initialize(client)
-      @path = "/2/info"
+      @path = "/2/os"
       @client = client
     end
 
@@ -31,13 +31,35 @@ module Ganeti
     def to_json
       zone = JSON.parse(@cc.data[:body])
       json = {
-        "ZONE_POOL" => {
-          "ZONE" => {
-              #"ID" => session[:user_gid],
-            "ID" => 0,
-            "NAME" => zone["name"],
-            "TEMPLATE" => {
-              "ENDPOINT" => "http://localhost:2633/RPC2"
+        "VMTEMPLATE_POOL"=>{
+          "VMTEMPLATE"=>{
+            "ID"=>"1",
+            "UID"=>"0",
+            "GID"=>"0",
+            "UNAME"=>"oneadmin",
+            "GNAME"=>"oneadmin",
+            "NAME"=>"ec2_nk_singapore",
+            "PERMISSIONS"=>{
+              "OWNER_U"=>"1",
+              "OWNER_M"=>"1",
+              "OWNER_A"=>"0",
+              "GROUP_U"=>"0",
+              "GROUP_M"=>"0",
+              "GROUP_A"=>"0",
+              "OTHER_U"=>"0",
+              "OTHER_M"=>"0",
+              "OTHER_A"=>"0"
+            },
+            "REGTIME"=>"1397617636",
+            "TEMPLATE"=>{
+              "CPU"=>"1",
+              "EC2"=>{
+                "AMI"=>"ami-d85f0c8a",
+                "INSTANCETYPE"=>"m1.small",
+                "KEYPAIR"=>"megam_ec2",
+                "SECURITYGROUPS"=>"megam"
+              },
+              "MEMORY"=>"1700"
             }
           }
         }
