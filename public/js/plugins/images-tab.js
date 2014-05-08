@@ -563,7 +563,7 @@ function imageElementArray(image_json){
 
     //add also persistent/non-persistent selects, type select.
     return [
-        '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'-'+image.NAME+'"/>',
         image.ID,
         image.UNAME,
         image.GNAME,

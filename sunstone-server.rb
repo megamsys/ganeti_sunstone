@@ -62,6 +62,7 @@ require 'common/CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
 require "sinatra"
+require "json"
 
 #require "models/users"
 
@@ -182,7 +183,7 @@ helpers do
       session[:user_gname]   = user[:GNAME]
       session[:ip]           = request.ip
       session[:remember]     = params[:remember]
-      session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
+      session[:display_name] = user[DISPLAY_NAME_XPATH] || user[:NAME]
 
       logger.info { session[:user] }
       logger.info { session[:user_id] }
@@ -197,14 +198,11 @@ helpers do
       # - LANG
       # - WSS CONECTION
       # - TABLE ORDER
-      puts "111111"
       if user['TEMPLATE/LANG']
         session[:lang] = user['TEMPLATE/LANG']
       else
         session[:lang] = $conf[:lang]
       end
-      puts "2222222222"
-      puts session[:lang]
       if user['TEMPLATE/VNC_WSS']
         session[:vnc_wss] = user['TEMPLATE/VNC_WSS']
       else
@@ -213,14 +211,11 @@ helpers do
         session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
         "yes" : "no")
       end
-      puts "33333333333"
-      puts session
       if user['TEMPLATE/TABLE_ORDER']
         session[:table_order] = user['TEMPLATE/TABLE_ORDER']
       else
         session[:table_order] = $conf[:table_order] || DEFAULT_TABLE_ORDER
       end
-      puts "4444444444"
       if user['TEMPLATE/DEFAULT_VIEW']
         session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
       else
@@ -232,7 +227,6 @@ helpers do
       if params[:remember] == "true"
         env['rack.session.options'][:expire_after] = 30*60*60*24-1
       end
-      puts "5555555"
       #serveradmin_client = $cloud_auth.client()
       #puts "+++++++++++++++++++++++++---------------------------------------------"
       #puts serveradmin_client
@@ -243,7 +237,7 @@ helpers do
       #zone = OpenNebula::Zone.new_with_id(rc['FEDERATION/ZONE_ID'].to_i, client)
       #zone.info
       #session[:zone_name] = zone.name
-      session[:zone_name] = 'OpenNebula'
+      session[:zone_name] = 'Ganeti'
       return [204, ""]
     end
   end
@@ -267,18 +261,22 @@ before do
 
   if env['HTTP_ZONE_NAME']
     @client=$cloud_auth.client(session[:user])
-    zpool = ZonePoolJSON.new(@client)
+    zpool = Ganeti::Zones.new(@client)
+    #zpool = ZonePoolJSON.new(@client)
 
     rc = zpool.info
+     res = zpool.call
+      if res.data[:status].to_i != 200
+      return [500, zpool.to_json]   
+    end
+    #return [500, rc.to_json] if OpenNebula.is_error?(rc)
 
-    return [500, rc.to_json] if OpenNebula.is_error?(rc)
-
-    zpool.each{|z|
-      if z.name == env['HTTP_ZONE_NAME']
-        session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
-        session[:zone_name] = env['HTTP_ZONE_NAME']
-      end
-    }
+  #  zpool.each{|z|
+   #   if z.name == env['HTTP_ZONE_NAME']
+    #    session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
+     #   session[:zone_name] = env['HTTP_ZONE_NAME']
+    #  end
+   # }
   end
 
   @client=$cloud_auth.client(session[:user],
@@ -360,7 +358,7 @@ get '/config' do
     },
     :system_config => {
       :marketplace_url => $conf[:marketplace_url],
-      :vnc_proxy_port => $vnc.proxy_port
+   #   :vnc_proxy_port => $vnc.proxy_port
     }
   }
 
@@ -392,7 +390,7 @@ post '/config' do
 end
 
 get '/vm/:id/log' do
-  @SunstoneServer.get_vm_log(params[:id])
+ # @SunstoneServer.get_vm_log(params[:id])
 end
 
 ##############################################################################
@@ -437,28 +435,21 @@ end
 ##############################################################################
 get '/:pool' do
   zone_client = nil
-=begin
-if params[:zone_id]
-zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
-$cloud_auth.client(session[:user]))
-rc   = zone.info
-return [500, rc.message] if OpenNebula.is_error?(rc)
-zone_client = $cloud_auth.client(session[:user],
-zone['TEMPLATE/ENDPOINT'])
-end
-=end
+=begin  
   zone_res = Ganeti::Clusters.new(@client)
-  if zone_res.data[:status] != 200
+  cluster = zone_res.info
+  zone = {}
+  if cluster.data[:status] != 200
     return [500, "server error"] 
   else
-    zone = zone_res.data[:body]
+    zone = JSON.parse(cluster.data[:body])
   end
   res = Array.new
   res << 200
-  res << {"ZONE_POOL" => {"ZONE" => {"ID" => session[:user_gid], "NAME" => zone[:name],"TEMPLATE" => {"ENDPOINT" => "http://localhost:2633/RPC2"}}}}
+  res << {"ZONE_POOL" => {"ZONE" => {"ID" => session[:user_gid], "NAME" => zone["name"],"TEMPLATE" => {"ENDPOINT" => "http://localhost:2633/RPC2"}}}}
+=end 
   #zone_client = $cloud_auth.client(session[:user])
-  #@SunstoneServer.get_pool(params[:pool], session[:user_gid], zone_client)
-  res
+  @SunstoneServer.get_pool(params[:pool], session[:user_gid], zone_client) 
 end
 
 ##############################################################################

@@ -15,17 +15,17 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebulaJSON/JSONUtils'
-
+require 'ganeti'
 module OpenNebulaJSON
     class HostPoolJSON < OpenNebula::HostPool; include JSONUtils; end
     class VirtualMachinePoolJSON < OpenNebula::VirtualMachinePool; include JSONUtils; end
-    class VirtualNetworkPoolJSON < OpenNebula::VirtualNetworkPool; include JSONUtils; end
+   # class VirtualNetworkPoolJSON < Ganeti::VirtualNetworkPool; include JSONUtils; end
     class ImagePoolJSON < OpenNebula::ImagePool; include JSONUtils; end
     class TemplatePoolJSON < OpenNebula::TemplatePool; include JSONUtils; end
     class GroupPoolJSON < OpenNebula::GroupPool; include JSONUtils; end
     class UserPoolJSON < OpenNebula::UserPool; include JSONUtils; end
-    class AclPoolJSON < OpenNebula::AclPool; include JSONUtils; end
-    class ClusterPoolJSON < OpenNebula::ClusterPool; include JSONUtils; end
-    class DatastorePoolJSON < OpenNebula::DatastorePool; include JSONUtils; end
-    class ZonePoolJSON < OpenNebula::ZonePool; include JSONUtils; end
+   # class AclPoolJSON < OpenNebula::AclPool; include JSONUtils; end
+  #  class ClusterPoolJSON < OpenNebula::ClusterPool; include JSONUtils; end
+    #class DatastorePoolJSON < OpenNebula::DatastorePool; include JSONUtils; end
+   # class ZonePoolJSON < Ganeti::ZonePool; include JSONUtils; end
 end

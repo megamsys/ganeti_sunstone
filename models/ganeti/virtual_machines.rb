@@ -15,9 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 module Ganeti
-  class Hosts
+  class VirtualMachines
     def initialize(client)
-      @path = "/2/nodes"
+      @path = "/2/instances"
       @client = client
     end
 
@@ -37,23 +37,22 @@ module Ganeti
         build_json(i, c["id"])
       }
       json = {
-        "HOST_POOL" => {
-          "HOST" => js
-        }
+        "VM_POOL"=>{
+          "VM"=> js}
       }
       json.to_json
     end
 
     def info(param)
-     # @param = param.split("-")
-     @param = param
+      #@param = param.split("-")
+      @param = param
       @cli = @client.call(@path+"/"+@param, 'GET')
       @cli
     end
 
     def info_json
       json = {
-        "HOST"=> build_json(@param)
+        "VM"=> build_json(@param)
       }
       json.to_json
     end
@@ -61,47 +60,55 @@ module Ganeti
     def build_json(id=nil, name)
       ins_data = @client.call(@path+"/#{name}", 'GET')
       inst_data = JSON.parse(ins_data.data[:body])
-      @noi = 0
-      no_of_instances = inst_data["pinst_list"].count
-      vms = inst_data["pinst_list"].map { |i| {"id" => i} }
+
       b_json = {
-        "ID" => inst_data["serial_no"],
-        "NAME" => name,
-        "STATE" => "2",
-        "IM_MAD" => "",
-        "VM_MAD" => "",
-        "VN_MAD" => "",
-        "CTIME" => inst_data["ctime"],
-        "LAST_MON_TIME" => "",
-        "CLUSTER_ID" => "-1",
-        "CLUSTER" => {},
-        "HOST_SHARE" => {
-          "DISK_USAGE" => inst_data["dtotal"]-inst_data["dfree"],
-          "MEM_USAGE" => inst_data["mtotal"]-inst_data["mfree"],
-          "CPU_USAGE" => "0",
-          "MAX_DISK" => inst_data["dtotal"],
-          "MAX_MEM" => inst_data["mtotal"],
-          "MAX_CPU" => "2200",
-          "FREE_DISK" => inst_data["dfree"],
-          "FREE_MEM" => inst_data["mfree"],
-          "FREE_CPU" => "2200",
-          "USED_DISK" => inst_data["dtotal"]-inst_data["dfree"],
-          "USED_MEM" => inst_data["mtotal"]-inst_data["mfree"],
-          "USED_CPU" => "0",
-          "RUNNING_VMS" => no_of_instances,
-          "DATASTORES" => {}},
-        "VMS" => vms,
-        "TEMPLATE" => {
-          "CPUSPEED" => "1000",
-          "HOSTNAME" => "localhost",
-          "HYPERVISOR" => "ganeti",
-          "PRIORITY" => "-1",
-          "PUBLIC_CLOUD" => "YES",
-          "RESERVED_CPU" => "",
-          "RESERVED_MEM" => "",
-          "TOTAL_WILDS" => "3",
-          "WILDS" => "i-f9bae2d1, i-c888d0e0, i-ad89d185"
-        }
+        "ID"=>inst_data["serial_no"],
+        "UID"=>"0",
+        "GID"=>"0",
+        "UNAME"=>"oneadmin",
+        "GNAME"=>"default",
+        "NAME"=>name,
+        "HOST"=>inst_data["pnode"],
+        "PERMISSIONS"=>{
+          "OWNER_U"=>"1",
+          "OWNER_M"=>"1",
+          "OWNER_A"=>"0",
+          "GROUP_U"=>"0",
+          "GROUP_M"=>"0",
+          "GROUP_A"=>"0",
+          "OTHER_U"=>"0",
+          "OTHER_M"=>"0",
+          "OTHER_A"=>"0"
+        },
+        "LAST_POLL"=>"0",
+        "STATE"=>inst_data["status"],
+        "LCM_STATE"=>"0",
+        "RESCHED"=>"0",
+        "STIME"=>inst_data["ctime"],
+        "ETIME"=>"0",
+        "DEPLOY_ID"=>{},
+        "MEMORY"=>inst_data["beparams"]["memory"],
+        "CPU"=>inst_data["beparams"]["vcpus"],
+        "NET_TX"=>"0",
+        "NET_RX"=>"0",
+        "NIC_IPS"=>inst_data["nic.ips"],
+        "OS"=>inst_data["os"],
+        "TEMPLATE"=>{
+          "AUTOMATIC_REQUIREMENTS"=>"!(PUBLIC_CLOUD = YES) | (PUBLIC_CLOUD = YES & (HYPERVISOR = ec2))",
+          "CPU"=>"1",
+          "MEMORY"=>"1700",
+          "TEMPLATE_ID"=>"1",
+          "VMID"=>"48"
+        },
+        "USER_TEMPLATE"=>{
+          "EC2"=>{
+            "AMI"=>"ami-d85f0c8a",
+            "INSTANCETYPE"=>"m1.small",
+            "KEYPAIR"=>"megam_ec2",
+            "SECURITYGROUPS"=>"megam"
+          }
+        },
+        "HISTORY_RECORDS"=>{}
       }
       b_json
     end

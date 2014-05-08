@@ -11,9 +11,9 @@ enabled_tabs:
     images-tab: true
     files-tab: true
     infra-tab: true
-    clusters-tab: true
+    clusters-tab: false
     hosts-tab: true
-    datastores-tab: true
+    datastores-tab: false
     vnets-tab: true
     marketplace-tab: true
     oneflow-dashboard: true
@@ -254,10 +254,10 @@ tabs:
         actions:
     clusters-tab:
         panel_tabs:
-            cluster_info_tab: true
-            cluster_host_tab: true
-            cluster_vnet_tab: true
-            cluster_datastore_tab: true
+            cluster_info_tab: false
+            cluster_host_tab: false
+            cluster_vnet_tab: false
+            cluster_datastore_tab: false
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -266,10 +266,10 @@ tabs:
             - 4         # VNets
             - 5         # Datastores
         actions:
-            Cluster.refresh: true
-            Cluster.create_dialog: true
-            Cluster.update_dialog: true
-            Cluster.delete: true
+            Cluster.refresh: false
+            Cluster.create_dialog: false
+            Cluster.update_dialog: false
+            Cluster.delete: false
     hosts-tab:
         panel_tabs:
             host_info_tab: true
@@ -297,8 +297,8 @@ tabs:
             Host.delete: true
     datastores-tab:
         panel_tabs:
-            datastore_info_tab: true
-            datastore_image_tab: true
+            datastore_info_tab: false
+            datastore_image_tab: false
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -312,13 +312,13 @@ tabs:
             #- 9         # DS
             - 10        # Type
         actions:
-            Datastore.refresh: true
-            Datastore.create_dialog: true
-            Datastore.addtocluster: true
-            Datastore.chown: true
-            Datastore.chgrp: true
-            Datastore.chmod: true
-            Datastore.delete: true
+            Datastore.refresh: false
+            Datastore.create_dialog: false
+            Datastore.addtocluster: false
+            Datastore.chown: false
+            Datastore.chgrp: false
+            Datastore.chmod: false
+            Datastore.delete: false
     vnets-tab:
         panel_tabs:
             vnet_info_tab: true

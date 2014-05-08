@@ -381,8 +381,8 @@ var OpenNebula = {
                 list_cache[cache_name] &&
                 list_cache[cache_name]["timestamp"] + cache_expire > new Date().getTime()){
 
-                //console.log(cache_name+" list. Cache used");
-
+               // console.log(cache_name+" list. Cache used");
+                 
                 return callback ?
                     callback(request, list_cache[cache_name]["data"]) : null;
             }
@@ -402,13 +402,13 @@ var OpenNebula = {
             //console.log(cache_name+" list. Callback queued");
 
             if (list_waiting[cache_name]){
+            	//console.log(cache_name+" list. Callback queued return");
                 return;
             }
 
             list_waiting[cache_name] = true;
 
             //console.log(cache_name+" list. NO cache, calling ajax");
-
             $.ajax({
                 url: req_path,
                 type: "GET",
@@ -416,7 +416,6 @@ var OpenNebula = {
                 dataType: "json",
                 success: function(response){
                     var list = OpenNebula.Helper.pool(resource,response)
-
                     list_cache[cache_name] = {
                         timestamp   : new Date().getTime(),
                         data        : list
@@ -441,7 +440,6 @@ var OpenNebula = {
                 error: function(response)
                 {
                     list_waiting[cache_name] = false;
-
                     for (var i=0; i<list_callbacks[cache_name].length; i++)
                     {
                         var callback = list_callbacks[cache_name][i].error;
@@ -465,7 +463,7 @@ var OpenNebula = {
             var timeout = params.timeout || false;
             var request = OpenNebula.Helper.request(resource,"list");
             var req_path = path ? path : resource.toLowerCase();
-
+            
             $.ajax({
                 url: req_path,
                 type: "GET",
@@ -1296,112 +1294,112 @@ var OpenNebula = {
         "resource" : "CLUSTER",
 
         "create" : function(params){
-            OpenNebula.Action.create(params,OpenNebula.Cluster.resource);
+            //OpenNebula.Action.create(params,OpenNebula.Cluster.resource);
         },
         "del" : function(params){
-            OpenNebula.Action.del(params,OpenNebula.Cluster.resource);
+           // OpenNebula.Action.del(params,OpenNebula.Cluster.resource);
         },
         "list" : function(params){
-            OpenNebula.Action.list(params,OpenNebula.Cluster.resource);
+           // OpenNebula.Action.list(params,OpenNebula.Cluster.resource);
         },
         "list_in_zone" : function(params){
-            OpenNebula.Action.list_in_zone(params,OpenNebula.Cluster.resource);
+           // OpenNebula.Action.list_in_zone(params,OpenNebula.Cluster.resource);
         },        
         "show" : function(params){
-            OpenNebula.Action.show(params,OpenNebula.Cluster.resource);
+           // OpenNebula.Action.show(params,OpenNebula.Cluster.resource);
         },
         "addhost" : function(params){
             var action_obj = { "host_id": params.data.extra_param };
-            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
-                                            "addhost",action_obj);
+           // OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                           // "addhost",action_obj);
         },
         "delhost" : function(params){
             var action_obj = { "host_id": params.data.extra_param };
-            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
-                                            "delhost",action_obj);
+           // OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                           // "delhost",action_obj);
         },
         "adddatastore" : function(params){
             var action_obj = { "ds_id": params.data.extra_param };
-            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
-                                            "adddatastore",action_obj);
+            //OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                          //  "adddatastore",action_obj);
         },
         "deldatastore" : function(params){
             var action_obj = { "ds_id": params.data.extra_param };
-            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
-                                            "deldatastore",action_obj);
+            //OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                           // "deldatastore",action_obj);
         },
         "addvnet" : function(params){
             var action_obj = { "vnet_id": params.data.extra_param };
-            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
-                                            "addvnet",action_obj);
+           // OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                           // "addvnet",action_obj);
         },
         "delvnet" : function(params){
             var action_obj = { "vnet_id": params.data.extra_param };
-            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
-                                            "delvnet",action_obj);
+           //OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                          //  "delvnet",action_obj);
         },
         "fetch_template" : function(params){
-            OpenNebula.Action.show(params,OpenNebula.Cluster.resource,"template");
+            //OpenNebula.Action.show(params,OpenNebula.Cluster.resource,"template");
         },
         "update" : function(params){
             var action_obj = {"template_raw" : params.data.extra_param };
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Cluster.resource,
-                                            "update",
-                                            action_obj);
+           // OpenNebula.Action.simple_action(params,
+                                          //  OpenNebula.Cluster.resource,
+                                          //  "update",
+                                          //  action_obj);
         },
         "rename" : function(params){
             var action_obj = params.data.extra_param;
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Cluster.resource,
-                                            "rename",
-                                            action_obj);
+          //  OpenNebula.Action.simple_action(params,
+                                         //   OpenNebula.Cluster.resource,
+                                          //  "rename",
+                                          //  action_obj);
         }
     },
     "Datastore" : {
         "resource" : "DATASTORE",
 
         "create" : function(params){
-            OpenNebula.Action.create(params,OpenNebula.Datastore.resource);
+          //  OpenNebula.Action.create(params,OpenNebula.Datastore.resource);
         },
         "del" : function(params){
-            OpenNebula.Action.del(params,OpenNebula.Datastore.resource);
+          //  OpenNebula.Action.del(params,OpenNebula.Datastore.resource);
         },
         "list" : function(params){
-            OpenNebula.Action.list(params,OpenNebula.Datastore.resource);
+           // OpenNebula.Action.list(params,OpenNebula.Datastore.resource);
         },
         "show" : function(params){
-            OpenNebula.Action.show(params,OpenNebula.Datastore.resource);
+           // OpenNebula.Action.show(params,OpenNebula.Datastore.resource);
         },
         "chown" : function(params){
-            OpenNebula.Action.chown(params,OpenNebula.Datastore.resource);
+           // OpenNebula.Action.chown(params,OpenNebula.Datastore.resource);
         },
         "chgrp" : function(params){
-            OpenNebula.Action.chgrp(params,OpenNebula.Datastore.resource);
+           // OpenNebula.Action.chgrp(params,OpenNebula.Datastore.resource);
         },
         "chmod" : function(params){
             var action_obj = params.data.extra_param;
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Datastore.resource,
-                                            "chmod",
-                                            action_obj);
+           // OpenNebula.Action.simple_action(params,
+                                          //  OpenNebula.Datastore.resource,
+                                         //   "chmod",
+                                         //   action_obj);
         },
         "update" : function(params){
             var action_obj = {"template_raw" : params.data.extra_param };
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Datastore.resource,
-                                            "update",
-                                            action_obj);
+           // OpenNebula.Action.simple_action(params,
+                                         //   OpenNebula.Datastore.resource,
+                                         //   "update",
+                                         //   action_obj);
         },
         "fetch_template" : function(params){
-            OpenNebula.Action.show(params,OpenNebula.Datastore.resource,"template");
+           // OpenNebula.Action.show(params,OpenNebula.Datastore.resource,"template");
         },
         "rename" : function(params){
             var action_obj = params.data.extra_param;
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Datastore.resource,
-                                            "rename",
-                                            action_obj);
+           // OpenNebula.Action.simple_action(params,
+                          //                  OpenNebula.Datastore.resource,
+                                   //         "rename",
+                                  //          action_obj);
         }
     },
 

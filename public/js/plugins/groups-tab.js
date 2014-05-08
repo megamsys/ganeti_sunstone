@@ -403,14 +403,14 @@ var group_info_panel = {
 };
 
 var groups_tab = {
-    title: tr("Groups"),
+    title: tr("HostGroups"),
     resource: 'Group',
     buttons: group_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
     search_input: '<input id="group_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Groups"),
-    info_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Group"),
+    list_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("HostGroups"),
+    info_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("HostGroup"),
     subheader: '<span>\
         <span class="total_groups"/> <small>'+tr("TOTAL")+'</small>\
       </span>',
@@ -492,7 +492,7 @@ function groupElementArray(group_json){
     }
 
     return [
-        '<input class="check_item" type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.NAME+'"/>',
         group.ID,
         group.NAME,
         users_str,
