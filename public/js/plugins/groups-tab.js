@@ -403,14 +403,14 @@ var group_info_panel = {
 };
 
 var groups_tab = {
-    title: tr("HostGroups"),
+    title: tr("Host Groups"),
     resource: 'Group',
     buttons: group_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
     search_input: '<input id="group_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("HostGroups"),
-    info_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("HostGroup"),
+    list_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Host Groups"),
+    info_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Host Group"),
     subheader: '<span>\
         <span class="total_groups"/> <small>'+tr("TOTAL")+'</small>\
       </span>',
@@ -420,10 +420,10 @@ var groups_tab = {
           <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
           <th>'+tr("ID")+'</th>\
           <th>'+tr("Name")+'</th>\
-          <th>'+tr("Users")+'</th>\
-          <th style="width:18%">'+tr("VMs")+'</th>\
-          <th style="width:18%">'+tr("Memory")+'</th>\
-          <th style="width:18%">'+tr("CPU")+'</th>\
+          <th>'+tr("Hosts")+'</th>\
+          <th>'+tr("Cluster")+'</th>\
+          <th>'+tr("Memory")+'</th>\
+          <th>'+tr("CPU")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodygroups">\
@@ -495,8 +495,8 @@ function groupElementArray(group_json){
         '<input class="check_item" type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.NAME+'"/>',
         group.ID,
         group.NAME,
-        users_str,
-        vms,
+        group.NOOFHOSTS,
+        group.CLUSTER,
         memory,
         cpu
     ];
@@ -625,6 +625,11 @@ function updateGroupInfo(request,group){
                   <td class="value_td_rename">'+info.NAME+'</td>\
                   <td></td>\
                 </tr>\
+                <tr>\
+                <td class="key_td">'+tr("Cluster")+'</td>\
+                <td class="value_td_rename">'+info.CLUSTER+'</td>\
+                <td></td>\
+              </tr>\
               </table>\
            </div>\
            <div class="large-6 columns">' +
@@ -702,8 +707,8 @@ function updateGroupInfo(request,group){
     };
 
     Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
+    //Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
+   // Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){

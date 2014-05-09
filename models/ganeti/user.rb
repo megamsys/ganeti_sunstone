@@ -65,7 +65,7 @@ module Ganeti
       # super(USER_METHODS[:info], 'USER')
       require 'sqlite3'
       db = SQLite3::Database.new( "ganeti.db" )
-      rows = db.execute( "select * from users where user_name = '" + username +"'" )
+      rows = db.execute( "select * from users where user_name = '" + username + "'" )
       {:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
     end
 

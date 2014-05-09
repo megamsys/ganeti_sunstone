@@ -519,17 +519,16 @@ var images_tab = {
     table: '<table id="datatable_images" class="datatable twelve">\
         <thead>\
           <tr>\
-            <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
+            <th class="check"><input type="checkbox" value=""></input></th>\
             <th>'+tr("ID")+'</th>\
             <th>'+tr("Owner")+'</th>\
             <th>'+tr("Group")+'</th>\
             <th>'+tr("Name")+'</th>\
-            <th>'+tr("Datastore")+'</th>\
-            <th>'+tr("Size")+'</th>\
+            <th>'+tr("Status")+'</th>\
             <th>'+tr("Type")+'</th>\
             <th>'+tr("Registration time")+'</th>\
             <th>'+tr("Persistent")+'</th>\
-            <th>'+tr("Status")+'</th>\
+            <th>'+tr("Size")+'</th>\
             <th>'+tr("#VMS")+'</th>\
             <th>'+tr("Target")+'</th>\
           </tr>\
@@ -567,13 +566,13 @@ function imageElementArray(image_json){
         image.ID,
         image.UNAME,
         image.GNAME,
-        image.NAME,
-        image.DATASTORE,
-        image.SIZE,
+        image.NAME,        
+        OpenNebula.Helper.resource_state("image",image.STATE),
         OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
+        image.DATASTORE,
         parseInt(image.PERSISTENT) ? "yes" : "no",
-        OpenNebula.Helper.resource_state("image",image.STATE),
+        image.SIZE,
         image.RUNNING_VMS,
         image.TEMPLATE.TARGET ? image.TEMPLATE.TARGET : '--'
         ];

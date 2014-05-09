@@ -326,10 +326,10 @@ var host_info_panel = {
         content:""
     },
 
-    "host_monitoring_tab": {
-        title: tr("Graphs"),
-        content: ""
-    }
+   // "host_monitoring_tab": {
+    //    title: tr("Graphs"),
+    //    content: ""
+    //}
 };
 
 
@@ -468,7 +468,7 @@ function hostElementArray(host_json){
         '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.NAME+'"/>',
         host.ID,
         host.NAME,
-        host.HOST_SHARE.RUNNING_VMS, //rvm
+        host.HOST_SHARE.RUNNING_VMS_COUNT, //rvm
         disk_bars.real,
         disk_bars.allocated,
         mem_bars.real,
@@ -640,10 +640,14 @@ function updateHostInfo(request,host){
                 "Host",
                 host_info.ID,
                 host_info.NAME)+
-            '<tr>' +
+            '<tr style="display: none;">' +
                 insert_cluster_dropdown("Host",host_info.ID,host_info.CLUSTER,host_info.CLUSTER_ID,"#info_host_table") +
             '</tr>\
-            <tr>\
+             <tr>\
+                <td class="key_td">' + tr("Running VMs") + '</td>\
+                <td class="value_td" colspan="2">'+host_info.HOST_SHARE.RUNNING_VMS_COUNT+'</td>\
+            </tr>\
+            <tr style="display: none;">\
                 <td class="key_td">' + tr("State") + '</td>\
                 <td class="value_td" colspan="2">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
             </tr>\
@@ -686,7 +690,7 @@ function updateHostInfo(request,host){
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Running VMs") + '</td>\
-              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
+              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.RUNNING_VMS_COUNT+'</td>\
             </tr>\
             </tbody>\
          </table>' +
@@ -749,16 +753,16 @@ function updateHostInfo(request,host){
                 <tr>\
                   <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
                   <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
+                  <th style="display: none;">'+tr("Owner")+'</th>\
+                  <th style="display: none;">'+tr("Group")+'</th>\
                   <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Status")+'</th>\
-                  <th>'+tr("Used CPU")+'</th>\
-                  <th>'+tr("Used Memory")+'</th>\
-                  <th>'+tr("Host")+'</th>\
-                  <th>'+tr("IPs")+'</th>\
-                  <th>'+tr("Start Time")+'</th>\
-                  <th>'+tr("VNC")+'</th>\
+                  <th style="display: none;">'+tr("Status")+'</th>\
+                  <th style="display: none;">'+tr("Used CPU")+'</th>\
+                  <th style="display: none;">'+tr("Used Memory")+'</th>\
+                  <th style="display: none;">'+tr("Host")+'</th>\
+                  <th style="display: none;">'+tr("IPs")+'</th>\
+                  <th style="display: none;">'+tr("Start Time")+'</th>\
+                  <th style="display: none;">'+tr("VNC")+'</th>\
                 </tr>\
               </thead>\
               <tbody id="tbody_host_vmachines">\
@@ -770,8 +774,8 @@ function updateHostInfo(request,host){
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
-    Sunstone.updateInfoPanelTab("host_info_panel","host_vms_tab",vms_info_tab);
+    //Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
+    //Sunstone.updateInfoPanelTab("host_info_panel","host_vms_tab",vms_info_tab);
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 

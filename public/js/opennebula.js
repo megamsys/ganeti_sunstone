@@ -315,10 +315,10 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
+            console.log(params.data);
             var request = OpenNebula.Helper.request(resource,"create", data);
             var req_path = path ? path : resource.toLowerCase();
             var cache_name = params.cache_name ? params.cache_name : resource;
-
             $.ajax({
                 url: req_path,
                 type: "POST",
