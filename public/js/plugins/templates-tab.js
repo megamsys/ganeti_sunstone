@@ -137,8 +137,8 @@ var easy_provision_vm_template_tmpl ='\
                   <th></th>\
                   <th>'+tr("ID")+'</th>\
                   <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
                   <th>'+tr("Name")+'</th>\
+                  <th>'+tr("Image")+'</th>\
                   <th>'+tr("Registration time")+'</th>\
                 </tr>\
               </thead>\
@@ -388,21 +388,11 @@ var template_actions = {
          }
      },
 /*
-     "Template.instantiate_and_merge" : {
-         type: "custom",
-         call: function(){
-             nodes = getSelectedNodes(dataTable_templates);
-             if (nodes.length == 1)
-             {
-               popUpMergeVMTemplateDialog();
-             }
-             else
-             {
-                notifyError(tr("Please select only one template in the table"))
-             }
-         }
-     },
-*/
+ * "Template.instantiate_and_merge" : { type: "custom", call: function(){ nodes =
+ * getSelectedNodes(dataTable_templates); if (nodes.length == 1) {
+ * popUpMergeVMTemplateDialog(); } else { notifyError(tr("Please select only one
+ * template in the table")) } } },
+ */
     "Template.chown" : {
         type: "multiple",
         call: OpenNebula.Template.chown,
@@ -450,11 +440,11 @@ var template_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-//    "Sunstone.toggle_top" : {
-//        type: "custom",
-//        layout: "top",
-//        alwaysActive: true
-//    },
+// "Sunstone.toggle_top" : {
+// type: "custom",
+// layout: "top",
+// alwaysActive: true
+// },
     "Template.create_dialog" : {
         type: "create_dialog",
         layout: "create"
@@ -500,11 +490,11 @@ var template_buttons = {
         layout: "del"
     },
 
-    //"Template.help" : {
-    //    type: "action",
-    //    layout: "help",
-    //    alwaysActive: true
-    //}
+    // "Template.help" : {
+    // type: "action",
+    // layout: "help",
+    // alwaysActive: true
+    // }
 }
 
 var template_info_panel = {
@@ -530,8 +520,8 @@ var templates_tab = {
             <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
             <th>'+tr("ID")+'</th>\
             <th>'+tr("Owner")+'</th>\
-            <th>'+tr("Group")+'</th>\
             <th>'+tr("Name")+'</th>\
+            <th>'+tr("Image")+'</th>\
             <th>'+tr("Registration time")+'</th>\
           </tr>\
         </thead>\
@@ -544,12 +534,12 @@ Sunstone.addActions(template_actions);
 Sunstone.addMainTab('templates-tab',templates_tab);
 Sunstone.addInfoPanel('template_info_panel',template_info_panel);
 
-//Returns selected elements in the template table
+// Returns selected elements in the template table
 function templateElements(){
     return getSelectedNodes(dataTable_templates);
 }
 
-//Runs a show action on the template with from a prev request
+// Runs a show action on the template with from a prev request
 function templateShow(req){
     Sunstone.runAction("Template.show",req.request.data[0][0]);
 }
@@ -559,12 +549,12 @@ function templateShow(req){
 function templateElementArray(template_json){
     var template = template_json.VMTEMPLATE;
     return [
-        '<input class="check_item" type="checkbox" id="template_'+template.ID+'" name="selected_items" value="'+template.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="template_'+template.ID+'" name="selected_items" value="'+template.ID+'-'+template.NAME+'"/>',
         template.ID,
         template.UNAME,
-        template.GNAME,
         template.NAME,
-        pretty_time(template.REGTIME)
+        template.OS,
+        template.REGTIME
     ];
 }
 
@@ -635,6 +625,29 @@ function generate_capacity_tab_content() {
           '</select>'+
         '</div>'+
     '</div>'+
+    '<div class="vm_param">'+
+       '<input type="hidden" id="DISK_SIZE" name="disk_size" />'+
+    '</div>'+
+    '<div class="row">'+
+      '<div class="large-2 columns">'+
+        '<label class="inline" for="DISK_SIZE">'+tr("Disk")+'\
+            <span class="tip right">'+tr("Amount of DISK required for the VM, in Megabytes.")+'</span>\
+         </label>'+
+      '</div>'+
+      '<div class="large-6 columns">'+
+         '<div id="disk_slider" class="large-7 columns">'+
+         '</div>'+
+       '</div>'+
+      '<div class="large-2 columns">'+
+      '<input type="text" id="DISK_SIZE_TMP" name="disk_size_tmp" size="4" />'+
+     '</div>'+
+     '<div class="large-2 columns">'+
+      '<select id="disk_size_unit" name="DISK_SIZE_UNIT">'+
+          '<option value="MB">'+tr("MB")+'</option>'+
+          '<option value="GB">'+tr("GB")+'</option>'+
+      '</select>'+
+    '</div>'+
+    '</div>'+
     '<div class="row">'+
         '<div class="large-2 columns">'+
           '<label class="inline" for="CPU">'+tr("CPU")+'\
@@ -676,10 +689,10 @@ function generate_capacity_tab_content() {
     return html;
 }
 
-/**************************************************************************
-    CAPACITY TAB
-
-**************************************************************************/
+/*******************************************************************************
+ * CAPACITY TAB
+ * 
+ ******************************************************************************/
 
 function setup_capacity_tab_content(capacity_section) {
     setupTips(capacity_section);
@@ -700,7 +713,7 @@ function setup_capacity_tab_content(capacity_section) {
         handles: 1,
         connect: "lower",
         range: [0,1600],
-//            start: 100,
+// start: 100,
         step: 50,
         start: 1,
         slide: function(type) {
@@ -824,8 +837,107 @@ function setup_capacity_tab_content(capacity_section) {
 
     // init::start is ignored for some reason
     memory_input.val(512);
+   
+    // Define the disk slider
 
+    var final_disk_input = $( "#DISK_SIZE", capacity_section );
+    var disk_input = $( "#DISK_SIZE_TMP", capacity_section );
+    var disk_unit  = $( "#disk_size_unit", capacity_section );
 
+    var current_disk_unit = disk_unit.val();
+
+    var update_final_disk_input = function() {
+        if (current_disk_unit == 'MB') {
+            final_disk_input.val( Math.floor(disk_input.val()) );
+        }
+        else {
+            final_disk_input.val( Math.floor(disk_input.val() * 1024) );
+        }
+    }
+    
+    var disk_slider_change = function(type) {
+        if ( type != "move")
+        {
+            var values = $(this).val();
+
+            disk_input.val(values / 100);
+
+            update_final_disk_input();
+        }
+    };
+    
+    var disk_slider = $( "#disk_slider", capacity_section).noUiSlider({
+        handles: 1,
+        connect: "lower",
+        range: [0,409600],
+        step: 12800,
+        start: 51200,
+        value: 512,
+        slide: disk_slider_change,
+    });
+
+    disk_slider.addClass("noUiSlider");
+
+    disk_input.change(function() {
+    	disk_slider.val(this.value * 100)
+
+        update_final_disk_input();
+    });
+
+    final_disk_input.change(function() {
+    	disk_slider.val(this.value * 100);
+    	disk_input.val( Math.floor(final_disk_input.val()) );
+    })
+
+    disk_unit.change(function() {
+        var disk_unit_val = $('#disk_unit :selected', capacity_section).val();
+
+        if (current_disk_unit != disk_unit_val)
+        {
+            current_disk_unit = disk_unit_val
+
+            if (disk_unit_val == 'GB') {
+
+            	disk_slider.empty().noUiSlider({
+                    handles: 1,
+                    connect: "lower",
+                    range: [0,1600],
+                    start: 1,
+                    step: 50,
+                    value: 51200,
+                    slide: disk_slider_change,
+                });
+
+                var new_val = disk_input.val() / 1024;
+
+                disk_input.val( new_val );
+                disk_slider.val(new_val * 100);
+            }
+            else if (disk_unit_val == 'MB') {
+
+            	disk_slider.empty().noUiSlider({
+                    handles: 1,
+                    connect: "lower",
+                    range: [0,409600],
+                    start: 1,
+                    value: 51200,
+                    step: 12800,
+                    slide: disk_slider_change,
+                });
+
+                var new_val = Math.floor( disk_input.val() * 1024 );
+
+                disk_input.val( new_val );
+                disk_slider.val(new_val * 100);
+            }
+
+            update_final_disk_input();
+        }
+    });
+
+    // init::start is ignored for some reason
+    disk_input.val(512);
+    
     // Define the vcpu slider
 
     var vcpu_input = $( "#VCPU", capacity_section );
@@ -1174,7 +1286,7 @@ function update_datatable_template_hosts(datatable, fnDrawCallback) {
         var host_list_array = [];
 
         $.each(host_list,function(){
-            //Grab table data from the host_list
+            // Grab table data from the host_list
             host_list_array.push(hostElementArray(this));
         });
 
@@ -1196,7 +1308,7 @@ function update_datatable_template_datastores(datatable, fnDrawCallback) {
         var datastore_list_array = [];
 
         $.each(datastore_list,function(){
-            //Grab table data from the datastore_list
+            // Grab table data from the datastore_list
             datastore_list_array.push(datastoreElementArray(this));
         });
 
@@ -1218,7 +1330,7 @@ function update_datatable_template_clusters(datatable, fnDrawCallback) {
         var host_list_array = [];
 
         $.each(host_list,function(){
-            //Grab table data from the host_list
+            // Grab table data from the host_list
             host_list_array.push(clusterElementArray(this));
         });
 
@@ -1318,7 +1430,8 @@ function update_datatable_template_networks(datatable, fnDrawCallback) {
 
 
 function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id) {
-          // Select Image or Volatile disk. The div is hidden depending on the selection, and the
+          // Select Image or Volatile disk. The div is hidden depending on the
+			// selection, and the
     // vm_param class is included to be computed when the template is generated.
     $("input[name='"+str_disk_tab_id+"']", disk_section).change(function(){
       if ($("input[name='"+str_disk_tab_id+"']:checked", disk_section).val() == "image") {
@@ -1797,11 +1910,31 @@ function updateTemplateInfo(request,template){
                 "Template",
                 template_info.ID,
                 template_info.NAME)+
-            '<tr>\
-               <td class="key_td">'+tr("Register time")+'</td>\
-               <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
-               <td></td>\
-             </tr>\
+                '<tr>\
+                <td class="key_td">'+tr("Image")+'</td>\
+                <td class="value_td">'+template_info.OS+'</td>\
+                <td></td>\
+              </tr>\
+              <tr>\
+              <td class="key_td">'+tr("Memory")+'</td>\
+              <td class="value_td">'+template_info.MEMORY+'</td>\
+              <td></td>\
+            </tr>\
+            <tr>\
+            <td class="key_td">'+tr("CPU")+'</td>\
+            <td class="value_td">'+template_info.CPU+'</td>\
+            <td></td>\
+          </tr>\
+          <tr>\
+          <td class="key_td">'+tr("Disk size")+'</td>\
+          <td class="value_td">'+template_info.DISK_SIZE+'</td>\
+          <td></td>\
+        </tr>\
+              <tr>\
+                 <td class="key_td">'+tr("Register time")+'</td>\
+                 <td class="value_td">'+template_info.REGTIME+'</td>\
+                 <td></td>\
+              </tr>\
             </table>\
         </div>\
         <div class="large-6 columns">' + insert_permissions_table('templates-tab',
@@ -1835,9 +1968,9 @@ function updateTemplateInfo(request,template){
     setPermissionsTable(template_info,'');
 }
 
-//Given the JSON of a VM template (or of a section of it), it crawls
-//the fields of certain section (context) and add their name and
-//values to the template JSON.
+// Given the JSON of a VM template (or of a section of it), it crawls
+// the fields of certain section (context) and add their name and
+// values to the template JSON.
 function addSectionJSON(template_json,context){
     var params= $('.vm_param',context);
     var inputs= $('input',params);
@@ -1846,17 +1979,17 @@ function addSectionJSON(template_json,context){
 
     fields.each(function(){
         var field=$(this);
-        if (!(field.parents(".vm_param").attr('disabled'))){ //if ! disabled
-            if (field.val() != null && field.val().length){ //if has a length
+        if (!(field.parents(".vm_param").attr('disabled'))){ // if ! disabled
+            if (field.val() != null && field.val().length){ // if has a length
                 template_json[field.attr('id')]=field.val();
             };
         };
     });
 };
 
-//Given an object, removes those elements which are empty
-//Used to clean up a template JSON before submitting
-//it to opennebula.js
+// Given an object, removes those elements which are empty
+// Used to clean up a template JSON before submitting
+// it to opennebula.js
 function removeEmptyObjects(obj){
     for (elem in obj){
         var remove = false;
@@ -2844,10 +2977,10 @@ function wizard_tab_content(){
     return str;
 }
 
-/**************************************************************************
-    DISK TAB
-
-**************************************************************************/
+/*******************************************************************************
+ * DISK TAB
+ * 
+ ******************************************************************************/
 
 function setup_storage_tab_content(storage_section) {
     var number_of_disks = 0;
@@ -2893,10 +3026,10 @@ function add_disk_tab(disk_id, dialog) {
     setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 }
 
-/**************************************************************************
-    NETWORK TAB
-
-**************************************************************************/
+/*******************************************************************************
+ * NETWORK TAB
+ * 
+ ******************************************************************************/
 
 function setup_network_tab_content(network_section) {
     var number_of_nics = 0;
@@ -2941,17 +3074,18 @@ function add_nic_tab(nic_id, dialog) {
   setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id)
 }
 
-/**************************************************************************
-    OS TAB
-
-**************************************************************************/
+/*******************************************************************************
+ * OS TAB
+ * 
+ ******************************************************************************/
 
 function setup_os_tab_content(os_section) {
     var kernel_section = $('#kernelTab', os_section);
     var initrd_section = $('#ramdiskTab', os_section);
 
 
-    // Select Kernel Image or Path. The div is hidden depending on the selection, and the
+    // Select Kernel Image or Path. The div is hidden depending on the
+	// selection, and the
     // vm_param class is included to be computed when the template is generated.
     $("input[name='kernel_type']", os_section).change(function(){
       if ($("input[name='kernel_type']:checked").val() == "kernel_ds") {
@@ -2993,15 +3127,16 @@ function setup_os_tab_content(os_section) {
             { "sWidth": "35px", "aTargets": [0,1] },
             { "bVisible": false, "aTargets": [3,2,5,6,7,9,8,11,12,10]}
         ],
-      //"fnDrawCallback": function(oSettings) {
-      //  var nodes = this.fnGetNodes();
-      //  $.each(nodes, function(){
-      //      if ($(this).find("td:eq(1)").html() == $('#KERNEL', kernel_section).text()) {
-      //          $("td", this).addClass('markrow');
-      //          $('input.check_item', this).attr('checked','checked');
-      //      }
-      //  })
-      //},
+      // "fnDrawCallback": function(oSettings) {
+      // var nodes = this.fnGetNodes();
+      // $.each(nodes, function(){
+      // if ($(this).find("td:eq(1)").html() == $('#KERNEL',
+		// kernel_section).text()) {
+      // $("td", this).addClass('markrow');
+      // $('input.check_item', this).attr('checked','checked');
+      // }
+      // })
+      // },
       "fnInitComplete": function(oSettings) {
         this.fnFilter("KERNEL", 7)
       }
@@ -3054,10 +3189,11 @@ function setup_os_tab_content(os_section) {
           this.fnFilter("RAMDISK", 7)
        // var nodes = this.fnGetNodes();
        // $.each(nodes, function(){
-       //     if ($(this).find("td:eq(1)").html() == $('#INITRD', kernel_section).text()) {
-       //         $("td", this).addClass('markrowchecked');
-       //         $('input.check_item', this).attr('checked','checked');
-       //     }
+       // if ($(this).find("td:eq(1)").html() == $('#INITRD',
+		// kernel_section).text()) {
+       // $("td", this).addClass('markrowchecked');
+       // $('input.check_item', this).attr('checked','checked');
+       // }
        // })
        }
     });
@@ -3104,10 +3240,10 @@ function setup_os_tab_content(os_section) {
     });
 }
 
-/**************************************************************************
-    INPUT/OUTPUT TAB
-
-**************************************************************************/
+/*******************************************************************************
+ * INPUT/OUTPUT TAB
+ * 
+ ******************************************************************************/
 
 function setup_io_tab_content(io_section) {
     $("input[name='graphics_type']", io_section).change(function(){
@@ -3145,10 +3281,10 @@ function setup_io_tab_content(io_section) {
     });
 }
 
-/**************************************************************************
-    CONTEXT TAB
-
-**************************************************************************/
+/*******************************************************************************
+ * CONTEXT TAB
+ * 
+ ******************************************************************************/
 
 function setup_context_tab_content(context_section) {
     $('#add_context', $('#contextTab')).click(function() {
@@ -3192,19 +3328,19 @@ function setup_context_tab_content(context_section) {
         ],
         "fnInitComplete": function(oSettings) {
           this.fnFilter("CONTEXT", 7)
-        //  var images = []
-        //  $.each($( "span.image", $("#selected_files_spans")), function() {
-        //    images.push($(this).attr("image_id"));
-        //  });
+        // var images = []
+        // $.each($( "span.image", $("#selected_files_spans")), function() {
+        // images.push($(this).attr("image_id"));
+        // });
 
-        //  var nodes = this.fnGetNodes();
-        //  $.each(nodes, function(){
-        //      var in_array = $.inArray($(this).find("td:eq(1)").html(), images)
-        //      if (in_array != -1) {
-        //          $("td", this).addClass('markrow');
-        //          $('input.check_item', this).attr('checked','checked');
-        //      }
-        //  })
+        // var nodes = this.fnGetNodes();
+        // $.each(nodes, function(){
+        // var in_array = $.inArray($(this).find("td:eq(1)").html(), images)
+        // if (in_array != -1) {
+        // $("td", this).addClass('markrow');
+        // $('input.check_item', this).attr('checked','checked');
+        // }
+        // })
         }
     });
 
@@ -3292,10 +3428,10 @@ function setup_context_tab_content(context_section) {
 }
 
 
-/**************************************************************************
-    PLACEMENT TAB
-
-**************************************************************************/
+/*******************************************************************************
+ * PLACEMENT TAB
+ * 
+ ******************************************************************************/
 
 function setup_scheduling_tab_content(scheduling_section) {
     var dataTable_template_hosts = $("#datatable_template_hosts",scheduling_section).dataTable({
@@ -3467,7 +3603,8 @@ function setup_scheduling_tab_content(scheduling_section) {
         generate_requirements();
     });
 
-    // Select Image or Volatile disk. The div is hidden depending on the selection, and the
+    // Select Image or Volatile disk. The div is hidden depending on the
+	// selection, and the
     // vm_param class is included to be computed when the template is generated.
     $("input[name='req_select']").change(function(){
         if ($("input[name='req_select']:checked").val() == "host_select") {
@@ -3504,10 +3641,10 @@ function setup_scheduling_tab_content(scheduling_section) {
 }
 
 
-    /**************************************************************************
-        OTHER TAB
-
-    **************************************************************************/
+    /***************************************************************************
+	 * OTHER TAB
+	 * 
+	 **************************************************************************/
 
 function setup_other_tab_content(other_tab){
     $('#add_context', other_tab).click(function() {
@@ -3555,20 +3692,20 @@ function setup_other_tab_content(other_tab){
 // Prepare the template creation dialog
 function setupCreateTemplateDialog(){
 
-    //***CREATE VM DIALOG MAIN BODY***
+    // ***CREATE VM DIALOG MAIN BODY***
 
     dialogs_context.append('<div id="create_template_dialog" class="reveal-modal large max-height" data-reveal></div>');
     $create_template_dialog = $('#create_template_dialog',dialogs_context);
     var dialog = $create_template_dialog;
 
-    //Insert HTML in place
+    // Insert HTML in place
     dialog.html(create_template_tmpl);
-    //$(document).foundation();
+    // $(document).foundation();
     initialize_create_template_dialog(dialog);
 }
 
 function initialize_create_template_dialog(dialog) {
-    var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
+    var tabs = $( "#template_create_tabs", dialog)// .tabs().addClass("ui-tabs-vertical");
 
     $('#template_template_reset_button', dialog).click(function(){
         dialog.html("");
@@ -3627,11 +3764,11 @@ function initialize_create_template_dialog(dialog) {
     $("#tf_btn_nics", dialog).trigger("click");
 
 
-    //Different selector for items of kvm and xen (mandatory and optional)
+    // Different selector for items of kvm and xen (mandatory and optional)
     var items = '.vm_param input,.vm_param select';
 
     // Enhace buttons
-    //$('button',dialog).button();
+    // $('button',dialog).button();
 
     var build_template = function(){
         var vm_json = {};
@@ -3774,10 +3911,10 @@ function initialize_create_template_dialog(dialog) {
         return vm_json;
     }
 
-    //Process form
+    // Process form
     $('button#create_template_form_easy',dialog).click(function(){
         $create_template_dialog = dialog;
-         //wrap it in the "vmtemplate" object
+         // wrap it in the "vmtemplate" object
         var vm_json = build_template();
         vm_json = {vmtemplate: vm_json};
 
@@ -3788,7 +3925,7 @@ function initialize_create_template_dialog(dialog) {
             return false;
         }
 
-        //validate form
+        // validate form
         Sunstone.runAction("Template.create",vm_json);
         return false;
     });
@@ -3805,7 +3942,7 @@ function initialize_create_template_dialog(dialog) {
     $('button#manual_template_update_button',dialog).click(function(){
         var template = $('textarea#template',dialog).val();
 
-        //wrap it in the "vm" object
+        // wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};
         var vm_json = JSON.stringify(template);
 
@@ -3813,11 +3950,11 @@ function initialize_create_template_dialog(dialog) {
         return false;
     });
 
-    //Handle manual forms
+    // Handle manual forms
     $('button#create_template_submit_manual',dialog).click(function(){
         var template = $('textarea#template',dialog).val();
 
-        //wrap it in the "vm" object
+        // wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};
 
         Sunstone.runAction("Template.create",template);
@@ -3908,7 +4045,7 @@ function fillTemplatePopUp(template, dialog){
 
         fields.each(function(){
             var field = $(this);
-                if (template_json[field.attr('id')]){ //if has a length
+                if (template_json[field.attr('id')]){ // if has a length
                     field.val(escapeDoubleQuotes(htmlDecode(template_json[field.attr('id')])));
                     field.change();
 
@@ -3951,9 +4088,9 @@ function fillTemplatePopUp(template, dialog){
             var disk_image = disk.IMAGE
             var disk_image_uname = disk.IMAGE_UNAME
             // TODO updateView should not be required. Currently the dataTable
-            //  is filled twice.
+            // is filled twice.
             update_datatable_template_images(dataTable_template_images, function(){
-                //dataTable_template_images.unbind('draw');
+                // dataTable_template_images.unbind('draw');
 
                 if (disk_image_id || (disk_image && disk_image_uname)) {
                     var clicked = false
@@ -4029,7 +4166,7 @@ function fillTemplatePopUp(template, dialog){
         var nic_network = nic.NETWORK
         var nic_network_uname = nic.NETWORK_UNAME
         // TODO updateView should not be required. Currently the dataTable
-        //  is filled twice.
+        // is filled twice.
         update_datatable_template_networks(dataTable_template_networks, function(){
 
             if (nic_network_id || (nic_network && nic_network_uname)) {
@@ -4099,36 +4236,36 @@ function fillTemplatePopUp(template, dialog){
 
             var os_kernel_ds = os.KERNEL_DS;
             // TODO updateView should not be required. Currently the dataTable
-            //  is filled twice.
+            // is filled twice.
             update_datatable_template_files(dataTable_template_kernel, function(){
-//                dataTable_template_kernel.unbind('draw');
+// dataTable_template_kernel.unbind('draw');
 //
-//                var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
-//                var match = regexp.exec(os_kernel_ds)
-//                var clicked = false;
-//                var data = dataTable_template_kernel.fnGetData();
-//                if (match) {
-//                    $.each(data, function(){
-//                         if (this[1] == match[1]) {
-//                            clicked = true;
-//                            $("#KERNEL", kernel_section).val(this[1])
-//                         }
-//                    })
+// var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+// var match = regexp.exec(os_kernel_ds)
+// var clicked = false;
+// var data = dataTable_template_kernel.fnGetData();
+// if (match) {
+// $.each(data, function(){
+// if (this[1] == match[1]) {
+// clicked = true;
+// $("#KERNEL", kernel_section).val(this[1])
+// }
+// })
 //
-//                    if (!clicked) {
-//                        var alert = '<div class="alert-box alert">'+
-//    'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
-//    '  <a href="" class="close">&times;</a>'+
-//    '</div>';
+// if (!clicked) {
+// var alert = '<div class="alert-box alert">'+
+// 'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
+// ' <a href="" class="close">&times;</a>'+
+// '</div>';
 //
-//                        $("#kernel_ds_inputs", kernel_section).append(alert);
-//                    }
-//                } else {
-//                    var alert = '<div class="alert-box alert">'+
-//    tr("The image you specified cannot be selected in the table") +
-//    '</div>';
-//                    $("#kernel_ds_inputs", kernel_section).append(alert);
-//                }
+// $("#kernel_ds_inputs", kernel_section).append(alert);
+// }
+// } else {
+// var alert = '<div class="alert-box alert">'+
+// tr("The image you specified cannot be selected in the table") +
+// '</div>';
+// $("#kernel_ds_inputs", kernel_section).append(alert);
+// }
             })
         }
         else if (os.KERNEL) {
@@ -4142,36 +4279,36 @@ function fillTemplatePopUp(template, dialog){
             var os_initrd_ds = os.INITRD_DS;
 
             // TODO updateView should not be required. Currently the dataTable
-            //  is filled twice.
+            // is filled twice.
             update_datatable_template_files(dataTable_template_initrd, function(){
- //               dataTable_template_initrd.unbind('draw');
+ // dataTable_template_initrd.unbind('draw');
 
- //               var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
- //               var match = regexp.exec(os_initrd_ds)
- //               var clicked = false;
- //               var data = dataTable_template_initrd.fnGetData();
- //               if (match) {
- //                   $.each(data, function(){
- //                        if (this[1] == match[1]) {
- //                           clicked = true;
- //                           $("#INITRD", initrd_section).text(this[1])
- //                        }
- //                   })
+ // var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
+ // var match = regexp.exec(os_initrd_ds)
+ // var clicked = false;
+ // var data = dataTable_template_initrd.fnGetData();
+ // if (match) {
+ // $.each(data, function(){
+ // if (this[1] == match[1]) {
+ // clicked = true;
+ // $("#INITRD", initrd_section).text(this[1])
+ // }
+ // })
 
- //                   if (!clicked) {
- //                       var alert = '<div class="alert-box alert">'+
- //   'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
- //   '  <a href="" class="close">&times;</a>'+
- //   '</div>';
+ // if (!clicked) {
+ // var alert = '<div class="alert-box alert">'+
+ // 'RAMDISK: '+ os_initrd_ds + tr(" does not exists any more") +
+ // ' <a href="" class="close">&times;</a>'+
+ // '</div>';
 
- //                       $("#selected_image", initrd_section).append(alert);
- //                   }
- //               } else {
- //                   var alert = '<div class="alert-box alert">'+
- //   tr("The image you specified cannot be selected in the table") +
- //   '</div>';
- //                   $("#selected_image", initrd_section).append(alert);
- //               }
+ // $("#selected_image", initrd_section).append(alert);
+ // }
+ // } else {
+ // var alert = '<div class="alert-box alert">'+
+ // tr("The image you specified cannot be selected in the table") +
+ // '</div>';
+ // $("#selected_image", initrd_section).append(alert);
+ // }
             })
         }
         else if (os.INITRD) {
@@ -4297,30 +4434,34 @@ function fillTemplatePopUp(template, dialog){
 
                 var dataTable_context = $("#datatable_context").dataTable();
 
-                // TODO updateView should not be required. Currently the dataTable
-                //  is filled twice.
+                // TODO updateView should not be required. Currently the
+				// dataTable
+                // is filled twice.
                 update_datatable_template_files(dataTable_context, function(){
-//                    dataTable_context.unbind('draw');
+// dataTable_context.unbind('draw');
 //
-//                    var data = dataTable_context.fnGetData();
-//                    $.each(data, function(){
-//                        var in_array = $.inArray(this[1], files)
-//                        if (in_array != -1) {
-//                            $('#files_selected',  context_section).show();
-//                            $('#select_files', context_section).hide();
-//                            files.splice(in_array, 1);
-//                            $('#selected_files_spans', context_section).append('<span image_id="'+this[1]+'" id="tag_file_'+this[1]+'" class="image radius label">'+this[4]+' <span class="fa fa-times blue"></span></span> ');
-//                        }
-//                    })
+// var data = dataTable_context.fnGetData();
+// $.each(data, function(){
+// var in_array = $.inArray(this[1], files)
+// if (in_array != -1) {
+// $('#files_selected', context_section).show();
+// $('#select_files', context_section).hide();
+// files.splice(in_array, 1);
+// $('#selected_files_spans', context_section).append('<span
+// image_id="'+this[1]+'" id="tag_file_'+this[1]+'" class="image radius
+// label">'+this[4]+' <span class="fa fa-times blue"></span></span> ');
+// }
+// })
 //
-//                    if (files.length != 0) {
-//                        var alert = '<div class="alert-box alert">'+
-//tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
+// if (files.length != 0) {
+// var alert = '<div class="alert-box alert">'+
+// tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more")
+// +
+// ' <a href="" class="close">&times;</a>'+
+// '</div>';
 //
-//                        $(".dataTables_wrapper", context_section).append(alert);
-//                    }
+// $(".dataTables_wrapper", context_section).append(alert);
+// }
                 });
             }
             else {
@@ -4378,30 +4519,31 @@ function fillTemplatePopUp(template, dialog){
             var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
 
             update_datatable_template_hosts(dataTable_template_hosts, function(){
-//                dataTable_template_hosts.unbind('draw');
+// dataTable_template_hosts.unbind('draw');
 //
-//                var rows = dataTable_template_hosts.fnGetNodes();
+// var rows = dataTable_template_hosts.fnGetNodes();
 //
-//                for (var j=0;j<rows.length;j++) {
-//                    var current_row = $(rows[j]);
-//                    var row_id = $(rows[j]).find("td:eq(1)").html();
+// for (var j=0;j<rows.length;j++) {
+// var current_row = $(rows[j]);
+// var row_id = $(rows[j]).find("td:eq(1)").html();
 //
-//                    var in_array = $.inArray(row_id, hosts)
-//                    if (in_array != -1) {
-//                        hosts.splice(in_array, 1);
-//                        // TBD check if all the hosts were clicked
-//                        rows[j].click();
-//                    }
-//                }
+// var in_array = $.inArray(row_id, hosts)
+// if (in_array != -1) {
+// hosts.splice(in_array, 1);
+// // TBD check if all the hosts were clicked
+// rows[j].click();
+// }
+// }
 //
-//                if (hosts.length != 0) {
-//                    var alert = '<div class="alert-box alert">'+
-//tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
+// if (hosts.length != 0) {
+// var alert = '<div class="alert-box alert">'+
+// tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist
+// any more") +
+// ' <a href="" class="close">&times;</a>'+
+// '</div>';
 //
-//                    $("#datatable_template_hosts_wrapper", req_section).append(alert);
-//                }
+// $("#datatable_template_hosts_wrapper", req_section).append(alert);
+// }
             });
         }
 
@@ -4411,30 +4553,31 @@ function fillTemplatePopUp(template, dialog){
             var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
 
             update_datatable_template_clusters(dataTable_template_clusters, function(){
-//               dataTable_template_clusters.unbind('draw');
+// dataTable_template_clusters.unbind('draw');
 
-//               var rows = dataTable_template_clusters.fnGetNodes();
+// var rows = dataTable_template_clusters.fnGetNodes();
 
-//               for (var j=0;j<rows.length;j++) {
-//                   var current_row = $(rows[j]);
-//                   var row_id = $(rows[j]).find("td:eq(1)").html();
+// for (var j=0;j<rows.length;j++) {
+// var current_row = $(rows[j]);
+// var row_id = $(rows[j]).find("td:eq(1)").html();
 
-//                   var in_array = $.inArray(row_id, clusters)
-//                   if (in_array != -1) {
-//                       clusters.splice(in_array, 1);
-//                       // TBD check if all the clusters were clicked
-//                       rows[j].click();
-//                   }
-//               }
+// var in_array = $.inArray(row_id, clusters)
+// if (in_array != -1) {
+// clusters.splice(in_array, 1);
+// // TBD check if all the clusters were clicked
+// rows[j].click();
+// }
+// }
 
-//               if (clusters.length != 0) {
-//                   var alert = '<div class="alert-box alert">'+
-//r('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
-//  <a href="" class="close">&times;</a>'+
-//</div>';
+// if (clusters.length != 0) {
+// var alert = '<div class="alert-box alert">'+
+// r('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not
+// exist any more") +
+// <a href="" class="close">&times;</a>'+
+// </div>';
 
-//                   $("#datatable_template_clusters_wrapper", req_section).append(alert);
-//               }
+// $("#datatable_template_clusters_wrapper", req_section).append(alert);
+// }
             });
         }
 
@@ -4537,11 +4680,11 @@ function fillTemplatePopUp(template, dialog){
 
 // Template clone dialog
 function setupTemplateCloneDialog(){
-    //Append to DOM
+    // Append to DOM
     dialogs_context.append('<div id="template_clone_dialog""></div>');
     var dialog = $('#template_clone_dialog',dialogs_context);
 
-    //Put HTML in place
+    // Put HTML in place
 
     var html = '<div class="row">\
   <h3 id="create_vnet_header" class="subheader">'+tr("Clone Template")+'</h3>\
@@ -4580,7 +4723,7 @@ function setupTemplateCloneDialog(){
             notifyError('A name or prefix is needed!');
         if (sel_elems.length > 1){
             for (var i=0; i< sel_elems.length; i++)
-                //use name as prefix if several items selected
+                // use name as prefix if several items selected
                 Sunstone.runAction('Template.clone',
                                    sel_elems[i],
                                    name+getTemplateName(sel_elems[i]));
@@ -4598,7 +4741,7 @@ function setupTemplateCloneDialog(){
 function popUpTemplateCloneDialog(){
     var dialog = $('#template_clone_dialog');
     var sel_elems = templateElements();
-    //show different text depending on how many elements are selected
+    // show different text depending on how many elements are selected
     if (sel_elems.length > 1){
         $('.clone_one',dialog).hide();
         $('.clone_several',dialog).show();
@@ -4615,11 +4758,12 @@ function popUpTemplateCloneDialog(){
 }
 
 // Instantiate dialog
-// Sets up the instiantiate template dialog and all the processing associated to it
+// Sets up the instiantiate template dialog and all the processing associated to
+// it
 function setupInstantiateTemplateDialog(easy_provision){
 
     dialogs_context.append('<div title=\"'+tr("Instantiate VM Template")+'\" id="instantiate_vm_template_dialog"></div>');
-    //Insert HTML in place
+    // Insert HTML in place
     $instantiate_vm_template_dialog = $('#instantiate_vm_template_dialog')
     var dialog = $instantiate_vm_template_dialog;
 
@@ -4776,7 +4920,7 @@ function setupInstantiateTemplateDialog(easy_provision){
           }
         }
 
-        if (!vm_name.length){ //empty name use OpenNebula core default
+        if (!vm_name.length){ // empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = "";
                 Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
@@ -4784,12 +4928,13 @@ function setupInstantiateTemplateDialog(easy_provision){
         }
         else
         {
-          if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
+          if (vm_name.indexOf("%i") == -1){// no wildcard, all with the same
+											// name
               for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = vm_name;
                 Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
               };
-          } else { //wildcard present: replace wildcard
+          } else { // wildcard present: replace wildcard
               for (var i=0; i< n_times_int; i++){
                   extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
                   Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
@@ -4809,7 +4954,7 @@ function popUpInstantiateVMTemplateDialog(easy_provision){
     $("input#vm_name",$instantiate_vm_template_dialog).focus();
 }
 
-//The DOM is ready at this point
+// The DOM is ready at this point
 $(document).ready(function(){
     var tab_name = 'templates-tab';
 

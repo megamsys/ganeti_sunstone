@@ -114,6 +114,7 @@ class SunstoneServer < CloudServer
   #
   ############################################################################
   def create_resource(kind, template)
+=begin    
     resource = case kind
     when "group"      then GroupJSON.new(Group.build_xml, @client)
     when "cluster"    then ClusterJSON.new(Group.build_xml, @client)
@@ -130,12 +131,29 @@ class SunstoneServer < CloudServer
     error = Error.new("Error: #{kind} resource not supported")
     return [404, error.to_json]
     end
+=end
+  resource = case kind
+    when "group"      then Ganeti::Groups.new(@client)
+    when "host"       then Ganeti::Hosts.new(@client)
+    when "image"      then Ganeti::Images.new(@client)
+    when "vmtemplate" then Ganeti::Templates.new(@client)
+    when "vm"         then Ganeti::VirtualMachines.new(@client)
+    when "vnet"       then Ganeti::VirtualNetworks.new(@client)
+    when "user"       then Ganeti::User.new(@client)
+    when "zone"       then Ganeti::Zones.new(@client)
+    else
+    error = Error.new("Error: #{kind} resource not supported")
+    return error
+    end
+    
+    puts "+++++++++++++++++++++++++++++"
+    puts template
 
     rc = resource.create(template)
     if OpenNebula.is_error?(rc)
       return [500, rc.to_json]
     else
-      resource.info
+      #resource.info
       return [201, resource.to_json]
     end
   end

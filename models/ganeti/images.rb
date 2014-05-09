@@ -38,8 +38,6 @@ module Ganeti
 
     def info(param=nil)
       @param = param.split('-')
-      puts "=========================="
-      puts param
       @cli = @client.call(@path, 'GET')
       @cli
     end

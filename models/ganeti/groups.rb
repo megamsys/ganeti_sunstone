@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+require 'ganeti/pool_element'
 
 module Ganeti
-  class Groups
+  class Groups < PoolElement
     def initialize(client)
       @path = "/2/groups"
       @client = client
@@ -28,7 +29,7 @@ module Ganeti
     #{:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
     end
 
-    def info(param)  
+    def info(param)
       @param = param
       @cli = @client.call(@path+"/"+@param, 'GET')
       @cli
@@ -38,10 +39,13 @@ module Ganeti
       ins_data = @client.call(@path+"/"+@param, 'GET')
       inst_data = JSON.parse(ins_data.data[:body])
       no_of_hosts = inst_data["node_list"].count
+      cluster_name = get_cluster()
       json = {
         "GROUP"=> {
           "ID"=> inst_data["serial_no"],
           "NAME"=> inst_data["name"],
+          "NOOFHOSTS" => no_of_hosts,
+          "CLUSTER" => cluster_name,
           "TEMPLATE"=> {
             "GROUP_ADMINS"=> "customer1-admin",
             "GROUP_ADMIN_VIEWS"=> "vdcadmin",
@@ -50,7 +54,6 @@ module Ganeti
           "USERS"=> {
             "ID"=> "2"
           },
-          "HOST"=> no_of_hosts,
           "RESOURCE_PROVIDER"=> {
             "ZONE_ID"=> "0",
             "CLUSTER_ID"=> "10"
@@ -71,7 +74,6 @@ module Ganeti
     end
 
     def to_json
-      zone = JSON.parse(@cc.data[:body])
       c1 = JSON.parse(@cc.data[:body])
       i = 0
       js = c1.map { |c|
@@ -97,10 +99,18 @@ module Ganeti
       json.to_json
     end
 
-    def build_json(id, name)      
+    def build_json(id, name)
+      cli = @client.call(@path+"/"+name, 'GET')
+      inst_data = JSON.parse(cli.data[:body])
+      no_of_nodes = inst_data["node_list"].count
+
+      cluster_name = get_cluster()
+
       b_json = {
-        "ID" => id,
+        "ID" => inst_data["serial_no"],
         "NAME" => name,
+        "NOOFHOSTS" => no_of_nodes,
+        "CLUSTER" => cluster_name,
         "TEMPLATE" => {},
         "USERS" => {
           "ID" => ["0","1"]
@@ -118,6 +128,19 @@ module Ganeti
         "IMAGE_QUOTA"=>{}
       }
       q_json
+    end
+
+    def get_cluster
+      res = Ganeti::Zones.new(@client)
+      zone = res.call
+      cluster_name = ""
+      if zone.data[:status].to_i == 200
+        cluster = JSON.parse(res.to_json)
+        cluster_name = cluster["ZONE_POOL"]["ZONE"]["NAME"]
+      else
+        cluster_name = ""
+      end
+      cluster_name
     end
 
   end

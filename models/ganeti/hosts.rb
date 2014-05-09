@@ -45,8 +45,8 @@ module Ganeti
     end
 
     def info(param)
-     # @param = param.split("-")
-     @param = param
+      # @param = param.split("-")
+      @param = param
       @cli = @client.call(@path+"/"+@param, 'GET')
       @cli
     end
@@ -88,7 +88,8 @@ module Ganeti
           "USED_DISK" => inst_data["dtotal"]-inst_data["dfree"],
           "USED_MEM" => inst_data["mtotal"]-inst_data["mfree"],
           "USED_CPU" => "0",
-          "RUNNING_VMS" => no_of_instances,
+          "RUNNING_VMS_COUNT" => no_of_instances,
+          "RUNNING_VMS" => inst_data["pinst_list"],
           "DATASTORES" => {}},
         "VMS" => vms,
         "TEMPLATE" => {

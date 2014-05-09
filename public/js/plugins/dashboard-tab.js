@@ -28,7 +28,7 @@ var dashboard_tab_content = '<div>\
 
 var widgets = {
   "storage" : '<fieldset>\
-        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-upload"></i> '+tr("Storage")+'</legend>\
+        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-upload"></i> '+tr("Images")+'</legend>\
         <div class="row totals-info">\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
@@ -160,17 +160,21 @@ var widgets = {
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
               <span class="subheader total_vms"/><br>\
-              <span class="subheader active_vms success-color"/><br>\
-              <span class="subheader pending_vms"/><br>\
-              <span class="subheader failed_vms alert-color"/>\
+              <span class="subheader running_vms success-color"/><br>\
+              <span class="subheader error_down_vms"/><br>\
+              <span class="subheader active_vms success-color" style="display: none;"/><br>\
+              <span class="subheader pending_vms" style="display: none;"/><br>\
+              <span class="subheader failed_vms alert-color" style="display: none;"/>\
               </h4>\
             </div>\
             <div class="small-6 large-6 columns text-left">\
               <h4 class="subheader">\
               <small>'+tr("TOTAL")+'</small><br>\
-              <small class="success-color">'+tr("ACTIVE")+'</small><br>\
-              <small>'+tr("PENDING")+'</small><br>\
-              <small class="alert-color">'+tr("FAILED")+'</small>\
+              <small class="success-color">'+tr("RUNNING")+'</small><br>\
+              <small class="alert-color">'+tr("ERROR_DOWN")+'</small>\
+              <small class="success-color" style="display: none;">'+tr("ACTIVE")+'</small><br>\
+              <small style="display: none;">'+tr("PENDING")+'</small><br>\
+              <small class="alert-color" style="display: none;">'+tr("FAILED")+'</small>\
               </h4>\
             </div>\
           </div>\

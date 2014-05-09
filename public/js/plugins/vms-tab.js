@@ -90,8 +90,8 @@ var create_vm_tmpl ='\
                 <th></th>\
                 <th>'+tr("ID")+'</th>\
                 <th>'+tr("Owner")+'</th>\
-                <th>'+tr("Group")+'</th>\
                 <th>'+tr("Name")+'</th>\
+                <th>'+tr("Image")+'</th>\
                 <th>'+tr("Registration time")+'</th>\
               </tr>\
             </thead>\
@@ -1135,25 +1135,27 @@ var vms_tab = {
     list_header: '<i class="fa fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Machines"),
     info_header: '<i class="fa fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Machine"),
     subheader: '<span class="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span class="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
-        <span class="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;\
-        <span class="pending_vms"/> <small>'+tr("PENDING")+'</small>&emsp;\
-        <span class="failed_vms"/> <small>'+tr("FAILED")+'</small>',
+        <span class="running_vms"/> <small>'+tr("RUNNING")+'</small>&emsp;\
+        <span class="error_down_vms"/> <small>'+tr("ERROR_DOWN")+'</small>&emsp;\
+        <span class="active_vms" style="display: none;"/> <small style="display: none;">'+tr("ACTIVE")+'</small>&emsp;\
+        <span class="off_vms" style="display: none;"/> <small style="display: none;">'+tr("OFF")+'</small>&emsp;\
+        <span class="pending_vms" style="display: none;"/> <small style="display: none;">'+tr("PENDING")+'</small>&emsp;\
+        <span class="failed_vms" style="display: none;"/> <small style="display: none;">'+tr("FAILED")+'</small>',
     table: '<table id="datatable_vmachines" class="dataTable" cellpadding="0" cellspacing="0" border="0" >\
         <thead>\
           <tr>\
             <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
             <th>'+tr("ID")+'</th>\
             <th>'+tr("Owner")+'</th>\
-            <th>'+tr("HostGroup")+'</th>\
             <th>'+tr("Name")+'</th>\
             <th>'+tr("Status")+'</th>\
-            <th>'+tr("Used CPU")+'</th>\
-            <th>'+tr("Used Memory")+'</th>\
             <th>'+tr("Host")+'</th>\
-            <th>'+tr("IPs")+'</th>\
-            <th>'+tr("Start Time")+'</th>\
+            <th>'+tr("Used Memory")+'</th>\
+            <th>'+tr("HostGroup")+'</th>\
             <th>'+tr("OS")+'</th>\
+            <th>'+tr("IPs")+'</th>\
+            <th>'+tr("Used CPU")+'</th>\
+            <th>'+tr("Start Time")+'</th>\
           </tr>\
         </thead>\
         <tbody id="tbodyvmachines">\
@@ -1241,16 +1243,16 @@ function vMachineElementArray(vm_json){
     return [
         '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.NAME+'"/>',
         vm.ID,
-        vm.UNAME,
-        vm.GNAME,
+        vm.UNAME,        
         vm.NAME,
-        vm.STATE,
-        vm.CPU,
+        vm.STATE.toUpperCase(),
+        vm.HOST, 
         humanize_size(vm.MEMORY),
-        vm.HOST,
+        vm.GNAME,
+        vm.OS,        
         ip_str(vm),
-        str_start_time(vm),
-        vm.OS
+        vm.CPU,
+        str_start_time(vm)       
     ];
 };
 
@@ -1283,24 +1285,29 @@ function updateVMachinesView(request, vmachine_list){
     pending_vms = 0;
     failed_vms = 0;
     off_vms = 0;
-
+    running_vms=0;
+    error_down_vms=0;
     var total_real_cpu = 0;
     var total_allocated_cpu = 0;
 
     var total_real_mem = 0;
     var total_allocated_mem = 0;
-
-    $.each(vmachine_list,function(){
-        vmachine_list_array.push( vMachineElementArray(this));
-
-        if(this.VM.STATE == 3 && this.VM.STATE == 3){ // ACTIVE, RUNNING
-            total_real_cpu += parseInt(this.VM.CPU);
-            total_allocated_cpu += parseInt(this.VM.CPU * 100);
-
-            total_real_mem += parseInt(this.VM.MEMORY);
-            total_allocated_mem += parseInt(this.VM.MEMORY);
+    //alert(vmachine_list[0].VM.STATE);
+   // $.each(vmachine_list,function(key){
+    for (var i = 0; i < vmachine_list.length; i++) {
+        vmachine_list_array.push(vMachineElementArray(vmachine_list[i]));       
+        if(vmachine_list[i].VM.STATE == "running"){ // ACTIVE, RUNNING
+            total_real_cpu += parseInt(vmachine_list[i].VM.CPU);
+            total_allocated_cpu += parseInt(vmachine_list[i].VM.CPU * 100);
+            running_vms +=1;
+            total_real_mem += parseInt(vmachine_list[i].VM.MEMORY);
+            total_allocated_mem += parseInt(vmachine_list[i].VM.MEMORY);
         }
-    });
+        if(vmachine_list[i].VM.STATE == "ERROR_down"){
+        	error_down_vms += 1;
+        }
+    }
+    //});
 
     updateView(vmachine_list_array,dataTable_vMachines);
 
@@ -1323,6 +1330,8 @@ function updateVMachinesView(request, vmachine_list){
     $(".pending_vms").text(pending_vms);
     $(".failed_vms").text(failed_vms);
     $(".off_vms").text(off_vms);
+    $(".running_vms").text(running_vms);
+    $(".error_down_vms").text(error_down_vms);
 };
 
 
@@ -1518,7 +1527,7 @@ function updateVMInfo(request,vm){
                  <td class="value_td">'+tr(vm_state)+'</td>\
                  <td></td>\
               </tr>\
-              <tr>\
+              <tr style="display: none;">\
                  <td class="key_td">'+tr("LCM State")+'</td>\
                  <td class="value_td">'+tr(OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE))+'</td>\
                  <td></td>\
