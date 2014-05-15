@@ -61,12 +61,57 @@ module Ganeti
     #######################################################################
 
     # Retrieves the information of the given User.
-    def info(username)
+    def info(params)
       # super(USER_METHODS[:info], 'USER')
-      require 'sqlite3'
-      db = SQLite3::Database.new( "ganeti.db" )
-      rows = db.execute( "select * from users where user_name = '" + username + "'" )
-      {:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
+      #require 'sqlite3'
+      #db = SQLite3::Database.new( "ganeti.db" )
+      #rows = db.execute( "select * from users where user_name = '" + username + "'" )
+      #{:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
+      @options={}
+      options={}
+      con = Excon.new("http://192.168.2.3:35357/v2.0/users")
+      @options[:method]='GET'
+      @options[:headers]={ "Content-Type" => "application/json", "X-Auth-Token" => params["token"]}
+      @options[:body]=options.to_json
+      res = con.request(@options)
+      puts res.inspect
+    end
+
+    def tenant_info(params)
+      @options={}
+      options={}
+      if params["type"] == "admin"
+        res = {
+          "ID" => params["user_id"],
+          "NAME" => params["username"],
+          "GID" => params["tenant"]["id"],
+          "GNAME" => params["tenant"]["name"]
+        }
+      return res
+      else
+        con = Excon.new("http://192.168.2.3:35357/v2.0/tenants")
+        @options[:method]='GET'
+        @options[:headers]={ "Content-Type" => "application/json", "X-Auth-Token" => params["token"]}
+        res = con.request(@options)
+        if res.data[:status].to_i != 200
+          result = {
+            "ID" => "",
+            "NAME" => "",
+            "GID" => "",
+            "GNAME" => ""
+          }
+        return result
+        else
+          json = JSON.parse(res.data[:body])
+          result = {
+            "ID" => params["user_id"],
+            "NAME" => params["username"],
+            "GID" => json["tenants"]["id"],
+            "GNAME" => json["tenants"]["name"]
+          }
+        return result
+        end
+      end
     end
 
     # Retrieves the information of the given User.

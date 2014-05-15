@@ -5,14 +5,15 @@ available_tabs:
     - system-tab
     - clusters-tab
     - users-tab
-    - groups-tab
+    - tenants-tab
     - vresources-tab
     - vms-tab
     - templates-tab
     - images-tab
     - files-tab
-    - infra-tab
+    - infra-tab    
     - hosts-tab
+    - hgroups-tab
     - vnets-tab
     - zones-tab
     - provision-tab

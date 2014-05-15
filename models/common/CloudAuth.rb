@@ -91,7 +91,7 @@ class CloudAuth
     # is nil the Client is generated for the server_admin
     # username:: _String_ Name of the User
     # [return] _Client_
-    def client(username=nil, endpoint=nil)
+    def client(username=nil, endpoint=nil, params={})
         expiration_time = @lock.synchronize {
             time_now = Time.now.to_i
 
@@ -101,14 +101,26 @@ class CloudAuth
 
             @token_expiration_time
         }       
-        token = @server_auth.login_token(expiration_time,username)
+        user_name = ""
+        puts "------------username----------------------"
+        puts params
+        if username == nil
+          user_name = params["username"]
+          puts "------------params username----------------"
+          puts user_name
+        else
+          user_name = username  
+          puts "------------888username----------------"
+          puts user_name
+        end
+        token = @server_auth.login_token(expiration_time,user_name)
         if endpoint and endpoint != "-"
             logger.info { "---------1111111-" }
             #return OpenNebula::Client.new(token,endpoint)
-            return OpenNebula::Client.new("", "")
+            return Ganeti::Client.new("", "")
         else
           logger.info { "-------222222--------" }
-            return OpenNebula::Client.new(token,@conf[:one_xmlrpc])
+            return Ganeti::Client.new(token,@conf[:one_xmlrpc], params)
             #return OpenNebula::Client.new("", "")
         end
     end

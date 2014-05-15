@@ -26,7 +26,9 @@ module Ganeti
     def initialize(secret=nil, endpoint=nil, options={})
       @options = {}
       endpoint ||= ganeti_endpoint
-      
+      @token = options["token"]
+      puts "++++++++++++token++++++++++++++"
+      puts @token
       Excon.defaults[:ssl_ca_file] = File.expand_path(File.join(File.dirname(__FILE__), "../..", "certs", "rapi_pub.pem"))
 
       if !File.exist?(File.expand_path(File.join(File.dirname(__FILE__), "../..", "certs", "rapi_pub.pem")))
@@ -35,7 +37,12 @@ module Ganeti
       else
         Excon.defaults[:ssl_verify_peer] = false
       end
-      @con = Excon.new(endpoint)    
+      
+      username = ENV['GANETI_USER']
+      password = ENV['GANETI_PASSWORD']
+      @con = Excon.new(endpoint, :user=>username, :password=>password)    
+      puts "+++++++++++connection++++++++++++++++"
+      puts @con.inspect
       @con
     end
 
@@ -44,20 +51,21 @@ module Ganeti
       @options[:method] = 'GET'
       res = @con.request(@options)
       res
-    end
+    end 
 
-
-    def call(path, method)
-      begin
-        @options[:path] = path
-        @options[:method] = method
-        res = @con.request(@options)
-        res
+    def call(path, method, options=nil)
+       begin
+      @options[:path] = path
+      @options[:headers]={ "Content-Type" => "application/json" }
+      @options[:body]=options.to_json
+      @options[:method]=method      
+      res = @con.request(@options)
+      res
       rescue Exception => e
         Error.new(e.message)
       end
     end
-
+  
 
     def get_version()
       call("system.version")

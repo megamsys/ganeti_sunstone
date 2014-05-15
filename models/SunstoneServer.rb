@@ -45,9 +45,10 @@ class SunstoneServer < CloudServer
     else
       user_flag = POOL_FILTER
     end
-
+    puts "************************"
+    puts kind
     pool = case kind
-    when "group"      then Ganeti::Groups.new(client)
+    when "tenant"     then Ganeti::Tenants.new(client)
     when "host"       then Ganeti::Hosts.new(client)
     when "image"      then Ganeti::Images.new(client)
     when "vmtemplate" then Ganeti::Templates.new(client)
@@ -55,6 +56,7 @@ class SunstoneServer < CloudServer
     when "vnet"       then Ganeti::VirtualNetworks.new(client)
     when "user"       then Ganeti::User.new(client)
     when "zone"       then Ganeti::Zones.new(client)
+    when "hgroup"     then Ganeti::HostGroups.new(client)
     else
     error = Error.new("Error: #{kind} resource not supported")
     return [404, error.to_json]
@@ -75,7 +77,7 @@ class SunstoneServer < CloudServer
   def get_resource(kind, id)
     #resource = retrieve_resource(kind, id)
     resource = case kind
-    when "group"      then Ganeti::Groups.new(@client)
+    when "tenant"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
@@ -83,6 +85,7 @@ class SunstoneServer < CloudServer
     when "vnet"       then Ganeti::VirtualNetworks.new(@client)
     when "user"       then Ganeti::User.new(@client)
     when "zone"       then Ganeti::Zones.new(@client)
+    when "hgroup"     then Ganeti::HostGroups.new(@client)
     else
     error = Error.new("Error: #{kind} resource not supported")
     return error
@@ -113,27 +116,9 @@ class SunstoneServer < CloudServer
   ############################################################################
   #
   ############################################################################
-  def create_resource(kind, template)
-=begin    
+  def create_resource(kind, json)
     resource = case kind
-    when "group"      then GroupJSON.new(Group.build_xml, @client)
-    when "cluster"    then ClusterJSON.new(Group.build_xml, @client)
-    when "host"       then HostJSON.new(Host.build_xml, @client)
-    when "image"      then ImageJSON.new(Image.build_xml, @client)
-    when "vmtemplate" then TemplateJSON.new(Template.build_xml, @client)
-    when "vm"         then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
-    when "vnet"       then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
-    when "user"       then UserJSON.new(User.build_xml, @client)
-    when "acl"        then AclJSON.new(Acl.build_xml, @client)
-    when "datastore"  then DatastoreJSON.new(Acl.build_xml, @client)
-    when "zone"       then ZoneJSON.new(Zone.build_xml, @client)
-    else
-    error = Error.new("Error: #{kind} resource not supported")
-    return [404, error.to_json]
-    end
-=end
-  resource = case kind
-    when "group"      then Ganeti::Groups.new(@client)
+    when "tenant"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
@@ -141,19 +126,19 @@ class SunstoneServer < CloudServer
     when "vnet"       then Ganeti::VirtualNetworks.new(@client)
     when "user"       then Ganeti::User.new(@client)
     when "zone"       then Ganeti::Zones.new(@client)
+    when "hgroup"     then Ganeti::HostGroups.new(@client)
     else
     error = Error.new("Error: #{kind} resource not supported")
     return error
     end
-    
-    puts "+++++++++++++++++++++++++++++"
-    puts template
-
-    rc = resource.create(template)
-    if OpenNebula.is_error?(rc)
-      return [500, rc.to_json]
+    puts json
+    res = resource.create(json)
+    puts res.inspect
+    resource.call
+    if res[:status].to_i != 200
+      return [500, resource.to_json]
     else
-      #resource.info
+    #resource.info
       return [201, resource.to_json]
     end
   end
@@ -205,11 +190,13 @@ class SunstoneServer < CloudServer
       return [404, resource.to_json]
     end
 
-    rc = resource.delete
-    if OpenNebula.is_error?(rc)
-      return [500, rc.to_json]
+    res = resource.delete(id)
+    resource.call
+    if res[:status].to_i != 200
+      return [500, resource.to_json]
     else
-      return [204, resource.to_json]
+    #resource.info
+      return [201, resource.to_json]
     end
   end
 
@@ -217,16 +204,30 @@ class SunstoneServer < CloudServer
   #
   ############################################################################
   def perform_action(kind, id, action_json)
-    resource = retrieve_resource(kind, id)
-    if OpenNebula.is_error?(resource)
-      return [404, resource.to_json]
-    end
-
-    rc = resource.perform_action(action_json)
-    if OpenNebula.is_error?(rc)
-      return [500, rc.to_json]
+    #resource = retrieve_resource(kind, id)
+    resource = case kind
+    when "tenant"     then Ganeti::Tenants.new(@client)
+    when "host"       then Ganeti::Hosts.new(@client)
+    when "image"      then Ganeti::Images.new(@client)
+    when "vmtemplate" then Ganeti::Templates.new(@client)
+    when "vm"         then Ganeti::VirtualMachines.new(@client)
+    when "vnet"       then Ganeti::VirtualNetworks.new(@client)
+    when "user"       then Ganeti::User.new(@client)
+    when "zone"       then Ganeti::Zones.new(@client)
+    when "hgroup"     then Ganeti::HostGroups.new(@client)
     else
-      return [204, resource.to_json]
+    error = Error.new("Error: #{kind} resource not supported")
+    return error
+    end
+     puts "------------------------+++++++--------"
+    puts action_json
+    res = resource.action(id, action_json)   
+    resource.call
+    if res[:status].to_i != 200
+      return [500, resource.to_json]
+    else
+    #resource.info
+      return [201, resource.to_json]
     end
   end
 
@@ -418,7 +419,7 @@ return error
 end
 =end
     resource = case kind
-    when "group"      then Ganeti::Groups.new(@client)
+    when "tenant"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
@@ -426,6 +427,7 @@ end
     when "vnet"       then Ganeti::VirtualNetworks.new(@client)
     when "user"       then Ganeti::User.new(@client)
     when "zone"       then Ganeti::Zones.new(@client)
+    when "hgroup"     then Ganeti::HostGroups.new(@client)
     else
     error = Error.new("Error: #{kind} resource not supported")
     return error

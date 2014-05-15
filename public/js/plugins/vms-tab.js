@@ -90,8 +90,8 @@ var create_vm_tmpl ='\
                 <th></th>\
                 <th>'+tr("ID")+'</th>\
                 <th>'+tr("Owner")+'</th>\
-                <th>'+tr("Name")+'</th>\
                 <th>'+tr("Image")+'</th>\
+                <th>'+tr("Name")+'</th>\
                 <th>'+tr("Registration time")+'</th>\
               </tr>\
             </thead>\
@@ -401,14 +401,28 @@ var $vnc_dialog;
 var rfb;
 
 var vm_actions = {
+    //"VM.create" : {
+      //  type: "custom",
+       // call: function(id,name) {
+            //Sunstone.runAction("Template.instantiate",[id],name);]
+        	//Sunstone.runAction("",[id],name);
+           // Sunstone.runAction("VM.list");
+       // },
+      //  call: OpenNebula.VM.create,
+      //  callback: addVMachineElement,
+      //  error: onError
+    //},
     "VM.create" : {
-        type: "custom",
-        call: function(id,name) {
-            Sunstone.runAction("Template.instantiate",[id],name);
-            Sunstone.runAction("VM.list");
+        type: "create",
+        call: OpenNebula.VM.create,
+        callback: function(request, response){
+          //$create_template_dialog.foundation('reveal', 'close');
+          addVMachineElement(request, response);
+          OpenNebula.Helper.clear_cache("VM");
+         // notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
         },
-        callback: addVMachineElement,
-        error: onError
+        error: onError,
+        notify: true
     },
 
     "VM.create_dialog" : {
@@ -2968,7 +2982,7 @@ function setupCreateVMDialog(include_select_image){
         var template_id = $('#TEMPLATE_ID',this).val();
         var n_times = $('#vm_n_times',this).val();
         var n_times_int=1;
-
+        
         if (!template_id.length){
             notifyError(tr("You have not selected a template"));
             return false;
@@ -2981,39 +2995,44 @@ function setupCreateVMDialog(include_select_image){
         var extra_msg = "";
         if (n_times_int > 1) {
             extra_msg = n_times_int+" times";
-        }
+        }        
 
-        notifySubmit("Template.instantiate",template_id, extra_msg);
-
-        var extra_info = {};
-        if ($("#IMAGE_ID", this).val()) {
-          image_id = $("#IMAGE_ID", this).val();
-          extra_info['template'] = {
-            'disk': {
-              'image_id': image_id
-            }
-          }
-        }
+     //   var extra_info = {};
+      //  if ($("#IMAGE_ID", this).val()) {
+        //  image_id = $("#IMAGE_ID", this).val();
+         // extra_info['template'] = {
+         //   'disk': {
+         //     'image_id': image_id
+           // }
+          //}
+        //}
 
         if (!vm_name.length){ //empty name use OpenNebula core default
-            for (var i=0; i< n_times_int; i++){
-                extra_info['vm_name'] = "";
-                Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-            };
+           //for (var i=0; i< n_times_int; i++){
+            //    extra_info['vm_name'] = "";
+            //    Sunstone.runAction("VM.create", template_id, extra_info);
+           // };
+        	 notifyError(tr("Please enter instance name"));
+             return false;
         }
         else
         {
-          if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
-              for (var i=0; i< n_times_int; i++){
-                extra_info['vm_name'] = vm_name;
-                Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-              };
-          } else { //wildcard present: replace wildcard
-              for (var i=0; i< n_times_int; i++){
-                  extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
-                  Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-              };
-          };
+        	vm_data = {"vm": {"vm_name": vm_name, "template_id": template_id, "n_times": extra_msg}};
+            notifySubmit("VM.create",vm_data);
+            Sunstone.runAction("VM.create", vm_data);
+            $create_vm_dialog.foundation('reveal', 'close')
+            return false;
+          //if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
+           //   for (var i=0; i< n_times_int; i++){
+            //    extra_info['vm_name'] = vm_name;
+            //    Sunstone.runAction("VM.create", vm_data);
+            //  };
+         // } else { //wildcard present: replace wildcard
+           //   for (var i=0; i< n_times_int; i++){
+            //      extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
+            //      Sunstone.runAction("VM.create", vm_data);
+          //    };
+         // };
         }
 
         setTimeout(function(){

@@ -28,12 +28,13 @@ require 'opennebula/error'
 require 'ganeti/user'
 require 'ganeti/hosts'
 require 'ganeti/clusters'
-require 'ganeti/groups'
+require 'ganeti/tenants'
 require 'ganeti/virtual_machines'
 require 'ganeti/virtual_networks'
 require 'ganeti/images'
 require 'ganeti/templates'
 require 'ganeti/zones'
+require 'ganeti/host_groups'
 
 module Ganeti
 

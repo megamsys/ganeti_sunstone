@@ -23,7 +23,7 @@
     :user:
     :group:
         oneadmin: true
-- plugins/groups-tab.js:
+- plugins/tenants-tab.js:
     :ALL: false
     :user:
     :group:
@@ -62,6 +62,10 @@
     :ALL: true
     :user:
     :group:
+- plugins/hgroups-tab.js:
+    :ALL: true
+    :user:
+    :group:    
 - plugins/datastores-tab.js:
     :ALL: true
     :user:

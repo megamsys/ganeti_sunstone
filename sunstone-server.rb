@@ -148,6 +148,10 @@ helpers do
 
   def build_session
     begin
+      logger.info { "---------------params-----------------------" }
+      logger.info { params }
+      logger.info { "---------------request-----------------------" }
+      logger.info { request.env }
       result = $cloud_auth.auth(request.env, params)
     rescue Exception => e
       logger.error { e.message }
@@ -160,14 +164,14 @@ helpers do
     else
       logger.info { "---------------result-----------------------" }
       logger.info { result }
-      client  = $cloud_auth.client(result)
+      client  = $cloud_auth.client(nil, nil, result)
       logger.info { "-----------------client result---------------------" }
       logger.info { client.inspect }
       user_id = Ganeti::User::SELF
       logger.info { "------------------user id--------------------" }
       logger.info { user_id }
       user_initialize    = Ganeti::User.new(client)
-      user = user_initialize.info(result)
+      user = user_initialize.tenant_info(result)
       logger.info { "-----------------user---------------------" }
       logger.info { user[:NAME] }
       #rc = user.info
@@ -278,9 +282,9 @@ before do
     #  end
    # }
   end
-
-  @client=$cloud_auth.client(session[:user],
-  session[:active_zone_endpoint])
+  options = {}
+  @client=$cloud_auth.client(session[:user],  #change verify error login page
+  session[:active_zone_endpoint], options)
 
   @SunstoneServer = SunstoneServer.new(@client,$conf,logger)
 end

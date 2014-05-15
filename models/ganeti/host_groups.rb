@@ -16,7 +16,7 @@
 require 'ganeti/pool_element'
 
 module Ganeti
-  class Groups < PoolElement
+  class HostGroups < PoolElement
     def initialize(client)
       @path = "/2/groups"
       @client = client
@@ -41,14 +41,14 @@ module Ganeti
       no_of_hosts = inst_data["node_list"].count
       cluster_name = get_cluster()
       json = {
-        "GROUP"=> {
+        "HGROUP"=> {
           "ID"=> inst_data["serial_no"],
           "NAME"=> inst_data["name"],
           "NOOFHOSTS" => no_of_hosts,
           "CLUSTER" => cluster_name,
           "TEMPLATE"=> {
-            "GROUP_ADMINS"=> "customer1-admin",
-            "GROUP_ADMIN_VIEWS"=> "vdcadmin",
+            "HGROUP_ADMINS"=> "customer1-admin",
+            "HGROUP_ADMIN_VIEWS"=> "vdcadmin",
             "SUNSTONE_VIEWS"=> "user"
           },
           "USERS"=> {
@@ -62,7 +62,7 @@ module Ganeti
           "NETWORK_QUOTA"=> {},
           "VM_QUOTA"=> {},
           "IMAGE_QUOTA"=> {},
-          "DEFAULT_GROUP_QUOTAS"=> {
+          "DEFAULT_HGROUP_QUOTAS"=> {
             "DATASTORE_QUOTA"=> {},
             "NETWORK_QUOTA"=> {},
             "VM_QUOTA"=> {},
@@ -85,10 +85,10 @@ module Ganeti
         getQuotaJson(i)
       }
       json = {
-        "GROUP_POOL" => {
-          "GROUP" =>  js,
+        "HGROUP_POOL" => {
+          "HGROUP" =>  js,
           "QUOTAS"=> quota_json,
-          "DEFAULT_GROUP_QUOTAS"=>{
+          "DEFAULT_HGROUP_QUOTAS"=>{
             "DATASTORE_QUOTA"=>{},
             "NETWORK_QUOTA"=>{},
             "VM_QUOTA"=>{},
