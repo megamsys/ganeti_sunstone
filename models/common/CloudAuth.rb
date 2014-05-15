@@ -102,16 +102,10 @@ class CloudAuth
             @token_expiration_time
         }       
         user_name = ""
-        puts "------------username----------------------"
-        puts params
         if username == nil
           user_name = params["username"]
-          puts "------------params username----------------"
-          puts user_name
         else
           user_name = username  
-          puts "------------888username----------------"
-          puts user_name
         end
         token = @server_auth.login_token(expiration_time,user_name)
         if endpoint and endpoint != "-"
@@ -120,6 +114,8 @@ class CloudAuth
             return Ganeti::Client.new("", "")
         else
           logger.info { "-------222222--------" }
+          puts "--------------22222222222----------"
+          puts params
             return Ganeti::Client.new(token,@conf[:one_xmlrpc], params)
             #return OpenNebula::Client.new("", "")
         end

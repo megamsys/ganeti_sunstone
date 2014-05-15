@@ -1357,7 +1357,7 @@ $(document).ready(function(){
             "bSortClasses" : false,
             "bDeferRender": true,
             "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check",4,5,6] },
+              { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
               { "bVisible": false, "aTargets": ['_all']}

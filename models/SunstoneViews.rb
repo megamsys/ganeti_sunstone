@@ -58,7 +58,6 @@ class SunstoneViews
         #user_info = user.info(user_name)
 
         available = Array.new
-      
 
         available << @views_config['users'][user_name] if @views_config['users']
         available << @views_config['groups'][group_name] if @views_config['groups']

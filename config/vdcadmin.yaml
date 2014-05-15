@@ -3,7 +3,8 @@ enabled_tabs:
     dashboard-tab: true
     system-tab: true
     users-tab: true
-    groups-tab: false
+    hgroups-tab: false
+    tenants-tab: false
     acls-tab: false
     vresources-tab: true
     vms-tab: true
@@ -32,7 +33,7 @@ tabs:
             - storage
         widgets_two_per_row:
             - user_quotas
-            - group_quotas
+            - tenant_quotas
             #- hosts
             #- vms
         widgets_one_per_row:
@@ -65,9 +66,9 @@ tabs:
             User.delgroup: false
             User.chauth: false
             User.delete: true
-    groups-tab:
+    hgroups-tab:
         panel_tabs:
-            group_quotas_tab: true
+            hgroup_quotas_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -77,10 +78,26 @@ tabs:
             - 5         # Memory
             - 6         # CPU
         actions:
-            Group.refresh: true
-            Group.create_dialog: true
-            Group.quotas_dialog: true
-            Group.delete: true
+            HGroup.refresh: true
+            HGroup.create_dialog: true
+            HGroup.quotas_dialog: true
+            HGroup.delete: true
+    tenants-tab:
+        panel_tabs:
+            tenant_quotas_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Users
+            - 4         # VMs
+            - 5         # Memory
+            - 6         # CPU
+        actions:
+            Tenant.refresh: true
+            Tenant.create_dialog: true
+            Tenant.quotas_dialog: true
+            Tenant.delete: true
     acls-tab:
         panel_tabs:
         table_columns:

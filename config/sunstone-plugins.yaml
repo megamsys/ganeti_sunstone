@@ -24,7 +24,7 @@
     :group:
         oneadmin: true
 - plugins/tenants-tab.js:
-    :ALL: false
+    :ALL: true
     :user:
     :group:
         oneadmin: true

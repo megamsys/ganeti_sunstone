@@ -33,7 +33,7 @@ tabs:
             - network
             - storage
             - user_quotas
-            - group_quotas
+            - tenant_quotas
             #- hosts
             #- vms
         widgets_one_per_row:
@@ -297,7 +297,7 @@ tabs:
             Host.delete: true
     hgroups-tab:
         panel_tabs:
-            group_quotas_tab: true
+            hgroup_quotas_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -307,10 +307,10 @@ tabs:
             - 5         # Memory
             - 6         # CPU
         actions:
-            Group.refresh: true
-            Group.create_dialog: true
-            Group.quotas_dialog: true
-            Group.delete: true        
+            HGroup.refresh: true
+            HGroup.create_dialog: true
+            HGroup.quotas_dialog: true
+            HGroup.delete: true        
     datastores-tab:
         panel_tabs:
             datastore_info_tab: false

@@ -23,5 +23,10 @@ groups:
         - vdcadmin
         - user
         - cloud
+    admin:
+        - admin
+        - vdcadmin
+        - user
+        - cloud
 default:
     - cloud

@@ -24,9 +24,17 @@ module Ganeti
 
     # Retrieves the information of the given User.
     def call
-      @cc = @client.call(@path, 'GET')
-      @cc
+      @cc = @client.keystone("tenants", 'GET')
+      @cc["response"]
     #{:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
+    end
+
+    def to_json
+      if @cc["result"] != 'success'
+        return empty_json()
+      else
+        return build_json(@cc["response"])
+      end
     end
 
     def info(param)
@@ -73,17 +81,24 @@ module Ganeti
       json.to_json
     end
 
-    def to_json
-      c1 = JSON.parse(@cc.data[:body])
+    def build_json(params)
+      tenants = JSON.parse(params.data[:body])
+      puts "-------------response--------"
+      puts tenants
       i = 0
-      js = c1.map { |c|
+      js = tenants["tenants"].map { |c|
         i = i+1
-        build_json(i, c["name"])
+        builder(i, c)
       }
-      quota_json = c1.map { |c|
-        i = i+1
-        getQuotaJson(i)
+      puts "---------------js-----------"
+      puts js
+      j=0
+      quota_json = tenants["tenants"].map { |c|
+        j = j+1
+        getQuotaJson(j)
       }
+      puts "-----------quote----------------"
+      puts quota_json
       json = {
         "TENANT_POOL" => {
           "TENANT" =>  js,
@@ -96,20 +111,19 @@ module Ganeti
           }
         }
       }
+      puts "---------------json--------------------"
+      puts json
       json.to_json
     end
 
-    def build_json(id, name)
-      cli = @client.call(@path+"/"+name, 'GET')
-      inst_data = JSON.parse(cli.data[:body])
-      no_of_nodes = inst_data["node_list"].count
-
+    def builder(id, param)
       cluster_name = get_cluster()
-
+      puts "----------cluster-----------------"
+      puts cluster_name
       b_json = {
-        "ID" => inst_data["serial_no"],
-        "NAME" => name,
-        "NOOFHOSTS" => no_of_nodes,
+        "ID" => id,
+        "NAME" => param["name"],
+        "NOOFHOSTS" => 2,
         "CLUSTER" => cluster_name,
         "TEMPLATE" => {},
         "USERS" => {
@@ -210,3 +224,5 @@ json = {
 }
 }
 =end
+
+
