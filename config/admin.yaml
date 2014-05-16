@@ -13,6 +13,7 @@ enabled_tabs:
     infra-tab: true
     clusters-tab: false
     hosts-tab: true
+    hgroups-tab: true
     datastores-tab: false
     vnets-tab: true
     marketplace-tab: true
@@ -33,7 +34,7 @@ tabs:
             - network
         widgets_two_per_row:
 #            - user_quotas
-#            - group_quotas
+#            - tenant_quotas
         widgets_one_per_row:
             - vms
             - hosts
@@ -80,7 +81,23 @@ tabs:
             Group.refresh: true
             Group.create_dialog: true
             Group.quotas_dialog: true
-            Group.delete: true
+            Group.delete: true        
+    tenants-tab:
+        panel_tabs:
+            tenant_quotas_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Users
+            - 4         # VMs
+            - 5         # Memory
+            - 6         # CPU
+        actions:
+            Tenant.refresh: true
+            Tenant.create_dialog: true
+            Tenant.quotas_dialog: true
+            Tenant.delete: true
     acls-tab:
         panel_tabs:
         table_columns:
@@ -295,6 +312,22 @@ tabs:
             Host.enable: true
             Host.disable: true
             Host.delete: true
+    hgroups-tab:
+        panel_tabs:
+            hgroup_quotas_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Users
+            - 4         # VMs
+            - 5         # Memory
+            - 6         # CPU
+        actions:
+            HGroup.refresh: true
+            HGroup.create_dialog: true
+            HGroup.quotas_dialog: true
+            HGroup.delete: true        
     datastores-tab:
         panel_tabs:
             datastore_info_tab: false

@@ -14,11 +14,11 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var dataTable_groups;
-var $create_group_dialog;
-var $group_quotas_dialog;
+var dataTable_hgroups;
+var $create_hgroup_dialog;
+var $hgroup_quotas_dialog;
 
-var group_acct_graphs = [
+var hgroup_acct_graphs = [
     { title : tr("CPU"),
       monitor_resources : "CPU",
       humanize_figures : false
@@ -37,15 +37,15 @@ var group_acct_graphs = [
     }
 ];
 
-function create_group_tmpl(dialog_name){
+function create_hgroup_tmpl(dialog_name){
     return '<div class="row">\
   <div class="large-12 columns">\
-    <h3 id="create_group_header">'+tr("Create Group")+'</h3>\
-    <h3 id="update_group_header">'+tr("Update Group")+'</h3>\
+    <h3 id="create_hgroup_header">'+tr("Create HGroup")+'</h3>\
+    <h3 id="update_hgroup_header">'+tr("Update HGroup")+'</h3>\
   </div>\
 </div>\
 <div class="reveal-body">\
-  <form id="create_group_form" action="">\
+  <form id="create_hgroup_form" action="">\
     <div class="row">\
       <div class="columns large-5">\
           <label>'+tr("Name")+':\
@@ -66,8 +66,8 @@ function create_group_tmpl(dialog_name){
       <div class="row">\
         <div class="large-12 columns">\
           <p class="subheader">'
-            +tr("Allow users in this group to use the following Sunstone views")+
-            '&emsp;<span class="tip">'+tr("Views available to the group users. The default is set in sunstone-views.yaml")+'</span>\
+            +tr("Allow users in this hgroup to use the following Sunstone views")+
+            '&emsp;<span class="tip">'+tr("Views available to the hgroup users. The default is set in sunstone-views.yaml")+'</span>\
           </p>\
         </div>\
       </div>\
@@ -85,8 +85,8 @@ function create_group_tmpl(dialog_name){
         </div>\
         <div class="row">\
           <div class="large-12 columns">\
-            <dl class="tabs" id="group_zones_tabs" data-tab></dl>\
-            <div class="tabs-content group_zones_tabs_content"></div>\
+            <dl class="tabs" id="hgroup_zones_tabs" data-tab></dl>\
+            <div class="tabs-content hgroup_zones_tabs_content"></div>\
           </div>\
         </div>\
     </div>\
@@ -98,7 +98,7 @@ function create_group_tmpl(dialog_name){
               <label>\
                 <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
                 '+tr("Create an administrator user")+'\
-                <span class="tip">'+tr("You can create now an administrator user that will be assigned to the new regular group, with the administrator group as a secondary one.")+'</span>\
+                <span class="tip">'+tr("You can create now an administrator user that will be assigned to the new regular hgroup, with the administrator hgroup as a secondary one.")+'</span>\
               </label>\
             </div>\
           </div>' +
@@ -110,8 +110,8 @@ function create_group_tmpl(dialog_name){
         <div class="row">\
           <div class="large-12 columns">\
             <p class="subheader">'
-              +tr("Allow users in this group to create the following resources")+
-              '&emsp;<span class="tip">'+tr("This will create new ACL Rules to define which virtual resources this group's users will be able to create. You can set different resources for the administrator group, and decide if the administrators will be allowed to create new users.")+'</span>\
+              +tr("Allow users in this hgroup to create the following resources")+
+              '&emsp;<span class="tip">'+tr("This will create new ACL Rules to define which virtual resources this hgroup's users will be able to create. You can set different resources for the administrator hgroup, and decide if the administrators will be allowed to create new users.")+'</span>\
             </p>\
           </div>\
         </div>\
@@ -124,25 +124,25 @@ function create_group_tmpl(dialog_name){
                 <th>'+tr("VNets")+'</th>\
                 <th>'+tr("Images")+'</th>\
                 <th>'+tr("Templates")+'</th>\
-                <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.")+'</span></th>\
+                <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this hgroup to use service composition via OneFlow, let it checked.")+'</span></th>\
               </tr></thead>\
               <tbody>\
                 <tr>\
                   <th>'+tr("Users")+'</th>\
-                  <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>\
-                  <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>\
-                  <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>\
-                  <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
-                  <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
+                  <td><input type="checkbox" id="hgroup_res_vm" name="hgroup_res_vm" class="resource_cb" value="VM"></input></td>\
+                  <td><input type="checkbox" id="hgroup_res_net" name="hgroup_res_net" class="resource_cb" value="NET"></input></td>\
+                  <td><input type="checkbox" id="hgroup_res_image" name="hgroup_res_image" class="resource_cb" value="IMAGE"></input></td>\
+                  <td><input type="checkbox" id="hgroup_res_template" name="hgroup_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
+                  <td><input type="checkbox" id="hgroup_res_document" name="hgroup_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
                   <td/>\
                 </tr>\
                 <tr>\
                   <th>'+tr("Admins")+'</th>\
-                  <td><input type="checkbox" id="group_admin_res_vm" name="group_admin_res_vm" class="resource_cb" value="VM"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_net" name="group_admin_res_net" class="resource_cb" value="NET"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
+                  <td><input type="checkbox" id="hgroup_admin_res_vm" name="hgroup_admin_res_vm" class="resource_cb" value="VM"></input></td>\
+                  <td><input type="checkbox" id="hgroup_admin_res_net" name="hgroup_admin_res_net" class="resource_cb" value="NET"></input></td>\
+                  <td><input type="checkbox" id="hgroup_admin_res_image" name="hgroup_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
+                  <td><input type="checkbox" id="hgroup_admin_res_template" name="hgroup_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
+                  <td><input type="checkbox" id="hgroup_admin_res_document" name="hgroup_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
                 </tr>\
               </tbody>\
             </table>\
@@ -152,9 +152,9 @@ function create_group_tmpl(dialog_name){
   </div>\
   <div class="reveal-footer">\
     <div class="form_buttons">\
-      <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
-       <button class="button right radius" type="submit" id="update_group_submit">' + tr("Update") + '</button>\
-      <button class="button secondary radius" id="create_group_reset_button" type="reset" value="reset">'+tr("Reset")+'</button>\
+      <button class="button radius right success" id="create_hgroup_submit" value="HGroup.create">'+tr("Create")+'</button>\
+       <button class="button right radius" type="submit" id="update_hgroup_submit">' + tr("Update") + '</button>\
+      <button class="button secondary radius" id="create_hgroup_reset_button" type="reset" value="reset">'+tr("Reset")+'</button>\
     </div>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
@@ -162,17 +162,15 @@ function create_group_tmpl(dialog_name){
 </div>';
 }
 
-var group_quotas_tmpl = '<div class="row" class="subheader">\
+var hgroup_quotas_tmpl = '<div class="row" class="subheader">\
   <div class="large-12 columns">\
-    <h3 id="create_group_quotas_header">'+tr("Update Quota")+'</h3>\
+    <h3 id="create_hgroup_quotas_header">'+tr("Update Quota")+'</h3>\
   </div>\
 </div>\
 <div class="reveal-body">\
-<form id="group_quotas_form" action="">'+
-  quotas_tmpl +
-  '<div class="reveal-footer">\
+<form id="hgroup_quotas_form" action="">quotas_tmpl<div class="reveal-footer">\
     <div class="form_buttons">\
-        <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
+        <button class="button radius right success" id="create_user_submit" type="submit" value="HGroup.set_quota">'+tr("Apply changes")+'</button>\
     </div>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
@@ -180,193 +178,193 @@ var group_quotas_tmpl = '<div class="row" class="subheader">\
 </div>';
 
 
-var group_actions = {
-    "Group.create" : {
+var hgroup_actions = {
+    "HGroup.create" : {
         type: "create",
-        call : OpenNebula.Group.create,
+        call : OpenNebula.HGroup.create,
         callback : function(request, response) {
             // Reset the create wizard
-            $create_group_dialog.foundation('reveal', 'close');
-            $create_group_dialog.empty();
-            setupCreateGroupDialog();
+            $create_hgroup_dialog.foundation('reveal', 'close');
+            $create_hgroup_dialog.empty();
+            setupCreateHGroupDialog();
 
             OpenNebula.Helper.clear_cache("USER");
 
-            Sunstone.runAction("Group.list");
-            notifyCustom(tr("Group created"), " ID: " + response.GROUP.ID, false);
+            Sunstone.runAction("HGroup.list");
+            notifyCustom(tr("HGroup created"), " ID: " + response.HGROUP.ID, false);
         },
         error : onError
     },
 
-    "Group.create_dialog" : {
+    "HGroup.create_dialog" : {
         type: "custom",
-        call: popUpCreateGroupDialog
+        call: popUpCreateHGroupDialog
     },
 
-    "Group.list" : {
+    "HGroup.list" : {
         type: "list",
-        call: OpenNebula.Group.list,
-        callback: updateGroupsView,
+        call: OpenNebula.HGroup.list,
+        callback: updateHGroupsView,
         error: onError
     },
 
-    "Group.show" : {
+    "HGroup.show" : {
         type: "single",
-        call: OpenNebula.Group.show,
+        call: OpenNebula.HGroup.show,
         callback:   function(request, response) {
-            updateGroupElement(request, response);
-            if (Sunstone.rightInfoVisible($("#groups-tab"))) {
-                updateGroupInfo(request, response);
+            updateHGroupElement(request, response);
+            if (Sunstone.rightInfoVisible($("#hgroups-tab"))) {
+                updateHGroupInfo(request, response);
             }
         },
         error: onError
     },
 
-    "Group.refresh" : {
+    "HGroup.refresh" : {
         type: "custom",
         call: function() {
-          var tab = dataTable_groups.parents(".tab");
+          var tab = dataTable_hgroups.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Group.show", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("HGroup.show", Sunstone.rightInfoResourceId(tab))
           } else {
-            waitingNodes(dataTable_groups);
-            Sunstone.runAction("Group.list", {force: true});
+            waitingNodes(dataTable_hgroups);
+            Sunstone.runAction("HGroup.list", {force: true});
           }
         },
         error: onError
     },
 
-    "Group.update_template" : {
+    "HGroup.update_template" : {
         type: "single",
-        call: OpenNebula.Group.update,
+        call: OpenNebula.HGroup.update,
         callback: function(request) {
-            Sunstone.runAction('Group.show',request.request.data[0][0]);
+            Sunstone.runAction('HGroup.show',request.request.data[0][0]);
         },
         error: onError
     },
 
-    "Group.update_dialog" : {
+    "HGroup.update_dialog" : {
         type: "single",
-        call: initUpdateGroupDialog
+        call: initUpdateHGroupDialog
     },
 
-    "Group.show_to_update" : {
+    "HGroup.show_to_update" : {
         type: "single",
-        call: OpenNebula.Group.show,
+        call: OpenNebula.HGroup.show,
         callback: function(request, response) {
-            popUpUpdateGroupDialog(
-                response.GROUP,
-                $create_group_dialog);
+            popUpUpdateHGroupDialog(
+                response.HGROUP,
+                $create_hgroup_dialog);
         },
         error: onError
     },
 
-    "Group.delete" : {
+    "HGroup.delete" : {
         type: "multiple",
-        call : OpenNebula.Group.del,
-        callback : deleteGroupElement,
+        call : OpenNebula.HGroup.del,
+        callback : deleteHGroupElement,
         error : onError,
-        elements: groupElements
+        elements: hgroupElements
     },
 
-    "Group.fetch_quotas" : {
+    "HGroup.fetch_quotas" : {
         type: "single",
-        call: OpenNebula.Group.show,
+        call: OpenNebula.HGroup.show,
         callback: function (request,response) {
-            var parsed = parseQuotas(response.GROUP,quotaListItem);
-            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.VM);
-            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.DATASTORE);
-            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.IMAGE);
-            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.NETWORK);
+            var parsed = parseQuotas(response.HGROUP,quotaListItem);
+            $('.current_quotas table tbody',$hgroup_quotas_dialog).append(parsed.VM);
+            $('.current_quotas table tbody',$hgroup_quotas_dialog).append(parsed.DATASTORE);
+            $('.current_quotas table tbody',$hgroup_quotas_dialog).append(parsed.IMAGE);
+            $('.current_quotas table tbody',$hgroup_quotas_dialog).append(parsed.NETWORK);
         },
         error: onError
     },
 
-    "Group.quotas_dialog" : {
+    "HGroup.quotas_dialog" : {
         type: "custom",
-        call: popUpGroupQuotasDialog
+        call: popUpHGroupQuotasDialog
     },
 
-    "Group.set_quota" : {
+    "HGroup.set_quota" : {
         type: "multiple",
-        call: OpenNebula.Group.set_quota,
-        elements: groupElements,
+        call: OpenNebula.HGroup.set_quota,
+        elements: hgroupElements,
         callback: function(request,response) {
-            Sunstone.runAction('Group.show',request.request.data[0]);
+            Sunstone.runAction('HGroup.show',request.request.data[0]);
         },
         error: onError
     },
 
-    "Group.accounting" : {
+    "HGroup.accounting" : {
         type: "monitor",
-        call: OpenNebula.Group.accounting,
+        call: OpenNebula.HGroup.accounting,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
-            //plot_graph(response,'#group_acct_tabTab','group_acct_', info);
+            //plot_graph(response,'#hgroup_acct_tabTab','hgroup_acct_', info);
         },
         error: onError
     },
 
 
-    "Group.add_provider_action" : {
+    "HGroup.add_provider_action" : {
         type: "single",
-        call: OpenNebula.Group.add_provider,
+        call: OpenNebula.HGroup.add_provider,
         callback: function(request) {
-           Sunstone.runAction('Group.show',request.request.data[0][0]);
+           Sunstone.runAction('HGroup.show',request.request.data[0][0]);
         },
         error: onError
     },
 
-    "Group.del_provider_action" : {
+    "HGroup.del_provider_action" : {
         type: "single",
-        call: OpenNebula.Group.del_provider,
+        call: OpenNebula.HGroup.del_provider,
         callback: function(request) {
-          Sunstone.runAction('Group.show',request.request.data[0][0]);
+          Sunstone.runAction('HGroup.show',request.request.data[0][0]);
         },
         error: onError
     },
 
-    "Group.add_provider" : {
+    "HGroup.add_provider" : {
         type: "multiple",
         call: function(params){
             var cluster = params.data.extra_param;
-            var group   = params.data.id;
+            var hgroup   = params.data.id;
 
             extra_param = {
                 "zone_id" : 0,
                 "cluster_id" : cluster
             }
 
-            Sunstone.runAction("Group.add_provider_action", group, extra_param);
+            Sunstone.runAction("HGroup.add_provider_action", hgroup, extra_param);
         },
         callback: function(request) {
-            Sunstone.runAction('Group.show',request.request.data[0]);
+            Sunstone.runAction('HGroup.show',request.request.data[0]);
         },
-        elements: groupElements
+        elements: hgroupElements
     },
 
-    "Group.del_provider" : {
+    "HGroup.del_provider" : {
         type: "multiple",
         call: function(params){
             var cluster = params.data.extra_param;
-            var group   = params.data.id;
+            var hgroup   = params.data.id;
 
             extra_param = {
                 "zone_id" : 0,
                 "cluster_id" : cluster
             }
 
-            Sunstone.runAction("Group.del_provider_action", group, extra_param);
+            Sunstone.runAction("HGroup.del_provider_action", hgroup, extra_param);
         },
         callback: function(request) {
-            Sunstone.runAction('Group.show',request.request.data[0]);
+            Sunstone.runAction('HGroup.show',request.request.data[0]);
         },
-        elements: groupElements
+        elements: hgroupElements
     }
 }
 
-var group_buttons = {
-    "Group.refresh" : {
+var hgroup_buttons = {
+    "HGroup.refresh" : {
         type: "action",
         layout: "refresh",
         alwaysActive: true
@@ -376,23 +374,23 @@ var group_buttons = {
 //        layout: "top",
 //        alwaysActive: true
 //    },
-    "Group.create_dialog" : {
+    "HGroup.create_dialog" : {
         type: "create_dialog",
         layout: "create",
         condition: mustBeAdmin
     },
-    "Group.update_dialog" : {
+    "HGroup.update_dialog" : {
         type : "action",
         layout: "main",
         text : tr("Update")
     },
-    "Group.quotas_dialog" : {
+    "HGroup.quotas_dialog" : {
         type : "action",
         text : tr("Quotas"),
         layout: "main",
         condition: mustBeAdmin
     },
-    "Group.delete" : {
+    "HGroup.delete" : {
         type: "confirm",
         text: tr("Delete"),
         layout: "del",
@@ -400,43 +398,43 @@ var group_buttons = {
     },
 };
 
-var group_info_panel = {
+var hgroup_info_panel = {
 
 };
 
-var groups_tab = {
-    title: tr("Tenants"),
-    resource: 'Group',
-    buttons: group_buttons,
+var hgroups_tab = {
+    title: tr("Host Groups"),
+    resource: 'HGroup',
+    buttons: hgroup_buttons,
     tabClass: 'subTab',
-    parentTab: 'system-tab',
-    search_input: '<input id="group_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Tenants"),
-    info_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Tenant"),
+    parentTab: 'infra-tab',
+    search_input: '<input id="hgroup_search" type="text" placeholder="'+tr("Search")+'" />',
+    list_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Host Groups"),
+    info_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Host Group"),
     subheader: '<span>\
-        <span class="total_groups"/> <small>'+tr("TOTAL")+'</small>\
+        <span class="total_hgroups"/> <small>'+tr("TOTAL")+'</small>\
       </span>',
-    table: '<table id="datatable_groups" class="datatable twelve">\
+    table: '<table id="datatable_hgroups" class="datatable twelve">\
       <thead>\
         <tr>\
           <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
           <th>'+tr("ID")+'</th>\
           <th>'+tr("Name")+'</th>\
-          <th style="display: none;">'+tr("Users")+'</th>\
-          <th style="width:18%; display: none;">'+tr("VMs")+'</th>\
-          <th style="width:18%; display: none;">'+tr("Memory")+'</th>\
-          <th style="width:18%; display: none;">'+tr("CPU")+'</th>\
+          <th>'+tr("Hosts")+'</th>\
+          <th>'+tr("Cluster")+'</th>\
+          <th>'+tr("Memory")+'</th>\
+          <th>'+tr("CPU")+'</th>\
         </tr>\
       </thead>\
-      <tbody id="tbodygroups">\
+      <tbody id="tbodyhgroups">\
       </tbody>\
     </table>'
 };
 
 
-Sunstone.addActions(group_actions);
-Sunstone.addMainTab('groups-tab',groups_tab);
-Sunstone.addInfoPanel("group_info_panel",group_info_panel);
+Sunstone.addActions(hgroup_actions);
+Sunstone.addMainTab('hgroups-tab',hgroups_tab);
+Sunstone.addInfoPanel("hgroup_info_panel",hgroup_info_panel);
 
 function insert_views(dialog_name){
   views_checks_str = ""
@@ -446,26 +444,26 @@ function insert_views(dialog_name){
     var checked = views_array[i] == 'cloud' ? "checked" : "";
 
     views_checks_str = views_checks_str +
-             '<input type="checkbox" id="group_view_'+dialog_name+'_'+views_array[i]+
+             '<input type="checkbox" id="hgroup_view_'+dialog_name+'_'+views_array[i]+
                 '" value="'+views_array[i]+'" '+checked+'/>' +
-             '<label for="group_view_'+dialog_name+'_'+views_array[i]+'">'+views_array[i]+
+             '<label for="hgroup_view_'+dialog_name+'_'+views_array[i]+'">'+views_array[i]+
              '</label>'
   }
   return views_checks_str;
 }
 
-function groupElements(){
-    return getSelectedNodes(dataTable_groups);
+function hgroupElements(){
+    return getSelectedNodes(dataTable_hgroups);
 }
 
-function groupElementArray(group_json){
-    var group = group_json.GROUP;
+function hgroupElementArray(hgroup_json){
+    var hgroup =hgroup_json.HGROUP;
 
     var users_str = "0";
 
-    if (group.USERS.ID){
-        if ($.isArray(group.USERS.ID)){
-            users_str = group.USERS.ID.length;
+    if (hgroup.USERS.ID){
+        if ($.isArray(hgroup.USERS.ID)){
+            users_str = hgroup.USERS.ID.length;
         } else {
             users_str = "1";
         }
@@ -475,81 +473,77 @@ function groupElementArray(group_json){
     var memory = "-";
     var cpu = "-";
 
-    if (!$.isEmptyObject(group.VM_QUOTA)){
+    if (!$.isEmptyObject(hgroup.VM_QUOTA)){
 
         var vms = quotaBar(
-            group.VM_QUOTA.VM.VMS_USED,
-            group.VM_QUOTA.VM.VMS,
-            default_group_quotas.VM_QUOTA.VM.VMS);
+            hgroup.VM_QUOTA.VM.VMS_USED,
+            hgroup.VM_QUOTA.VM.VMS,
+            default_hgroup_quotas.VM_QUOTA.VM.VMS);
 
         var memory = quotaBarMB(
-            group.VM_QUOTA.VM.MEMORY_USED,
-            group.VM_QUOTA.VM.MEMORY,
-            default_group_quotas.VM_QUOTA.VM.MEMORY);
+            hgroup.VM_QUOTA.VM.MEMORY_USED,
+            hgroup.VM_QUOTA.VM.MEMORY,
+            default_hgroup_quotas.VM_QUOTA.VM.MEMORY);
 
         var cpu = quotaBarFloat(
-            group.VM_QUOTA.VM.CPU_USED,
-            group.VM_QUOTA.VM.CPU,
-            default_group_quotas.VM_QUOTA.VM.CPU);
+            hgroup.VM_QUOTA.VM.CPU_USED,
+            hgroup.VM_QUOTA.VM.CPU,
+            default_hgroup_quotas.VM_QUOTA.VM.CPU);
     }
 
     return [
-        '<input class="check_item" type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.ID+'"/>',
-        group.ID,
-        group.NAME,
-        "",
-        "",
-        "",
-        ""
-      //  users_str,
-     //   vms,
-     //   memory,
-     //   cpu
+        '<input class="check_item" type="checkbox" id="hgroup_'+hgroup.ID+'" name="selected_items" value="'+hgroup.NAME+'"/>',
+        hgroup.ID,
+        hgroup.NAME,
+        hgroup.NOOFHOSTS,
+        hgroup.CLUSTER,
+        memory,
+        cpu
     ];
 }
 
-function updateGroupElement(request, group_json){
-    var id = group_json.GROUP.ID;
-    var element = groupElementArray(group_json);
-    updateSingleElement(element,dataTable_groups,'#group_'+id);
+function updateHGroupElement(request, hgroup_json){
+    var id = hgroup_json.HGROUP.ID;
+    var element = hgroupElementArray(hgroup_json);
+    updateSingleElement(element,dataTable_hgroups,'#hgroup_'+id);
     //No need to update select as all items are in it always
 }
 
-function deleteGroupElement(request){
-    deleteElement(dataTable_groups,'#group_'+request.request.data);
+function deleteHGroupElement(request){
+    deleteElement(dataTable_hgroups,'#hgroup_'+request.request.data);
 }
 
-function addGroupElement(request,group_json){
-    var id = group_json.GROUP.ID;
-    var element = groupElementArray(group_json);
-    addElement(element,dataTable_groups);
+function addHGroupElement(request,hgroup_json){
+    var id = hgroup_json.HGROUP.ID;
+    var element = hgroupElementArray(hgroup_json);
+    addElement(element,dataTable_hgroups);
 }
 
 //updates the list
-function updateGroupsView(request, group_list, quotas_hash){
-    group_list_json = group_list;
-    var group_list_array = [];
+function updateHGroupsView(request, hgroup_list, quotas_hash){
+    hgroup_list_json = hgroup_list;
+    var hgroup_list_array = [];
 
-    $.each(group_list,function(){
-        // Inject the VM group quota. This info is returned separately in the
-        // pool info call, but the groupElementArray expects it inside the GROUP,
+    $.each(hgroup_list,function(){
+        // Inject the VM hgroup quota. This info is returned separately in the
+        // pool info call, but the hgroupElementArray expects it inside the hGROUP,
         // as it is returned by the individual info call
-        var q = quotas_hash[this.GROUP.ID];
+        var q = quotas_hash[this.HGROUP.ID];
 
         if (q != undefined) {
-            this.GROUP.VM_QUOTA = q.QUOTAS.VM_QUOTA;
+            this.HGROUP.VM_QUOTA = q.QUOTAS.VM_QUOTA;
         }
 
-        group_list_array.push(groupElementArray(this));
+        hgroup_list_array.push(hgroupElementArray(this));
     });
-    updateView(group_list_array,dataTable_groups);
+    updateView(hgroup_list_array,dataTable_hgroups);
 
     // Dashboard info
-    $(".total_groups").text(group_list.length);
+    $(".total_hgroups").text(hgroup_list.length);
 }
 
-function fromJSONtoProvidersTable(group_info){
-    providers_array=group_info.RESOURCE_PROVIDER
+function fromJSONtoProvidersTable(hgroup_info){
+    providers_array=hgroup_info.RESOURCE_PROVIDER
     var str = ""
     if (!providers_array){ return "";}
     if (!$.isArray(providers_array))
@@ -567,7 +561,7 @@ function fromJSONtoProvidersTable(group_info){
             <td>' + cluster_id + '</td>\
             <td>\
              <div id="div_minus_rp" class="text-right">\
-               <a id="div_minus_rp_a_'+provider.ZONE_ID+'" class="cluster_id_'+cluster_id+' group_id_'+group_info.ID+'" href="#"><i class="fa fa-trash-o"/></a>\
+               <a id="div_minus_rp_a_'+provider.ZONE_ID+'" class="cluster_id_'+cluster_id+' hgroup_id_'+hgroup_info.ID+'" href="#"><i class="fa fa-trash-o"/></a>\
              </div>\
             </td>\
         </tr>';
@@ -589,9 +583,9 @@ function fromJSONtoProvidersTable(group_info){
             }
             else
             {
-              if (value.match(/^group_id_/))
+              if (value.match(/^hgroup_id_/))
               {
-                group_id=value.substring(9,value.length);
+                hgroup_id=value.substring(9,value.length);
               }
             }
 
@@ -602,14 +596,14 @@ function fromJSONtoProvidersTable(group_info){
             "cluster_id" :  (cluster_id == "All") ? 10 : cluster_id
         }
 
-        Sunstone.runAction("Group.del_provider_action", group_id, extra_param);
+        Sunstone.runAction("HGroup.del_provider_action", hgroup_id, extra_param);
     });
 
     return str;
 }
 
-function updateGroupInfo(request,group){
-    var info = group.GROUP;
+function updateHGroupInfo(request,hgroup){
+    var info = hgroup.HGROUP;
 
     var info_tab = {
           title: tr("Info"),
@@ -632,20 +626,10 @@ function updateGroupInfo(request,group){
                   <td></td>\
                 </tr>\
                 <tr>\
-                  <td class="key_td">'+tr("USERS")+'</td>\
-                  <td class="value_td">'+info.NOOFUSERS+'</td>\
-                  <td></td>\
-                </tr>\
-               <tr>\
-                 <td class="key_td">'+tr("ENABLED")+'</td>\
-                  <td class="value_td_rename">'+info.ENABLED+'</td>\
+                <td class="key_td">'+tr("Cluster")+'</td>\
+                <td class="value_td_rename">'+info.CLUSTER+'</td>\
                 <td></td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">'+tr("DESCRIPTION")+'</td>\
-                <td class="value_td_rename">'+info.DESCRIPTION+'</td>\
-                <td></td>\
-             </tr>\
+              </tr>\
               </table>\
            </div>\
            <div class="large-6 columns">' +
@@ -654,21 +638,21 @@ function updateGroupInfo(request,group){
          <div class="row">\
           <div class="large-9 columns">'+
               insert_extended_template_table(info.TEMPLATE,
-                                                 "Group",
+                                                 "HGroup",
                                                  info.ID,
                                                  "Attributes") +
           '</div>\
         </div>'
       }
 
-    var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
-    var vms_quota = Quotas.vms(info, default_group_quotas);
-    var cpu_quota = Quotas.cpu(info, default_group_quotas);
-    var memory_quota = Quotas.memory(info, default_group_quotas);
-    var volatile_size_quota = Quotas.volatile_size(info, default_group_quotas);
-    var image_quota = Quotas.image(info, default_group_quotas);
-    var network_quota = Quotas.network(info, default_group_quotas);
-    var datastore_quota = Quotas.datastore(info, default_group_quotas);
+    var default_hgroup_quotas = Quotas.default_quotas(info.DEFAULT_HGROUP_QUOTAS);
+    var vms_quota = Quotas.vms(info, default_hgroup_quotas);
+    var cpu_quota = Quotas.cpu(info, default_hgroup_quotas);
+    var memory_quota = Quotas.memory(info, default_hgroup_quotas);
+    var volatile_size_quota = Quotas.volatile_size(info, default_hgroup_quotas);
+    var image_quota = Quotas.image(info, default_hgroup_quotas);
+    var network_quota = Quotas.network(info, default_hgroup_quotas);
+    var datastore_quota = Quotas.datastore(info, default_hgroup_quotas);
 
     var quotas_html;
     if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
@@ -722,32 +706,32 @@ function updateGroupInfo(request,group){
         </div>'
     };
 
-    Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
-    Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
+    Sunstone.updateInfoPanelTab("hgroup_info_panel","hgroup_info_tab",info_tab);
+    //Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
+   // Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
+    Sunstone.popUpInfoPanel("hgroup_info_panel", 'hgroups-tab');
 
-    $("#add_rp_button", $("#group_info_panel")).click(function(){
-        initUpdateGroupDialog();
+    $("#add_rp_button", $("#hgroup_info_panel")).click(function(){
+        initUpdateHGroupDialog();
 
-        $("a[href=#resource_providers]", $update_group_dialog).click();
+        $("a[href=#resource_providers]", $update_hgroup_dialog).click();
 
         return false;
     });
 }
 
-function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_group_clusters, group) {
+function setup_hgroup_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_hgroup_clusters, hgroup) {
     // Show the clusters dataTable when the radio button is selected
     $("input[name='"+str_zone_tab_id+"']", zone_section).change(function(){
         if ($("input[name='"+str_zone_tab_id+"']:checked", zone_section).val() == "cluster") {
-            $("div.group_cluster_select", zone_section).show();
+            $("div.hgroup_cluster_select", zone_section).show();
         }
         else {
-            $("div.group_cluster_select", zone_section).hide();
+            $("div.hgroup_cluster_select", zone_section).hide();
         }
     });
 
-    if (zone_id == 0 && !group)
+    if (zone_id == 0 && !hgroup)
     {
       $('#'+str_zone_tab_id+'resources_all', zone_section).click();
     }
@@ -756,7 +740,7 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
       $('#'+str_zone_tab_id+'resources_none', zone_section).click();
     }
 
-    var dataTable_group_clusters = $('#'+str_datatable_id, zone_section).dataTable({
+    var dataTable_hgroup_clusters = $('#'+str_datatable_id, zone_section).dataTable({
         "iDisplayLength": 4,
         "sDom" : '<"H">t<"F"p>',
         "bAutoWidth":false,
@@ -769,16 +753,16 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
     });
 
     // Retrieve the clusters to fill the datatable
-    update_datatable_group_clusters(dataTable_group_clusters, zone_id, str_zone_tab_id, group);
+    update_datatable_hgroup_clusters(dataTable_hgroup_clusters, zone_id, str_zone_tab_id, hgroup);
 
     $('#'+str_zone_tab_id+'_search', zone_section).keyup(function(){
-        dataTable_group_clusters.fnFilter( $(this).val() );
+        dataTable_hgroup_clusters.fnFilter( $(this).val() );
     })
 
-    dataTable_group_clusters.fnSort( [ [1,config['user_config']['table_order']] ] );
+    dataTable_hgroup_clusters.fnSort( [ [1,config['user_config']['table_order']] ] );
 
     $('#'+str_datatable_id + '  tbody', zone_section).delegate("tr", "click", function(e){
-        var aData   = dataTable_group_clusters.fnGetData(this);
+        var aData   = dataTable_hgroup_clusters.fnGetData(this);
 
         if (!aData){
             return true;
@@ -786,34 +770,34 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
 
         var cluster_id = aData[1];
 
-        if ($.isEmptyObject(selected_group_clusters[zone_id])) {
-            $('#you_selected_group_clusters'+str_zone_tab_id,  zone_section).show();
-            $("#select_group_clusters"+str_zone_tab_id, zone_section).hide();
+        if ($.isEmptyObject(selected_hgroup_clusters[zone_id])) {
+            $('#you_selected_hgroup_clusters'+str_zone_tab_id,  zone_section).show();
+            $("#select_hgroup_clusters"+str_zone_tab_id, zone_section).hide();
         }
 
         if(!$("td:first", this).hasClass('markrowchecked'))
         {
             $('input.check_item', this).attr('checked','checked');
-            selected_group_clusters[zone_id][cluster_id] = this;
+            selected_hgroup_clusters[zone_id][cluster_id] = this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
-            if ($('#tag_cluster_'+aData[1], $('.selected_group_clusters', zone_section)).length == 0 ) {
-                $('.selected_group_clusters', zone_section).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="fa fa-times blue"></span></span> ');
+            if ($('#tag_cluster_'+aData[1], $('.selected_hgroup_clusters', zone_section)).length == 0 ) {
+                $('.selected_hgroup_clusters', zone_section).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="fa fa-times blue"></span></span> ');
             }
         }
         else
         {
             $('input.check_item', this).removeAttr('checked');
-            delete selected_group_clusters[zone_id][cluster_id];
+            delete selected_hgroup_clusters[zone_id][cluster_id];
             $(this).children().each(function(){$(this).removeClass('markrowchecked');});
-            $('.selected_group_clusters span#tag_cluster_'+cluster_id, zone_section).remove();
+            $('.selected_hgroup_clusters span#tag_cluster_'+cluster_id, zone_section).remove();
         }
 
-        if ($.isEmptyObject(selected_group_clusters[zone_id])) {
-            $('#you_selected_group_clusters'+str_zone_tab_id,  zone_section).hide();
-            $('#select_group_clusters'+str_zone_tab_id, zone_section).show();
+        if ($.isEmptyObject(selected_hgroup_clusters[zone_id])) {
+            $('#you_selected_hgroup_clusters'+str_zone_tab_id,  zone_section).hide();
+            $('#select_hgroup_clusters'+str_zone_tab_id, zone_section).show();
         }
 
-        $('.alert-box', $('.group_cluster_select')).hide();
+        $('.alert-box', $('.hgroup_cluster_select')).hide();
 
         return true;
     });
@@ -824,25 +808,25 @@ function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id
 
         var cluster_id=id.substring(12,id.length);
 
-        $('td', selected_group_clusters[zone_id][cluster_id]).removeClass('markrowchecked');
-        $('input.check_item', selected_group_clusters[zone_id][cluster_id]).removeAttr('checked');
-        delete selected_group_clusters[zone_id][cluster_id];
+        $('td', selected_hgroup_clusters[zone_id][cluster_id]).removeClass('markrowchecked');
+        $('input.check_item', selected_hgroup_clusters[zone_id][cluster_id]).removeAttr('checked');
+        delete selected_hgroup_clusters[zone_id][cluster_id];
 
-        if ($.isEmptyObject(selected_group_clusters[zone_id])) {
-            $('#you_selected_group_clusters'+str_zone_tab_id, zone_section).hide();
-            $('#select_group_clusters'+str_zone_tab_id, zone_section).show();
+        if ($.isEmptyObject(selected_hgroup_clusters[zone_id])) {
+            $('#you_selected_hgroup_clusters'+str_zone_tab_id, zone_section).hide();
+            $('#select_hgroup_clusters'+str_zone_tab_id, zone_section).show();
         }
     });
 
     setupTips(zone_section);
 }
 
-function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id, group){
+function generate_hgroup_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id, hgroup){
     var html =
     '<div class="row">\
       <div class="large-12 columns">\
           <p class="subheader">' +  tr("Assign physical resources") + '\
-            &emsp;<span class="tip">'+tr("For each OpenNebula Zone, you can assign cluster resources (set of physical hosts, datastores and virtual networks) to this group.")+'</span>\
+            &emsp;<span class="tip">'+tr("For each OpenNebula Zone, you can assign cluster resources (set of physical hosts, datastores and virtual networks) to this hgroup.")+'</span>\
           </p>\
       </div>\
     </div>\
@@ -855,10 +839,10 @@ function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, 
     </div>\
     <div class="row">\
       <div class="large-12 columns">\
-        <div id="req_type" class="group_cluster_select hidden">\
+        <div id="req_type" class="hgroup_cluster_select hidden">\
             <div class="row collapse ">\
               <div class="large-9 columns">\
-               <button id="refresh_group_clusters_table_button_class'+str_zone_tab_id+'" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
+               <button id="refresh_hgroup_clusters_table_button_class'+str_zone_tab_id+'" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
               </div>\
               <div class="large-3 columns">\
                 <input id="'+str_zone_tab_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -879,27 +863,27 @@ function generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, 
               </tbody>\
             </table>\
             <br>\
-            <div class="selected_group_clusters">\
-              <span id="select_group_clusters'+str_zone_tab_id+'" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> \
-              <span id="you_selected_group_clusters'+str_zone_tab_id+'" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> \
+            <div class="selected_hgroup_clusters">\
+              <span id="select_hgroup_clusters'+str_zone_tab_id+'" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> \
+              <span id="you_selected_hgroup_clusters'+str_zone_tab_id+'" class="radius secondary label hidden">'+tr("You selected the following clusters:")+'</span> \
             </div>\
             <br>\
         </div\
       </div>\
     </div>';
 
-    $("#refresh_group_clusters_table_button_class"+str_zone_tab_id).die();
-    $("#refresh_group_clusters_table_button_class"+str_zone_tab_id).live('click', function(){
-        update_datatable_group_clusters(
+    $("#refresh_hgroup_clusters_table_button_class"+str_zone_tab_id).die();
+    $("#refresh_hgroup_clusters_table_button_class"+str_zone_tab_id).live('click', function(){
+        update_datatable_hgroup_clusters(
             $('table[id='+str_datatable_id+']').dataTable(),
-            zone_id, str_zone_tab_id, group);
+            zone_id, str_zone_tab_id, hgroup);
     });
 
     return html;
 }
 
 // TODO: Refactor? same function in templates-tab.js
-function update_datatable_group_clusters(datatable, zone_id, str_zone_tab_id, group) {
+function update_datatable_hgroup_clusters(datatable, zone_id, str_zone_tab_id, hgroup) {
 
     OpenNebula.Cluster.list_in_zone({
         data:{zone_id:zone_id},
@@ -914,10 +898,10 @@ function update_datatable_group_clusters(datatable, zone_id, str_zone_tab_id, gr
 
             updateView(obj_list_array, datatable);
 
-            if (group && group.RESOURCE_PROVIDER)
+            if (hgroup && hgroup.RESOURCE_PROVIDER)
             {
                 var rows = datatable.fnGetNodes();
-                providers_array = group.RESOURCE_PROVIDER;
+                providers_array = hgroup.RESOURCE_PROVIDER;
 
                 if (!$.isArray(providers_array))
                 {
@@ -950,28 +934,28 @@ function update_datatable_group_clusters(datatable, zone_id, str_zone_tab_id, gr
     });
 };
 
-var add_resource_tab = function(zone_id, zone_name, dialog, selected_group_clusters, group) {
+var add_resource_tab = function(zone_id, zone_name, dialog, selected_hgroup_clusters, hgroup) {
     var str_zone_tab_id  = dialog.attr('id') + '_zone' + zone_id;
-    var str_datatable_id = dialog.attr('id') + '_datatable_group_clusters_zone_' + zone_id;
+    var str_datatable_id = dialog.attr('id') + '_datatable_hgroup_clusters_zone_' + zone_id;
 
-    selected_group_clusters[zone_id] = {};
+    selected_hgroup_clusters[zone_id] = {};
 
     // Append the new div containing the tab and add the tab to the list
     var html_tab_content = '<div id="'+str_zone_tab_id+'Tab" class="content">'+
-        generate_group_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id, group) +
+        generate_hgroup_resource_tab_content(str_zone_tab_id, str_datatable_id, zone_id, hgroup) +
         '</div>'
-    $(html_tab_content).appendTo($(".group_zones_tabs_content", dialog));
+    $(html_tab_content).appendTo($(".hgroup_zones_tabs_content", dialog));
 
     var a = $("<dd>\
         <a id='zone_tab"+str_zone_tab_id+"' href='#"+str_zone_tab_id+"Tab'>"+zone_name+"</a>\
-        </dd>").appendTo($("dl#group_zones_tabs", dialog));
+        </dd>").appendTo($("dl#hgroup_zones_tabs", dialog));
 
     // TODOO
     //$(document).foundationTabs("set_tab", a);
-    $("dl#group_zones_tabs", dialog).children("dd").first().children("a").click();
+    $("dl#hgroup_zones_tabs", dialog).children("dd").first().children("a").click();
 
     var zone_section = $('#' +str_zone_tab_id+'Tab', dialog);
-    setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_group_clusters, group);
+    setup_hgroup_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_hgroup_clusters, hgroup);
 };
 
 function disableAdminUser(dialog){
@@ -989,49 +973,49 @@ function enableAdminUser(dialog){
 };
 
 //Prepares the dialog to create
-function setupCreateGroupDialog(){
-    dialogs_context.append('<div id="create_group_dialog"></div>');
-    $create_group_dialog = $('#create_group_dialog',dialogs_context);
-    var dialog = $create_group_dialog;
+function setupCreateHGroupDialog(){
+    dialogs_context.append('<div id="create_hgroup_dialog"></div>');
+    $create_hgroup_dialog = $('#create_hgroup_dialog',dialogs_context);
+    var dialog = $create_hgroup_dialog;
 
-    dialog.html(create_group_tmpl('create'));
+    dialog.html(create_hgroup_tmpl('create'));
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     $(document).foundation();
 
     // Hide update buttons
-    $('#update_group_submit',$create_group_dialog).hide();
-    $('#update_group_header',$create_group_dialog).hide();
+    $('#update_hgroup_submit',$create_hgroup_dialog).hide();
+    $('#update_hgroup_header',$create_hgroup_dialog).hide();
 
-    setupTips($create_group_dialog);
+    setupTips($create_hgroup_dialog);
 
-    $('#create_group_reset_button').click(function(){
-        $create_group_dialog.html("");
-        setupCreateGroupDialog();
+    $('#create_hgroup_reset_button').click(function(){
+        $create_hgroup_dialog.html("");
+        setupCreateHGroupDialog();
 
-        popUpCreateGroupDialog();
+        popUpCreateHGroupDialog();
     });
 
     setupCustomAuthDialog(dialog);
 
     $('input#name', dialog).change(function(){
         var val = $(this).val();
-        var dialog = $create_group_dialog;
+        var dialog = $create_hgroup_dialog;
 
         $('#username',dialog).val(val + "-admin");
     });
 
     $('input#admin_user', dialog).change(function(){
-        var dialog = $create_group_dialog;
+        var dialog = $create_hgroup_dialog;
         if ($(this).prop('checked')) {
             enableAdminUser(dialog);
 
-            $.each($('[id^="group_admin_res"]', dialog), function(){
+            $.each($('[id^="hgroup_admin_res"]', dialog), function(){
                 $(this).removeAttr("disabled");
             });
         } else {
             disableAdminUser(dialog);
 
-            $.each($('[id^="group_admin_res"]', dialog), function(){
+            $.each($('[id^="hgroup_admin_res"]', dialog), function(){
                 $(this).attr('disabled', 'disabled');
             });
         }
@@ -1039,19 +1023,19 @@ function setupCreateGroupDialog(){
 
     disableAdminUser(dialog);
 
-    $.each($('[id^="group_res"]', dialog), function(){
+    $.each($('[id^="hgroup_res"]', dialog), function(){
         $(this).prop("checked", true);
     });
 
-    $.each($('[id^="group_admin_res"]', dialog), function(){
+    $.each($('[id^="hgroup_admin_res"]', dialog), function(){
         $(this).attr('disabled', 'disabled');
         $(this).prop("checked", true);
     });
 
-    $("#group_res_net", dialog).prop("checked", false);
-    $("#group_admin_res_net", dialog).prop("checked", false);
+    $("#hgroup_res_net", dialog).prop("checked", false);
+    $("#hgroup_admin_res_net", dialog).prop("checked", false);
 
-    var selected_group_clusters = {};
+    var selected_hgroup_clusters = {};
 
     OpenNebula.Zone.list({
         timeout: true,
@@ -1060,13 +1044,13 @@ function setupCreateGroupDialog(){
                 add_resource_tab(this.ZONE.ID,
                     this.ZONE.NAME,
                     dialog,
-                    selected_group_clusters);
+                    selected_hgroup_clusters);
             });
         },
         error: onError
     });
 
-    $('#create_group_form',dialog).submit(function(){
+    $('#create_hgroup_form',dialog).submit(function(){
         var name = $('#name',this).val();
 
         var user_json = null;
@@ -1080,33 +1064,33 @@ function setupCreateGroupDialog(){
             }
         }
 
-        var group_json = {
-            "group" : {
+        var hgroup_json = {
+            "hgroup" : {
                 "name" : name
             }
         };
 
         if (user_json){
-            group_json["group"]["group_admin"] = user_json["user"];
+            hgroup_json["hgroup"]["hgroup_admin"] = user_json["user"];
         }
 
-        group_json['group']['resource_providers'] = [];
+        hgroup_json['hgroup']['resource_providers'] = [];
 
-        $.each(selected_group_clusters, function(zone_id, zone_clusters) {
+        $.each(selected_hgroup_clusters, function(zone_id, zone_clusters) {
             var str_zone_tab_id = dialog.attr('id') + '_zone' + zone_id;
 
             var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked", dialog).val();
             switch (resource_selection){
             case "all":
                 // 10 is the special ID for ALL, see ClusterPool.h
-                group_json['group']['resource_providers'].push(
+                hgroup_json['hgroup']['resource_providers'].push(
                     {"zone_id" : zone_id, "cluster_id" : 10}
                 );
 
                 break;
             case "cluster":
-                $.each(selected_group_clusters[zone_id], function(key, value) {
-                    group_json['group']['resource_providers'].push(
+                $.each(selected_hgroup_clusters[zone_id], function(key, value) {
+                    hgroup_json['hgroup']['resource_providers'].push(
                         {"zone_id" : zone_id, "cluster_id" : key}
                     );
                 });
@@ -1120,62 +1104,62 @@ function setupCreateGroupDialog(){
         var resources = "";
         var separator = "";
 
-        $.each($('[id^="group_res"]:checked', dialog), function(){
+        $.each($('[id^="hgroup_res"]:checked', dialog), function(){
             resources += (separator + $(this).val());
             separator = "+";
         });
 
-        group_json['group']['resources'] = resources;
+        hgroup_json['hgroup']['resources'] = resources;
 
         if (user_json){
             resources = "";
             separator = "";
 
-            $.each($('[id^="group_admin_res"]:checked', dialog), function(){
+            $.each($('[id^="hgroup_admin_res"]:checked', dialog), function(){
                 resources += (separator + $(this).val());
                 separator = "+";
             });
 
-            group_json["group"]["group_admin"]["resources"] = resources;
+            hgroup_json["hgroup"]["hgroup_admin"]["resources"] = resources;
         }
 
-        group_json['group']['views'] = [];
+        hgroup_json['hgroup']['views'] = [];
 
-        $.each($('[id^="group_view"]:checked', dialog), function(){
-            group_json['group']['views'].push($(this).val());
+        $.each($('[id^="hgroup_view"]:checked', dialog), function(){
+            hgroup_json['hgroup']['views'].push($(this).val());
         });
 
 
-        Sunstone.runAction("Group.create",group_json);
+        Sunstone.runAction("HGroup.create",hgroup_json);
         return false;
     });
 }
 
-function popUpCreateGroupDialog(){
-    $create_group_dialog.foundation().foundation('reveal', 'open');
-    $("input#name",$create_group_dialog).focus();
+function popUpCreateHGroupDialog(){
+    $create_hgroup_dialog.foundation().foundation('reveal', 'open');
+    $("input#name",$create_hgroup_dialog).focus();
 }
 
 //Prepares the dialog to update
-function setupUpdateGroupDialog(){
-    if (typeof($update_group_dialog) !== "undefined"){
-        $update_group_dialog.html("");
+function setupUpdateHGroupDialog(){
+    if (typeof($update_hgroup_dialog) !== "undefined"){
+        $update_hgroup_dialog.html("");
     }
 
-    dialogs_context.append('<div id="update_group_dialog"></div>');
-    $update_group_dialog = $('#update_group_dialog',dialogs_context);
-    var dialog = $update_group_dialog;
+    dialogs_context.append('<div id="update_hgroup_dialog"></div>');
+    $update_hgroup_dialog = $('#update_hgroup_dialog',dialogs_context);
+    var dialog = $update_hgroup_dialog;
 
-    dialog.html(create_group_tmpl('update'));
+    dialog.html(create_hgroup_tmpl('update'));
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     $(document).foundation();
 
-    setupTips($update_group_dialog);
+    setupTips($update_hgroup_dialog);
 
     // Hide create button
-    $('#create_group_submit',$update_group_dialog).hide();
-    $('#create_group_header',$update_group_dialog).hide();
-    $('#create_group_reset_button',$update_group_dialog).hide();
+    $('#create_hgroup_submit',$update_hgroup_dialog).hide();
+    $('#create_hgroup_header',$update_hgroup_dialog).hide();
+    $('#create_hgroup_reset_button',$update_hgroup_dialog).hide();
 
     // Disable parts of the wizard
     $("input#name", dialog).attr("disabled", "disabled");
@@ -1183,46 +1167,46 @@ function setupUpdateGroupDialog(){
     $("a[href='#administrators']", dialog).parents("dd").hide();
     $("a[href='#resource_creation']", dialog).parents("dd").hide();
 
-    $update_group_dialog.foundation();
+    $update_hgroup_dialog.foundation();
 }
 
-function initUpdateGroupDialog(){
-    var selected_nodes = getSelectedNodes(dataTable_groups);
+function initUpdateHGroupDialog(){
+    var selected_nodes = getSelectedNodes(dataTable_hgroups);
 
     if ( selected_nodes.length != 1 )
     {
-        notifyMessage("Please select one (and just one) group to update.");
+        notifyMessage("Please select one (and just one) hgroup to update.");
         return false;
     }
 
     // Get proper id
-    var group_id = ""+selected_nodes[0];
+    var hgroup_id = ""+selected_nodes[0];
 
-    setupUpdateGroupDialog();
+    setupUpdateHGroupDialog();
 
-    Sunstone.runAction("Group.show_to_update", group_id);
+    Sunstone.runAction("HGroup.show_to_update", hgroup_id);
 }
 
-function popUpUpdateGroupDialog(group, dialog)
+function popUpUpdateHGroupDialog(hgroup, dialog)
 {
-    var dialog = $update_group_dialog;
+    var dialog = $update_hgroup_dialog;
 
     dialog.foundation('reveal', 'open');
 
-    $("input#name",$update_group_dialog).val(group.NAME);
+    $("input#name",$update_hgroup_dialog).val(hgroup.NAME);
 
     var views_str = "";
 
-    if (group.TEMPLATE.SUNSTONE_VIEWS){
-        views_str = group.TEMPLATE.SUNSTONE_VIEWS;
+    if (hgroup.TEMPLATE.SUNSTONE_VIEWS){
+        views_str = hgroup.TEMPLATE.SUNSTONE_VIEWS;
 
         var views = views_str.split(",");
         $.each(views, function(){
-            $('input[id^="group_view"][value="'+this.trim()+'"]', dialog).attr('checked','checked');
+            $('input[id^="hgroup_view"][value="'+this.trim()+'"]', dialog).attr('checked','checked');
         });
     }
 
-    var selected_group_clusters = {};
+    var selected_hgroup_clusters = {};
 
     OpenNebula.Zone.list({
         timeout: true,
@@ -1231,41 +1215,41 @@ function popUpUpdateGroupDialog(group, dialog)
                 add_resource_tab(this.ZONE.ID,
                                  this.ZONE.NAME,
                                  dialog,
-                                 selected_group_clusters,
-                                 group);
+                                 selected_hgroup_clusters,
+                                 hgroup);
             });
         },
         error: onError
     });
 
 
-    $(dialog).off("click", 'button#update_group_submit');
-    $(dialog).on("click", 'button#update_group_submit', function(){
+    $(dialog).off("click", 'button#update_hgroup_submit');
+    $(dialog).on("click", 'button#update_hgroup_submit', function(){
 
         // Update Views
         //-------------------------------------
         var new_views_str = "";
         var separator     = "";
 
-        $.each($('[id^="group_view"]:checked', dialog), function(){
+        $.each($('[id^="hgroup_view"]:checked', dialog), function(){
             new_views_str += (separator + $(this).val());
             separator = ",";
         });
 
         if (new_views_str != views_str){
-            var template_json = group.TEMPLATE;
+            var template_json = hgroup.TEMPLATE;
             delete template_json["SUNSTONE_VIEWS"];
             template_json["SUNSTONE_VIEWS"] = new_views_str;
 
             var template_str = convert_template_to_string(template_json);
 
-            Sunstone.runAction("Group.update_template",group.ID,template_str);
+            Sunstone.runAction("HGroup.update_template",hgroup.ID,template_str);
         }
 
         // Update Resource Providers
         //-------------------------------------
 
-        var old_resource_providers = group.RESOURCE_PROVIDER;
+        var old_resource_providers = hgroup.RESOURCE_PROVIDER;
 
         if (!old_resource_providers) {
             old_resource_providers = new Array();
@@ -1275,7 +1259,7 @@ function popUpUpdateGroupDialog(group, dialog)
 
         var new_resource_providers = [];
 
-        $.each(selected_group_clusters, function(zone_id, zone_clusters) {
+        $.each(selected_hgroup_clusters, function(zone_id, zone_clusters) {
             var str_zone_tab_id = dialog.attr('id') + '_zone' + zone_id;
 
             var resource_selection = $("input[name='"+str_zone_tab_id+"']:checked", dialog).val();
@@ -1288,7 +1272,7 @@ function popUpUpdateGroupDialog(group, dialog)
 
                 break;
             case "cluster":
-                $.each(selected_group_clusters[zone_id], function(key, value) {
+                $.each(selected_hgroup_clusters[zone_id], function(key, value) {
                     new_resource_providers.push(
                         {"zone_id" : zone_id, "cluster_id" : key}
                     );
@@ -1316,8 +1300,8 @@ function popUpUpdateGroupDialog(group, dialog)
                     "cluster_id" : old_res_provider.CLUSTER_ID
                 };
 
-                Sunstone.runAction("Group.del_provider_action",
-                                   group.ID,
+                Sunstone.runAction("HGroup.del_provider_action",
+                                   hgroup.ID,
                                    extra_param);
             }
         });
@@ -1335,8 +1319,8 @@ function popUpUpdateGroupDialog(group, dialog)
             if (!found) {
                 var extra_param = new_res_provider;
 
-                Sunstone.runAction("Group.add_provider_action",
-                                   group.ID,
+                Sunstone.runAction("HGroup.add_provider_action",
+                                   hgroup.ID,
                                    extra_param);
             }
         });
@@ -1352,24 +1336,24 @@ function popUpUpdateGroupDialog(group, dialog)
 }
 
 // Add groups quotas dialog and calls common setup() in sunstone utils.
-function setupGroupQuotasDialog(){
-    dialogs_context.append('<div title="'+tr("Group quotas")+'" id="group_quotas_dialog"></div>');
-    $group_quotas_dialog = $('#group_quotas_dialog',dialogs_context);
-    var dialog = $group_quotas_dialog;
-    dialog.html(group_quotas_tmpl);
+function setupHGroupQuotasDialog(){
+    dialogs_context.append('<div title="'+tr("HGroup quotas")+'" id="hgroup_quotas_dialog"></div>');
+    $hgroup_quotas_dialog = $('#hgroup_quotas_dialog',dialogs_context);
+    var dialog = $hgroup_quotas_dialog;
+    dialog.html(hgroup_quotas_tmpl);
 
     setupQuotasDialog(dialog);
 }
 
-function popUpGroupQuotasDialog(){
-    popUpQuotasDialog($group_quotas_dialog, 'Group', groupElements())
+function popUpHGroupQuotasDialog(){
+    popUpQuotasDialog($hgroup_quotas_dialog, 'HGroup', hgroupElements())
 }
 
 $(document).ready(function(){
-    var tab_name = 'groups-tab';
+    var tab_name = 'hgroups-tab';
 
     if (Config.isTabEnabled(tab_name)) {
-      dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
+      dataTable_hgroups = $("#datatable_hgroups",main_tabs_context).dataTable({
             "bSortClasses" : false,
             "bDeferRender": true,
             "aoColumnDefs": [
@@ -1380,25 +1364,25 @@ $(document).ready(function(){
           ]
       });
 
-      $('#group_search').keyup(function(){
-        dataTable_groups.fnFilter( $(this).val() );
+      $('#hgroup_search').keyup(function(){
+        dataTable_hgroups.fnFilter( $(this).val() );
       })
 
-      dataTable_groups.on('draw', function(){
-        recountCheckboxes(dataTable_groups);
+      dataTable_hgroups.on('draw', function(){
+        recountCheckboxes(dataTable_hgroups);
       })
 
-      Sunstone.runAction("Group.list");
-      setupCreateGroupDialog();
-      setupGroupQuotasDialog();
+      Sunstone.runAction("HGroup.list");
+      setupCreateHGroupDialog();
+      setupHGroupQuotasDialog();
 
-      initCheckAllBoxes(dataTable_groups);
-      tableCheckboxesListener(dataTable_groups);
-      infoListener(dataTable_groups, 'Group.show');
+      initCheckAllBoxes(dataTable_hgroups);
+      tableCheckboxesListener(dataTable_hgroups);
+      infoListener(dataTable_hgroups, 'HGroup.show');
 
-      $('div#groups_tab div.legend_div').hide();
-      $('div#groups_tab_non_admin div.legend_div').hide();
+      $('div#hgroups_tab div.legend_div').hide();
+      $('div#hgroups_tab_non_admin div.legend_div').hide();
 
-      dataTable_groups.fnSort( [ [1,config['user_config']['table_order']] ] );
+      dataTable_hgroups.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 })

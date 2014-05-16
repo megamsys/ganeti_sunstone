@@ -14,22 +14,56 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 require 'UserDB'
-module SunstoneCloudAuth
-    def do_auth(env, params={})
-        auth = Rack::Auth::Basic::Request.new(env)           
-        if auth.provided? && auth.basic?
-            username, password = auth.credentials  
-            require 'sqlite3'
-            db = SQLite3::Database.new( "ganeti.db" )
-            rows = db.execute( "select * from users where user_name = '" + username +"'" )           
-            one_pass = rows[0][2]           
-            #one_pass = get_password(username, 'core')                   
-            #if one_pass && one_pass == Digest::SHA1.hexdigest(password)
-            if one_pass && one_pass == password
-                return username
-            end
-        end
+require "excon"
 
-        return nil
+module SunstoneCloudAuth
+  def do_auth(env, params={})
+    auth = Rack::Auth::Basic::Request.new(env)
+    username, password = auth.credentials
+    if auth.provided? && auth.basic?
+      username, password = auth.credentials
+      # require 'sqlite3'
+      #db = SQLite3::Database.new( "ganeti.db" )
+      #rows = db.execute( "select * from users where user_name = '" + username +"'" )
+      #one_pass = rows[0][2]
+      #one_pass = get_password(username, 'core')
+      #if one_pass && one_pass == Digest::SHA1.hexdigest(password)
+      @options={}
+      port = 0
+      type = ''
+      options={}
+      tenant={}
+      admin_username = ENV['GANETI_USER']
+      admin_password = ENV['GANETI_PASSWORD']
+      if username == admin_username && password == admin_password
+        port = 35357
+        type = "admin"
+        options = {"auth"=>{"tenantName"=> "admin", "passwordCredentials"=>{"username"=> username, "password"=> password}}}
+      else
+        port = 5000
+        type = "user"
+        options = {"auth"=>{"passwordCredentials"=>{"username"=> username, "password"=> password}}}
+      end
+      con = Excon.new("http://192.168.2.3:#{port}/v2.0/tokens")
+      @options[:method]='POST'
+      @options[:headers]={ "Content-Type" => "application/json"}      
+      @options[:body]=options.to_json
+      res = con.request(@options)
+      con.reset
+
+      #if one_pass && one_pass == password
+      if res[:status] == 200
+        json = JSON.parse(res.data[:body])
+      return {
+        "username" => username, 
+        "token" => json['access']['token']['id'], 
+        "type" => type, 
+        "tenant" => json["access"]["token"]["tenant"],
+        "user_id" => json["access"]["user"]["id"]
+        }
+      end
     end
+
+    return nil
+  end
 end

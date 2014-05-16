@@ -30,18 +30,41 @@ module Ganeti
 
     def connect
       require 'sqlite3'
-      db = SQLite3::Database.new( "ganeti.db" )
+      db = SQLite3::Database.new("ganeti.db")
       db.execute("PRAGMA foreign_keys = ON;")
       db
     end
 
     def create(template)
       data = JSON.parse(template)
-      image = data['vmtemplate']['DISK'][0]['IMAGE']
+      
+      puts template
+      hash = JSON[template]
+      puts hash
+      if hash['vmtemplate'].has_key?("DISK")
+        image = hash['vmtemplate']['DISK'][0]['IMAGE']
+      else
+        image = 'debootstrap+default'
+      end
+
+      if hash['vmtemplate'].has_key?("DISK_SIZE")
+        disk_size = hash['vmtemplate']['DISK_SIZE']
+      else
+      disk_size = '512'
+      end
+
+       if hash['vmtemplate'].has_key?("SCHED_REQUIREMENTS")
+        puts "if disk size"
+        host_name = (hash['vmtemplate']['SCHED_REQUIREMENTS'].split("="))[1]
+      else
+        puts "else disk size"
+        host_name = ''
+      end
+
       time = Time.new
-      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, created_at) values(1, '"+data['vmtemplate']['NAME']+"', '"+data['vmtemplate']['MEMORY']+"', '"+data['vmtemplate']['DISK_SIZE']+"', '"+data['vmtemplate']['CPU']+"', '"+image+"', '"+time.inspect+"')")
+      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, host_name, created_at) values(1, '"+data['vmtemplate']['NAME']+"', '"+data['vmtemplate']['MEMORY']+"', '"+disk_size+"', '"+data['vmtemplate']['CPU']+"', '"+image+"', '"+host_name+"', '"+time.inspect+"')")
       puts rows
-      data
+      {:status => 200}
     end
 
     def to_json
@@ -49,47 +72,47 @@ module Ganeti
       inst_data = connect.execute( "select * from templates where uid = 1" )
       puts inst_data.class
       js = inst_data.map { |c|
-         build_json(c)
+        build_json(c)
       }
       json = {
         "VMTEMPLATE_POOL"=>{
           "VMTEMPLATE"=> js }
+      }
+      json.to_json
+    end
+
+    def build_json(tem_data)
+      js = {
+        "ID"=>tem_data[0],
+        "UID"=>tem_data[1],
+        "GID"=>"0",
+        "UNAME"=>"oneadmin",
+        "GNAME"=>"oneadmin",
+        "NAME"=>tem_data[2],
+        "OS"=>tem_data[6],
+        "PERMISSIONS"=>{
+          "OWNER_U"=>"1",
+          "OWNER_M"=>"1",
+          "OWNER_A"=>"0",
+          "GROUP_U"=>"0",
+          "GROUP_M"=>"0",
+          "GROUP_A"=>"0",
+          "OTHER_U"=>"0",
+          "OTHER_M"=>"0",
+          "OTHER_A"=>"0"
+        },
+        "REGTIME"=>tem_data[8],
+        "TEMPLATE"=>{
+          "CPU"=>"1",
+          "EC2"=>{
+            "AMI"=>"ami-d85f0c8a",
+            "INSTANCETYPE"=>"m1.small",
+            "KEYPAIR"=>"megam_ec2",
+            "SECURITYGROUPS"=>"megam"
+          },
+          "MEMORY"=>"1700"
         }
-        json.to_json
-     end
-     
-     def build_json(tem_data)
-       js = {  
-            "ID"=>tem_data[0],
-            "UID"=>tem_data[1],
-            "GID"=>"0",
-            "UNAME"=>"oneadmin",
-            "GNAME"=>"oneadmin",
-            "NAME"=>tem_data[2],
-            "OS"=>tem_data[6],
-            "PERMISSIONS"=>{
-              "OWNER_U"=>"1",
-              "OWNER_M"=>"1",
-              "OWNER_A"=>"0",
-              "GROUP_U"=>"0",
-              "GROUP_M"=>"0",
-              "GROUP_A"=>"0",
-              "OTHER_U"=>"0",
-              "OTHER_M"=>"0",
-              "OTHER_A"=>"0"
-            },
-            "REGTIME"=>tem_data[7],
-            "TEMPLATE"=>{
-              "CPU"=>"1",
-              "EC2"=>{
-                "AMI"=>"ami-d85f0c8a",
-                "INSTANCETYPE"=>"m1.small",
-                "KEYPAIR"=>"megam_ec2",
-                "SECURITYGROUPS"=>"megam"
-              },
-              "MEMORY"=>"1700"
-            }
-          }
+      }
       js
     end
 
@@ -108,7 +131,7 @@ module Ganeti
       json.to_json
     end
 
-    def getImageJson(id, name)
+    def getImageJson(id, name=nil)
       require 'sqlite3'
       db = SQLite3::Database.new( "ganeti.db" )
       rows = db.execute( "select * from templates where id = '" + id + "'" )
@@ -134,7 +157,8 @@ module Ganeti
         "MEMORY"=>rows[0][3],
         "CPU"=>rows[0][5],
         "DISK_SIZE"=>rows[0][4],
-        "REGTIME"=>rows[0][7],
+        "HOST_NAME"=>rows[0][7],
+        "REGTIME"=>rows[0][8],
         "TEMPLATE"=>{
           "CPU"=>"1",
           "EC2"=>{

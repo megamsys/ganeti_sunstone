@@ -526,11 +526,11 @@ var users_tab = {
           <th>'+tr("ID")+'</th>\
           <th>'+tr("Name")+'</th>\
           <th>'+tr("Group")+'</th>\
-          <th>'+tr("Auth driver")+'</th>\
-          <th>'+tr("VMs")+'</th>\
-          <th>'+tr("Memory")+'</th>\
-          <th>'+tr("CPU")+'</th>\
-          <th>'+tr("Group ID")+'</th>\
+          <th style="display: none;">'+tr("Auth driver")+'</th>\
+          <th style="display: none;">'+tr("VMs")+'</th>\
+          <th style="display: none;">'+tr("Memory")+'</th>\
+          <th style="display: none;">'+tr("CPU")+'</th>\
+          <th style="display: none;">'+tr("Group ID")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodyusers">\
@@ -580,11 +580,16 @@ function userElementArray(user_json){
         user.ID,
         user.NAME,
         user.GNAME,
-        user.AUTH_DRIVER,
-        vms,
-        memory,
-        cpu,
-        user.GID
+        "",
+        "",
+        "",
+        "",
+        ""
+        //user.AUTH_DRIVER,
+       // vms,
+        //memory,
+        //cpu,
+       // user.GID
     ]
 };
 
@@ -653,16 +658,16 @@ function updateUserInfo(request,user){
                 <td></td>\
             </tr>\
             <tr>' +
-                insert_group_dropdown("User",info.ID,info.GNAME,info.GID,"#info_user_table") +
+                insert_tenant_dropdown("User",info.ID,info.GNAME,info.GID,"#info_user_table") +
             '</tr>\
             <tr>\
-                <td class="key_td">' + tr("Secondary groups") + '</td>\
-                <td class="value_td">'+(typeof info.GROUPS.ID == "object" ? info.GROUPS.ID.join(",") : "-")+'</td>\
+                <td class="key_td">' + tr("ENABLED") + '</td>\
+                <td class="value_td">'+info.ENABLED+'</td>\
                 <td></td>\
             </tr>\
             <tr>\
-                <td class="key_td">' + tr("Authentication driver") + '</td>\
-                <td class="value_td">'+info.AUTH_DRIVER+'</td>\
+                <td class="key_td">' + tr("EMAIL") + '</td>\
+                <td class="value_td">'+info.EMAIL+'</td>\
                 <td></td>\
             </tr>\
             </tbody>\

@@ -16,7 +16,7 @@
 require 'ganeti/pool_element'
 
 module Ganeti
-  class Groups < PoolElement
+  class HostGroups < PoolElement
     def initialize(client)
       @path = "/2/groups"
       @client = client
@@ -41,14 +41,14 @@ module Ganeti
       no_of_hosts = inst_data["node_list"].count
       cluster_name = get_cluster()
       json = {
-        "GROUP"=> {
+        "HGROUP"=> {
           "ID"=> inst_data["serial_no"],
           "NAME"=> inst_data["name"],
           "NOOFHOSTS" => no_of_hosts,
           "CLUSTER" => cluster_name,
           "TEMPLATE"=> {
-            "GROUP_ADMINS"=> "customer1-admin",
-            "GROUP_ADMIN_VIEWS"=> "vdcadmin",
+            "HGROUP_ADMINS"=> "customer1-admin",
+            "HGROUP_ADMIN_VIEWS"=> "vdcadmin",
             "SUNSTONE_VIEWS"=> "user"
           },
           "USERS"=> {
@@ -62,7 +62,7 @@ module Ganeti
           "NETWORK_QUOTA"=> {},
           "VM_QUOTA"=> {},
           "IMAGE_QUOTA"=> {},
-          "DEFAULT_GROUP_QUOTAS"=> {
+          "DEFAULT_HGROUP_QUOTAS"=> {
             "DATASTORE_QUOTA"=> {},
             "NETWORK_QUOTA"=> {},
             "VM_QUOTA"=> {},
@@ -85,10 +85,10 @@ module Ganeti
         getQuotaJson(i)
       }
       json = {
-        "GROUP_POOL" => {
-          "GROUP" =>  js,
+        "HGROUP_POOL" => {
+          "HGROUP" =>  js,
           "QUOTAS"=> quota_json,
-          "DEFAULT_GROUP_QUOTAS"=>{
+          "DEFAULT_HGROUP_QUOTAS"=>{
             "DATASTORE_QUOTA"=>{},
             "NETWORK_QUOTA"=>{},
             "VM_QUOTA"=>{},
@@ -142,71 +142,7 @@ module Ganeti
       end
       cluster_name
     end
-
   end
 end
 
-=begin
-json = {
-"GROUP_POOL" => {
-"GROUP" => [{
-"ID" => "0",
-"NAME" => "oneadmin",
-"TEMPLATE" => {},
-"USERS" => {
-"ID" => ["0","1"]
-}
-},
-{
-"ID" => "1",
-"NAME"=>"users",
-"TEMPLATE"=>{},
-"USERS"=>{},
-"RESOURCE_PROVIDER"=>{
-"ZONE_ID"=>"0",
-"CLUSTER_ID"=>"10"
-}
-},
-{
-"ID"=>"100",
-"NAME"=>"customer1",
-"TEMPLATE"=>{
-"GROUP_ADMINS"=>"customer1-admin",
-"GROUP_ADMIN_VIEWS"=>"vdcadmin",
-"SUNSTONE_VIEWS"=>"user"
-},
-"USERS"=>{
-"ID"=>"2"
-},
-"RESOURCE_PROVIDER"=>{
-"ZONE_ID"=>"0",
-"CLUSTER_ID"=>"10"
-}}],
-"QUOTAS"=>[{
-"ID"=>"0",
-"DATASTORE_QUOTA"=>{},
-"NETWORK_QUOTA"=>{},
-"VM_QUOTA"=>{},
-"IMAGE_QUOTA"=>{}
-},{
-"ID"=>"1",
-"DATASTORE_QUOTA"=>{},
-"NETWORK_QUOTA"=>{},
-"VM_QUOTA"=>{},
-"IMAGE_QUOTA"=>{}
-},{
-"ID"=>"100",
-"DATASTORE_QUOTA"=>{},
-"NETWORK_QUOTA"=>{},
-"VM_QUOTA"=>{},
-"IMAGE_QUOTA"=>{}
-}],
-"DEFAULT_GROUP_QUOTAS"=>{
-"DATASTORE_QUOTA"=>{},
-"NETWORK_QUOTA"=>{},
-"VM_QUOTA"=>{},
-"IMAGE_QUOTA"=>{}
-}
-}
-}
-=end
+

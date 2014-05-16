@@ -1593,9 +1593,9 @@ function getUserName(uid){
     return uid;
 }
 
-function getGroupName(gid){
-    if (typeof(dataTable_groups) != "undefined"){
-        return getName(gid,dataTable_groups,2);
+function getTenantName(gid){
+    if (typeof(dataTable_tenants) != "undefined"){
+        return getName(gid,dataTable_tenants,2);
     }
     return gid;
 }
@@ -2068,14 +2068,14 @@ function ownerAdmin(resource){
     return parseInt(resource.PERMISSIONS.OWNER_A);
 };
 
-function groupUse(resource){
-    return parseInt(resource.PERMISSIONS.GROUP_U);
+function tenantUse(resource){
+    return parseInt(resource.PERMISSIONS.TENANT_U);
 };
-function groupManage(resource){
-    return parseInt(resource.PERMISSIONS.GROUP_M);
+function tenantManage(resource){
+    return parseInt(resource.PERMISSIONS.TENANT_M);
 };
-function groupAdmin(resource){
-    return parseInt(resource.PERMISSIONS.GROUP_A);
+function tenantAdmin(resource){
+    return parseInt(resource.PERMISSIONS.TENANT_A);
 };
 
 function otherUse(resource){
@@ -2097,11 +2097,11 @@ function ownerPermStr(resource){
     return result;
 };
 
-function groupPermStr(resource){
+function tenantPermStr(resource){
     var result = "";
-    result += groupUse(resource) ? "u" : "-";
-    result += groupManage(resource) ? "m" : "-";
-    result += groupAdmin(resource) ? "a" : "-";
+    result += tenantUse(resource) ? "u" : "-";
+    result += tenantManage(resource) ? "m" : "-";
+    result += tenantAdmin(resource) ? "a" : "-";
     return result;
 };
 
@@ -2120,12 +2120,12 @@ function setPermissionsTable(resource,context){
         $('.owner_m',context).attr('checked','checked');
     if (ownerAdmin(resource))
         $('.owner_a',context).attr('checked','checked');
-    if (groupUse(resource))
-        $('.group_u',context).attr('checked','checked');
-    if (groupManage(resource))
-        $('.group_m',context).attr('checked','checked');
-    if (groupAdmin(resource))
-        $('.group_a',context).attr('checked','checked');
+    if (tenantUse(resource))
+        $('.tenant_u',context).attr('checked','checked');
+    if (tenantManage(resource))
+        $('.tenant_m',context).attr('checked','checked');
+    if (tenantAdmin(resource))
+        $('.tenant_a',context).attr('checked','checked');
     if (otherUse(resource))
         $('.other_u',context).attr('checked','checked');
     if (otherManage(resource))
@@ -2430,8 +2430,8 @@ var Quotas = {
         return default_quotas;
     }
 }
-// Sets up a dialog to edit and update user and group quotas
-// Called from user/group plugins
+// Sets up a dialog to edit and update user and tenant quotas
+// Called from user/tenant plugins
 function setupQuotasDialog(dialog){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
@@ -3240,7 +3240,7 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
 //Returns an octet given a permission table with checkboxes
 function buildOctet(permTable){
     var owner=0;
-    var group=0;
+    var tenant=0;
     var other=0;
 
     if ($('.owner_u',permTable).is(':checked'))
@@ -3250,12 +3250,12 @@ function buildOctet(permTable){
     if ($('.owner_a',permTable).is(':checked'))
         owner+=1;
 
-    if ($('.group_u',permTable).is(':checked'))
-        group+=4;
-    if ($('.group_m',permTable).is(':checked'))
-        group+=2;
-    if ($('.group_a',permTable).is(':checked'))
-        group+=1;
+    if ($('.tenant_u',permTable).is(':checked'))
+        tenant+=4;
+    if ($('.tenant_m',permTable).is(':checked'))
+        tenant+=2;
+    if ($('.tenant_a',permTable).is(':checked'))
+        tenant+=1;
 
     if ($('.other_u',permTable).is(':checked'))
         other+=4;
@@ -3264,12 +3264,12 @@ function buildOctet(permTable){
     if ($('.other_a',permTable).is(':checked'))
         other+=1;
 
-    return ""+owner+group+other;
+    return ""+owner+tenant+other;
 };
 
 
 // Returns HTML with listeners to control permissions
-function insert_permissions_table(tab_name, resource_type, resource_id, owner, group, vm_uid, vm_gid){
+function insert_permissions_table(tab_name, resource_type, resource_id, owner, tenant, vm_uid, vm_gid){
      var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table dataTable extended_table">'
 
      if (Config.isTabActionEnabled(tab_name, resource_type+'.chmod')) {
@@ -3285,10 +3285,10 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
              <td style="text-align:center"><input type="checkbox" class="permission_check owner_a" /></td>\
          </tr>\
          <tr>\
-             <td class="key_td">'+tr("Group")+'</td>\
-             <td style="text-align:center"><input type="checkbox" class="permission_check group_u" /></td>\
-             <td style="text-align:center"><input type="checkbox" class="permission_check group_m" /></td>\
-             <td style="text-align:center"><input type="checkbox" class="permission_check group_a" /></td>\
+             <td class="key_td">'+tr("Tenant")+'</td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check tenant_u" /></td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check tenant_m" /></td>\
+             <td style="text-align:center"><input type="checkbox" class="permission_check tenant_a" /></td>\
          </tr>\
          <tr>\
              <td class="key_td">'+tr("Other")+'</td>\
@@ -3343,23 +3343,23 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
 
         if (Config.isTabActionEnabled(tab_name, resource_type+'.chgrp')) {
            str += '<tr>\
-                <td class="key_td">'+tr("Group")+'</td>\
-                <td colspan="2" id="value_td_group">'+group+'</td>\
-                 <td><div id="div_edit_chg_group">\
-                        <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
+                <td class="key_td">'+tr("Tenant")+'</td>\
+                <td colspan="2" id="value_td_tenant">'+tenant+'</td>\
+                 <td><div id="div_edit_chg_tenant">\
+                        <a id="div_edit_chg_tenant_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
                      </div>\
                  </td>\
             </tr>'
 
             // Handlers for chgrp
-            $(document).off("click", context + " #div_edit_chg_group_link");
-            $(document).on("click", context + " #div_edit_chg_group_link", function() {
+            $(document).off("click", context + " #div_edit_chg_tenant_link");
+            $(document).on("click", context + " #div_edit_chg_tenant_link", function() {
                 var tr_context = $(this).parents("tr");
-                insertSelectOptions("#value_td_group", tr_context, "Group", vm_gid, false);
+                insertSelectOptions("#value_td_tenant", tr_context, "Tenant", vm_gid, false);
             });
 
-            $(document).off("change", context + " #value_td_group .resource_list_select");
-            $(document).on("change", context + " #value_td_group .resource_list_select", function() {
+            $(document).off("change", context + " #value_td_tenant .resource_list_select");
+            $(document).on("change", context + " #value_td_tenant .resource_list_select", function() {
                 var value_str = $(this).val();
                 if(value_str!="")
                 {
@@ -3461,6 +3461,37 @@ function insert_group_dropdown(resource_type, resource_id, group_value, group_id
 
     $(document).off("change", context_str + " .value_td_group .resource_list_select");
     $(document).on("change", context_str + " .value_td_group .resource_list_select", function() {
+        var value_str = $(this).val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var resource_struct = new Array();
+            resource_struct[0]  = resource_id;
+            Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
+        }
+    });
+
+    return str;
+}
+
+//insert_tenant_dropdown("User",info.ID,info.GNAME,info.GID) +
+function insert_tenant_dropdown(resource_type, resource_id, tenant_value, tenant_id, context_str){
+    var str =  '<td class="key_td">' + tr("Tenant") + '</td>\
+                <td class="value_td_tenant">'+ tenant_value +'</td>\
+                <td>\
+                  <div id="div_edit_chg_tenant">\
+                     <a id="div_edit_chg_tenant_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
+                  </div>\
+                </td>';
+
+    $(document).off("click", context_str + " #div_edit_chg_tenant_link");
+    $(document).on("click", context_str + " #div_edit_chg_tenant_link", function() {
+        var tr_context = $(this).parents("tr");
+        insertSelectOptions(".value_td_tenant", tr_context, "Tenant", tenant_id, false);
+    });
+
+    $(document).off("change", context_str + " .value_td_tenant .resource_list_select");
+    $(document).on("change", context_str + " .value_td_tenant .resource_list_select", function() {
         var value_str = $(this).val();
         if(value_str!="")
         {

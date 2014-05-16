@@ -11,13 +11,19 @@ available_tabs:
     - templates-tab
     - images-tab
     - files-tab
-    - infra-tab
+    - infra-tab    
     - hosts-tab
+    - hgroups-tab
     - vnets-tab
     - zones-tab
     - provision-tab
 groups:
     oneadmin:
+        - admin
+        - vdcadmin
+        - user
+        - cloud
+    admin:
         - admin
         - vdcadmin
         - user

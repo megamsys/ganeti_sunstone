@@ -19,6 +19,12 @@ module Ganeti
     def initialize(client)
       @path = "/2/instances"
       @client = client
+      @VM_METHODS = {
+            "resume"     => {"METHOD" => "PUT", "ACTION" => "startup"},
+            "stop"       => {"METHOD" => "PUT", "ACTION" => "shutdown"},
+            "reboot"     => {"METHOD" => "POST", "ACTION" => "reboot"},
+            "reset"      => {"METHOD" => "POST", "ACTION" => "reboot", "options" => {"type" => "hard"}}           
+        }
     end
 
     # Retrieves the information of the given User.
@@ -100,18 +106,56 @@ module Ganeti
           "TEMPLATE_ID"=>"1",
           "VMID"=>"48"
         },
-        "USER_TEMPLATE"=>{
-          "EC2"=>{
-            "AMI"=>"ami-d85f0c8a",
-            "INSTANCETYPE"=>"m1.small",
-            "KEYPAIR"=>"megam_ec2",
-            "SECURITYGROUPS"=>"megam"
-          }
-        },
+        "USER_TEMPLATE"=>{},
         "HISTORY_RECORDS"=>{}
       }
       b_json
     end
+
+    def create(json)
+      @options = {}
+      post_data = JSON.parse(json)
+      template_json = getTemplate(post_data["vm"]["template_id"])     
+           
+       options = {
+        "__version__" => 1, 
+        "disk_template"=> "plain", 
+        "disks"=> [{"size"=> template_json["DISK_SIZE"]}], 
+        "beparams"=> {"memory"=> template_json["MEMORY"]},
+        "os_type"=> template_json["OS"],
+        "mode"=>"create",
+        "nics"=>[{"link"=>"br0", "mac"=>"00:16:37:4d:68:ea", "ip"=>"None", "mode"=>"bridged", "vlan"=>"", "network"=>"None", "name"=> "None", "bridge"=>"br0"}],
+        "ip_check"=> false,
+        "name_check"=>false,
+        "hypervisor"=>"kvm",
+        "hvparams"=> {"vnc_bind_address" => "0.0.0.0", "kernel_path"=>""},
+        "instance_name"=> post_data["vm"]["vm_name"]
+       } 
+       if template_json["HOST_NAME"].length > 0
+       options["pnode"]=template_json["HOST_NAME"]
+       end
+      post = @client.call(@path, 'POST', options)
+      post
+    end
+
+    def getTemplate(id)
+      tem = Ganeti::Templates.new(@client)
+      json = tem.getImageJson(id)
+      json
+    end
+
+    def delete(id)
+      del = @client.call(@path+"/"+id, 'DELETE')
+      del
+    end
+
+    def action(id, action_json)
+      json = JSON.parse(action_json)
+      data = @VM_METHODS[json["action"]["perform"]]
+      res = @client.call(@path+"/"+id+"/"+data["ACTION"], data["METHOD"], data["options"])
+      puts res.inspect
+      res
+     end
 
   end
 end 

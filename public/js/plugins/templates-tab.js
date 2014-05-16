@@ -137,8 +137,8 @@ var easy_provision_vm_template_tmpl ='\
                   <th></th>\
                   <th>'+tr("ID")+'</th>\
                   <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Name")+'</th>\
                   <th>'+tr("Image")+'</th>\
+                  <th>'+tr("Name")+'</th>\
                   <th>'+tr("Registration time")+'</th>\
                 </tr>\
               </thead>\
@@ -383,7 +383,7 @@ var template_actions = {
              }
              else
              {
-                Sunstone.runAction("Template.instantiate", nodes);
+                Sunstone.runAction("VM.create", nodes);  //raj modify
              }
          }
      },
@@ -520,8 +520,8 @@ var templates_tab = {
             <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
             <th>'+tr("ID")+'</th>\
             <th>'+tr("Owner")+'</th>\
-            <th>'+tr("Name")+'</th>\
             <th>'+tr("Image")+'</th>\
+            <th>'+tr("Name")+'</th>\
             <th>'+tr("Registration time")+'</th>\
           </tr>\
         </thead>\
@@ -552,8 +552,8 @@ function templateElementArray(template_json){
         '<input class="check_item" type="checkbox" id="template_'+template.ID+'" name="selected_items" value="'+template.ID+'-'+template.NAME+'"/>',
         template.ID,
         template.UNAME,
-        template.NAME,
         template.OS,
+        template.NAME,
         template.REGTIME
     ];
 }
@@ -2047,29 +2047,29 @@ function wizard_tab_dd(){
         str += "<dd><a href='#storageTab'><i class='fa fa-tasks'></i><br>"+tr("Storage")+"</a></dd>";
     }
 
-    if (Config.isTemplateCreationTabEnabled('network')){
-        str += "<dd><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
-    }
+   // if (Config.isTemplateCreationTabEnabled('network')){
+      //  str += "<dd><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
+   // }
 
-    if (Config.isTemplateCreationTabEnabled('os_booting')){
-        str += "<dd><a href='#osTab'><i class='fa fa-power-off'></i><br>OS Booting</a></dd>";
-    }
+   // if (Config.isTemplateCreationTabEnabled('os_booting')){
+   //     str += "<dd><a href='#osTab'><i class='fa fa-power-off'></i><br>OS Booting</a></dd>";
+   // }
+//
+   // if (Config.isTemplateCreationTabEnabled('input_output')){
+    //    str += "<dd><a href='#ioTab'><i class='fa fa-exchange'></i><br>Input/Output</a></dd>";
+   // }
 
-    if (Config.isTemplateCreationTabEnabled('input_output')){
-        str += "<dd><a href='#ioTab'><i class='fa fa-exchange'></i><br>Input/Output</a></dd>";
-    }
-
-    if (Config.isTemplateCreationTabEnabled('context')){
-        str += "<dd><a href='#contextTab'><i class='fa fa-folder'></i><br>Context</a></dd>";
-    }
+   // if (Config.isTemplateCreationTabEnabled('context')){
+   //     str += "<dd><a href='#contextTab'><i class='fa fa-folder'></i><br>Context</a></dd>";
+   // }
 
     if (Config.isTemplateCreationTabEnabled('scheduling')){
         str += "<dd><a href='#schedulingTab'><i class='fa fa-sitemap'></i><br>Scheduling</a></dd>";
     }
 
-    if (Config.isTemplateCreationTabEnabled('other')){
-        str += "<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>";
-    }
+   // if (Config.isTemplateCreationTabEnabled('other')){
+   //     str += "<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>";
+  //  }
 
     return str;
 }
@@ -2788,7 +2788,8 @@ function wizard_tab_content(){
                       '<div class="large-12 columns" id="selected_hosts_template">' +
                         '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
                         '<span id="hosts_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following hosts:")+'</span> '+
-                      '</div>'+
+                        '<input id="select_host_json_data" type="text" placeholder="'+tr("selected")+'"/>'+
+                        '</div>'+
                     '</div>'+
                 '</div>'+
                 '<div id="req_type" class="cluster_select hidden">'+
@@ -3476,12 +3477,14 @@ function setup_scheduling_tab_content(scheduling_section) {
             selected_hosts[host_id]=1;
             host_row_hash[host_id]=this;
             $(this).children().each(function(){$(this).addClass('markrowchecked');});
+            $('#select_host_json_data').val(aData[2]);
             if ($('#tag_host_'+aData[1], $('div#selected_hosts_template', scheduling_section)).length == 0 ) {
                 $('div#selected_hosts_template', scheduling_section).append('<span id="tag_host_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="fa fa-times blue"></span></span> ');
             }
         } else {
             $('input.check_item', this).removeAttr('checked');
             delete selected_hosts[host_id];
+            $('#select_host_json_data').val("");
             $(this).children().each(function(){$(this).removeClass('markrowchecked');});
             $('div#selected_hosts_template span#tag_host_'+host_id, scheduling_section).remove();
         }
@@ -3629,7 +3632,8 @@ function setup_scheduling_tab_content(scheduling_section) {
         var req_string=[];
 
         $.each(selected_hosts, function(key, value) {
-        req_string.push('ID=\\"'+key+'\\"');
+          req_string.push('HOST_NAME='+$('#select_host_json_data').val());	
+        //req_string.push('ID=\\"'+key+'\\"');
         });
 
         $.each(selected_clusters, function(key, value) {
@@ -3885,8 +3889,7 @@ function initialize_create_template_dialog(dialog) {
 
         //
         // PLACEMENT
-        //
-
+        //        
         addSectionJSON(vm_json,$('#schedulingTab',dialog));
 
         //
@@ -3953,7 +3956,6 @@ function initialize_create_template_dialog(dialog) {
     // Handle manual forms
     $('button#create_template_submit_manual',dialog).click(function(){
         var template = $('textarea#template',dialog).val();
-
         // wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};
 

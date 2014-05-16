@@ -985,6 +985,75 @@ var OpenNebula = {
         }
     },
 
+    "Tenant": {
+        "resource": "Tenant",
+
+        "create": function(params){
+            OpenNebula.Action.create(params,OpenNebula.Tenant.resource);
+        },
+        "del": function(params){
+            OpenNebula.Action.del(params,OpenNebula.Tenant.resource);
+        },
+        "list": function(params){
+
+            var resource = OpenNebula.Tenant.resource
+            var req_path = resource.toLowerCase();
+
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+            var request = OpenNebula.Helper.request(resource,"list");
+
+            $.ajax({
+                url: req_path,
+                type: "GET",
+                data: {timeout: timeout},
+                dataType: "json",
+                success: function(response){
+                    // Get the default group quotas
+                    default_tenant_quotas = Quotas.default_quotas(response.TENANT_POOL.DEFAULT_TENANT_QUOTAS);
+
+                    var list = OpenNebula.Helper.pool(resource,response)
+                    var quotas_hash = OpenNebula.Helper.pool_hash_processing(
+                        'TENANT_POOL','QUOTAS',response);
+
+                    return callback ?
+                        callback(request, list, quotas_hash) : null;
+                },
+                error: function(response)
+                {
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
+        },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Tenant.resource,
+                                            "update",
+                                            action_obj);
+        },        
+        "set_quota" : function(params){
+            var action_obj = { quotas :  params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Tenant.resource,"set_quota",action_obj);
+        },
+        "show" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Tenant.resource);
+        },
+        "accounting" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.Tenant.resource,false);
+        },
+        "add_provider" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Tenant.resource,"add_provider",action_obj);
+        },
+        "del_provider" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Tenant.resource,"del_provider",action_obj);
+        }
+    },
+    
     "Group": {
         "resource": "GROUP",
 
@@ -1051,6 +1120,75 @@ var OpenNebula = {
         "del_provider" : function(params){
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,OpenNebula.Group.resource,"del_provider",action_obj);
+        }
+    },
+    
+    "HGroup": {
+        "resource": "HGROUP",
+
+        "create": function(params){
+            OpenNebula.Action.create(params,OpenNebula.HGroup.resource);
+        },
+        "del": function(params){
+            OpenNebula.Action.del(params,OpenNebula.HGroup.resource);
+        },
+        "list": function(params){
+
+            var resource = OpenNebula.HGroup.resource
+            var req_path = resource.toLowerCase();
+
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+            var request = OpenNebula.Helper.request(resource,"list");
+
+            $.ajax({
+                url: req_path,
+                type: "GET",
+                data: {timeout: timeout},
+                dataType: "json",
+                success: function(response){
+                    // Get the default group quotas
+                    default_hgroup_quotas = Quotas.default_quotas(response.HGROUP_POOL.DEFAULT_HGROUP_QUOTAS);
+
+                    var list = OpenNebula.Helper.pool(resource,response)
+                    var quotas_hash = OpenNebula.Helper.pool_hash_processing(
+                        'HGROUP_POOL','QUOTAS',response);
+
+                    return callback ?
+                        callback(request, list, quotas_hash) : null;
+                },
+                error: function(response)
+                {
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
+        },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.HGroup.resource,
+                                            "update",
+                                            action_obj);
+        },        
+        "set_quota" : function(params){
+            var action_obj = { quotas :  params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.HGroup.resource,"set_quota",action_obj);
+        },
+        "show" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.HGroup.resource);
+        },
+        "accounting" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.HGroup.resource,false);
+        },
+        "add_provider" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.HGroup.resource,"add_provider",action_obj);
+        },
+        "del_provider" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.HGroup.resource,"del_provider",action_obj);
         }
     },
 

@@ -53,90 +53,133 @@ module Ganeti
     # Class constructor
     def initialize(client)
       @path = "/2/info"
+      @endpoint = ENV['KEYSTONE_ENDPOINT']
       @client = client
     end
 
-    #######################################################################
-    # XML-RPC Methods for the User Object
-    #######################################################################
-
-    # Retrieves the information of the given User.
-    def info(username)
-      # super(USER_METHODS[:info], 'USER')
-      require 'sqlite3'
-      db = SQLite3::Database.new( "ganeti.db" )
-      rows = db.execute( "select * from users where user_name = '" + username + "'" )
-      {:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
+    def tenant_info(params)
+      @options={}
+      options={}
+      if params["type"] == "admin"
+        res = {
+          "ID" => params["user_id"],
+          "NAME" => params["username"],
+          "GID" => params["tenant"]["id"],
+          "GNAME" => params["tenant"]["name"]
+        }
+      return res
+      else
+        con = Excon.new("#{@endpoint}/tenants")
+        @options[:method]='GET'
+        @options[:headers]={ "Content-Type" => "application/json", "X-Auth-Token" => params["token"]}
+        res = con.request(@options)
+        if res.data[:status].to_i != 200
+          result = {
+            "ID" => "",
+            "NAME" => "",
+            "GID" => "",
+            "GNAME" => ""
+          }
+        return result
+        else
+          json = JSON.parse(res.data[:body])
+          result = {
+            "ID" => params["user_id"],
+            "NAME" => params["username"],
+            "GID" => json["tenants"]["id"],
+            "GNAME" => json["tenants"]["name"]
+          }
+        return result
+        end
+      end
     end
 
     # Retrieves the information of the given User.
     def call
-      @cc = @client.call(@path, 'GET')
-      @cc
+      @cc = @client.keystone("users", 'GET')
+      @cc["response"]
     #{:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
     end
 
     def to_json
-      zone = JSON.parse(@cc.data[:body])
+      if @cc["result"] != 'success'
+        return empty_json()
+      else
+        return build_json(@cc["response"])
+      end
+    end
+
+    def build_json(params)
+      user = JSON.parse(params.data[:body])
+      i = 0
+      js = user["users"].map { |c|
+        i = i+1
+        builder(i, c)
+      }
+      j=0
+      quota = user["users"].map { |c|
+        j = j+1
+        quota_builder(j, c)
+      }
+      json = {
+        "USER_POOL"=>{
+          "USER"=> js,
+          "QUOTAS"=>quota,
+          "DEFAULT_USER_QUOTAS"=>{
+            "DATASTORE_QUOTA"=>{},
+            "NETWORK_QUOTA"=>{},
+            "VM_QUOTA"=>{},
+            "IMAGE_QUOTA"=>{}
+          }}
+      }
+      json.to_json
+    end
+
+    def builder(id, param)
+      json = {
+        "ID"=>param["id"],
+        "GID"=>"0",
+        "GROUPS"=>{
+          "ID"=>"0"
+        },
+        "GNAME"=>"oneadmin",
+        "NAME"=>param["username"],
+        "PASSWORD"=>"",
+        "AUTH_DRIVER"=>"core",
+        "ENABLED"=>"1",
+        "TEMPLATE"=>{}
+      }
+      json
+    end
+
+    def quota_builder(id, param)
+      json = {
+        "ID"=>id,
+        "DATASTORE_QUOTA"=>{},
+        "NETWORK_QUOTA"=>{},
+        "VM_QUOTA"=>{},
+        "IMAGE_QUOTA"=>{}}
+      json
+    end
+
+    def empty_json
       json = {"USER_POOL"=>
         {"USER"=>[{
-              "ID"=>"0",
-              "GID"=>"0",
+              "ID"=>"",
+              "GID"=>"",
               "GROUPS"=>{
-                "ID"=>"0"
+                "ID"=>""
               },
-              "GNAME"=>"oneadmin",
-              "NAME"=>"oneadmin",
-              "PASSWORD"=>"f1e91974588eb5a6f87711a1b44ee6d8f3c17522",
-              "AUTH_DRIVER"=>"core",
-              "ENABLED"=>"1",
-              "TEMPLATE"=>{
-                "TOKEN_PASSWORD"=>"7e53060a659d012590de42f7da5e876aa2ce494e"
-              }
-            },
-            {
-              "ID"=>"1",
-              "GID"=>"0",
-              "GROUPS"=>{
-                "ID"=>"0"
-              },
-              "GNAME"=>"oneadmin",
-              "NAME"=>"serveradmin",
-              "PASSWORD"=>"5de917cec0a74af26586d6000333a1a687549961",
-              "AUTH_DRIVER"=>"server_cipher",
-              "ENABLED"=>"1",
-              "TEMPLATE"=>{
-                "TOKEN_PASSWORD"=>"2e988e09bec46687f02e6a180d916e2f040800ac"
-              }
-            },
-            {
-              "ID"=>"2",
-              "GID"=>"100",
-              "GROUPS"=>{
-                "ID"=>"100"
-              },
-              "GNAME"=>"customer1",
-              "NAME"=>"customer1-admin",
-              "PASSWORD"=>"0eec62da57c9b6bbbbfec12d712aebeef1fbbbd5",
-              "AUTH_DRIVER"=>"core",
-              "ENABLED"=>"1",
-              "TEMPLATE"=>{
-                "TOKEN_PASSWORD"=>"9ba8d2c485196967b3ded31e34a427012ef8be5a"
-              }
+              "GNAME"=>"",
+              "NAME"=>"",
+              "PASSWORD"=>"",
+              "AUTH_DRIVER"=>"",
+              "ENABLED"=>"",
+              "TEMPLATE"=>{}
             }
           ],
           "QUOTAS"=>[{
               "ID"=>"0",
-              "DATASTORE_QUOTA"=>{},
-              "NETWORK_QUOTA"=>{},
-              "VM_QUOTA"=>{},
-              "IMAGE_QUOTA"=>{}},{
-              "ID"=>"1",
-              "DATASTORE_QUOTA"=>{},
-              "NETWORK_QUOTA"=>{},
-              "VM_QUOTA"=>{},
-              "IMAGE_QUOTA"=>{}},{
-              "ID"=>"2",
               "DATASTORE_QUOTA"=>{},
               "NETWORK_QUOTA"=>{},
               "VM_QUOTA"=>{},
@@ -148,6 +191,59 @@ module Ganeti
             "IMAGE_QUOTA"=>{}
           }}}
       json.to_json
+    end
+
+    # Retrieves the information of the given User.
+    def info(params)     
+      @info = @client.keystone("users/#{params}", 'GET')
+      @info["response"]
+    end
+
+    def info_json
+      if @info["result"] != 'success'
+        return empty_json()
+      else
+        return build_info_json(@info["response"])
+      end
+    end
+
+    def build_info_json(params)
+      user = JSON.parse(params.data[:body])
+      res = {
+        "USER"=> {
+          "ID"=> user["user"]["id"],
+          "GID"=> "1",
+          "GROUPS"=> {
+            "ID"=> "1"
+          },
+          "GNAME"=> "users",
+          "NAME"=> user["user"]["username"],
+          "PASSWORD"=> "",
+          "AUTH_DRIVER"=> "core",
+          "ENABLED"=> user["user"]["enabled"],
+          "EMAIL" => user["user"]["email"],
+          "TEMPLATE"=> {},
+          "DATASTORE_QUOTA"=> {
+          },
+          "NETWORK_QUOTA"=> {
+          },
+          "VM_QUOTA"=> {
+          },
+          "IMAGE_QUOTA"=> {
+          },
+          "DEFAULT_USER_QUOTAS"=> {
+            "DATASTORE_QUOTA"=> {
+            },
+            "NETWORK_QUOTA"=> {
+            },
+            "VM_QUOTA"=> {
+            },
+            "IMAGE_QUOTA"=> {
+            }
+          }
+        }
+      }
+      res.to_json
     end
 
     alias_method :info!, :info

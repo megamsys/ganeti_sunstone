@@ -158,18 +158,12 @@ helpers do
       logger.info { "Unauthorized login attempt" }
       return [401, ""]
     else
-      logger.info { "---------------result-----------------------" }
-      logger.info { result }
-      client  = $cloud_auth.client(result)
-      logger.info { "-----------------client result---------------------" }
-      logger.info { client.inspect }
+      puts "--------------result--------------"
+      puts result
+      client  = $cloud_auth.client(nil, nil, result)
       user_id = Ganeti::User::SELF
-      logger.info { "------------------user id--------------------" }
-      logger.info { user_id }
       user_initialize    = Ganeti::User.new(client)
-      user = user_initialize.info(result)
-      logger.info { "-----------------user---------------------" }
-      logger.info { user[:NAME] }
+      user = user_initialize.tenant_info(result)
       #rc = user.info
       #logger.info { rc.inspect }
       #if OpenNebula.is_error?(rc)
@@ -177,13 +171,13 @@ helpers do
       #    return [500, ""]
       # end
 
-      session[:user]         = user[:NAME]
-      session[:user_id]      = user[:ID]
-      session[:user_gid]     = user[:GID]
-      session[:user_gname]   = user[:GNAME]
+      session[:user]         = user["NAME"]
+      session[:user_id]      = user["ID"]
+      session[:user_gid]     = user["GID"]
+      session[:user_gname]   = user["GNAME"]
       session[:ip]           = request.ip
-      session[:remember]     = params[:remember]
-      session[:display_name] = user[DISPLAY_NAME_XPATH] || user[:NAME]
+      session[:remember]     = params["remember"]
+      session[:display_name] = user[DISPLAY_NAME_XPATH] || user["NAME"]
 
       logger.info { session[:user] }
       logger.info { session[:user_id] }
@@ -278,9 +272,9 @@ before do
     #  end
    # }
   end
-
-  @client=$cloud_auth.client(session[:user],
-  session[:active_zone_endpoint])
+  options = {}
+  @client=$cloud_auth.client(session[:user],  #change verify error login page
+  session[:active_zone_endpoint], options)
 
   @SunstoneServer = SunstoneServer.new(@client,$conf,logger)
 end

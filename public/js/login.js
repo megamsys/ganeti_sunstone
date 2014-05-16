@@ -42,17 +42,17 @@ function auth_error(req, error){
 function authenticate(){
     var username = $("#username").val();
     var password = $("#password").val();
-    var remember = $("#check_remember").is(":checked");
-
+    var remember = $("#check_remember").is(":checked");   
+    
     $("#error_box").fadeOut("slow");
     $("#login_spinner").show();
-
     OpenNebula.Auth.login({ data: {username: username
                                     , password: password}
                             , remember: remember
                             , success: auth_success
                             , error: auth_error
-                        });
+                        });      
+     
 }
 
 function getInternetExplorerVersion(){
@@ -88,6 +88,10 @@ $(document).ready(function(){
         return false;
     });
 
+    $('#login_type').change(function(){
+    	$("#logintype").val(($(this).val()));
+    	});
+    
     //compact login elements according to screen height
     if (screen.height <= 600){
         $('div#logo_sunstone').css("top","15px");
