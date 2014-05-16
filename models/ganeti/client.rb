@@ -18,9 +18,7 @@ module Ganeti
 
   class Client
     attr_reader   :ganeti_endpoint
-
-    ganeti_endpoint = ENV['GANETI_ENDPOINT']
-    keystone_endpoint = ENV['KEYSTONE_ENDPOINT']
+    
     def initialize(secret=nil, endpoint=nil, options={})
       @options = {}
       ganeti_endpoint = ENV['GANETI_ENDPOINT']
@@ -81,10 +79,13 @@ module Ganeti
       con = Excon.new("#{@keystone_endpoint}/#{path}")
       options[:method]=method
       token = get_token('tokens', 'POST')
+      puts token.data
       if token.data[:status].to_i != 200
+        puts "-------------!- 200 ===================="
         param = { "result" => "token_error", "response" => token }
       return param
       else
+        puts "============================200===================="
         user = JSON.parse(token.data[:body])
         options[:headers]={"Content-Type" => "application/json", "X-Auth-Token" => "#{user['access']['token']['id']}" }
         res = con.request(options)

@@ -417,9 +417,15 @@ var vm_actions = {
         call: OpenNebula.VM.create,
         callback: function(request, response){
           //$create_template_dialog.foundation('reveal', 'close');
-          addVMachineElement(request, response);
+         // addVMachineElement(request, response);
           OpenNebula.Helper.clear_cache("VM");
          // notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
+          show_provision_vm_list(0);
+          var context = $("#provision_create_vm");
+          $("#vm_name", context).val('');
+          $(".provision-pricing-table", context).removeClass("selected");
+          $(".alert-box-error", context).hide();
+          $('a[href="#provision_system_templates_selector"]', context).click();
         },
         error: onError,
         notify: true

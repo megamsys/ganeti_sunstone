@@ -3443,6 +3443,37 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
     return str;
 }
 
+//insert_group_dropdown("User",info.ID,info.GNAME,info.GID) +
+function insert_group_dropdown(resource_type, resource_id, group_value, group_id, context_str){
+    var str =  '<td class="key_td">' + tr("Group") + '</td>\
+                <td class="value_td_group">'+ group_value +'</td>\
+                <td>\
+                  <div id="div_edit_chg_group">\
+                     <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
+                  </div>\
+                </td>';
+
+    $(document).off("click", context_str + " #div_edit_chg_group_link");
+    $(document).on("click", context_str + " #div_edit_chg_group_link", function() {
+        var tr_context = $(this).parents("tr");
+        insertSelectOptions(".value_td_group", tr_context, "Group", group_id, false);
+    });
+
+    $(document).off("change", context_str + " .value_td_group .resource_list_select");
+    $(document).on("change", context_str + " .value_td_group .resource_list_select", function() {
+        var value_str = $(this).val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var resource_struct = new Array();
+            resource_struct[0]  = resource_id;
+            Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
+        }
+    });
+
+    return str;
+}
+
 //insert_tenant_dropdown("User",info.ID,info.GNAME,info.GID) +
 function insert_tenant_dropdown(resource_type, resource_id, tenant_value, tenant_id, context_str){
     var str =  '<td class="key_td">' + tr("Tenant") + '</td>\

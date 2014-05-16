@@ -28,6 +28,11 @@
     :user:
     :group:
         oneadmin: true
+- plugins/groups-tab.js:
+    :ALL: true
+    :user:
+    :group:
+        oneadmin: true        
 - plugins/acls-tab.js:
     :ALL: false
     :user:

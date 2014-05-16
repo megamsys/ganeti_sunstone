@@ -718,8 +718,9 @@ var povision_actions = {
     error: onError
   },
   "Provision.instantiate" : {
-    type: "single",
-    call: OpenNebula.Template.instantiate,
+    type: "create",
+    //call: OpenNebula.Template.instantiate,
+    call: OpenNebula.VM.create,
     callback: function(){
       OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
@@ -1893,7 +1894,9 @@ $(document).ready(function(){
         $.extend(extra_info.template, JSON.parse(instance_type.attr("data")))
       }
 
-      Sunstone.runAction("Provision.instantiate", template_id, extra_info);
+      //Sunstone.runAction("Provision.instantiate", template_id, extra_info);
+      vm_data = {"vm": {"vm_name": vm_name, "template_id": template_id, "n_times": extra_info}};
+      Sunstone.runAction("VM.create", vm_data);
       return false;
     })
 
@@ -2051,14 +2054,14 @@ $(document).ready(function(){
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-      "aaSorting"  : [[0, "desc"]],
+     // "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
       ],
-      "aoColumns": [
-          { "mDataProp": "VM.ID" },
-          { "mDataProp": "VM.NAME" }
-      ],
+     // "aoColumns": [
+     //     { "mDataProp": "VM.ID" },
+       //   { "mDataProp": "VM.NAME" }
+     // ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
         if (this.$('tr', {"filter": "applied"} ).length == 0) {

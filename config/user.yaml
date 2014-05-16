@@ -3,7 +3,7 @@ enabled_tabs:
     dashboard-tab: true
     system-tab: false
     users-tab: false
-    tenants-tab: false
+    groups-tab: false
     acls-tab: false
     vresources-tab: true
     vms-tab: true
@@ -82,6 +82,22 @@ tabs:
             Tenant.create_dialog: true
             Tenant.quotas_dialog: true
             Tenant.delete: true
+    groups-tab:
+        panel_tabs:
+            group_quotas_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Hosts
+            - 4         # VMs
+            - 5         # Memory
+            - 6         # CPU
+        actions:
+            Group.refresh: true
+            Group.create_dialog: true
+            Group.quotas_dialog: true
+            Group.delete: true        
     acls-tab:
         panel_tabs:
         table_columns:

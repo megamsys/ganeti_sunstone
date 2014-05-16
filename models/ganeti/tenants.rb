@@ -26,7 +26,6 @@ module Ganeti
     def call
       @cc = @client.keystone("tenants", 'GET')
       @cc["response"]
-    #{:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
     end
 
     def to_json
@@ -38,29 +37,35 @@ module Ganeti
     end
 
     def info(param)
-      @param = param
-      @cli = @client.call(@path+"/"+@param, 'GET')
-      @cli
+      @info = @client.keystone("tenants/#{param}", 'GET')
+      @info["response"]
     end
 
     def info_json
-      ins_data = @client.call(@path+"/"+@param, 'GET')
-      inst_data = JSON.parse(ins_data.data[:body])
-      no_of_hosts = inst_data["node_list"].count
-      cluster_name = get_cluster()
-      json = {
-        "TENANT"=> {
-          "ID"=> inst_data["serial_no"],
-          "NAME"=> inst_data["name"],
-          "NOOFHOSTS" => no_of_hosts,
-          "CLUSTER" => cluster_name,
-          "TEMPLATE"=> {
-            "TENANT_ADMINS"=> "customer1-admin",
-            "TENANT_ADMIN_VIEWS"=> "vdcadmin",
-            "SUNSTONE_VIEWS"=> "user"
-          },
+      if @info["result"] != 'success'
+        return empty_json()
+      else
+        if @info["response"].data[:status].to_i != 200
+          return empty_json()
+        else
+          return build_info_json(@info["response"])
+        end
+      end
+    end
+
+    def build_info_json(params)
+      tenant = JSON.parse(params.data[:body])
+      no_of_users = get_users(tenant["tenant"]["id"])
+      res = {
+        "GROUP"=> {
+          "ID"=> tenant["tenant"]["id"],
+          "NAME"=> tenant["tenant"]["name"],
+          "NOOFUSERS" => no_of_users,
+          "ENABLED" => tenant["tenant"]["enabled"],
+          "DESCRIPTION" => tenant["tenant"]["description"],
+          "TEMPLATE"=> {},
           "USERS"=> {
-            "ID"=> "2"
+            "ID"=> "0"
           },
           "RESOURCE_PROVIDER"=> {
             "ZONE_ID"=> "0",
@@ -70,11 +75,60 @@ module Ganeti
           "NETWORK_QUOTA"=> {},
           "VM_QUOTA"=> {},
           "IMAGE_QUOTA"=> {},
-          "DEFAULT_TENANT_QUOTAS"=> {
+          "DEFAULT_GROUP_QUOTAS"=> {
             "DATASTORE_QUOTA"=> {},
             "NETWORK_QUOTA"=> {},
             "VM_QUOTA"=> {},
             "IMAGE_QUOTA"=> {}
+          }
+        }
+      }
+      res.to_json
+    end
+
+    def get_users(id)
+      @info = @client.keystone("tenants/#{id}/users", 'GET')
+      res = @info["response"]
+      if res[:status].to_i != 200
+      return 0
+      else
+        users = JSON.parse(res.data[:body])
+        return users["users"].count
+      end
+    end
+
+    def empty_json
+      json = {"GROUP_POOL"=>
+        {
+          "GROUP"=> {
+            "ID"=> 0,
+            "NAME"=> "SERVER ERROR",
+            "NOOFUSERS" => 0,
+            "ENABLED" => "SERVER ERROR",
+            "DESCRIPTION" => "SERVER ERROR",
+            "CLUSTER" => "SERVER ERROR",
+            "TEMPLATE"=> {
+              "GROUP_ADMINS"=> "customer1-admin",
+              "GROUP_ADMIN_VIEWS"=> "vdcadmin",
+              "SUNSTONE_VIEWS"=> "user"
+            },
+            "USERS"=> {
+              "ID"=> "2"
+            },
+            "RESOURCE_PROVIDER"=> {
+              "ZONE_ID"=> "0",
+              "CLUSTER_ID"=> "10"
+            },
+            "DATASTORE_QUOTA"=> {},
+            "NETWORK_QUOTA"=> {},
+            "VM_QUOTA"=> {},
+            "IMAGE_QUOTA"=> {},
+            "DEFAULT_GROUP_QUOTAS"=> {
+              "DATASTORE_QUOTA"=> {},
+              "NETWORK_QUOTA"=> {},
+              "VM_QUOTA"=> {},
+              "IMAGE_QUOTA"=> {}
+            }
           }
         }
       }
@@ -83,27 +137,21 @@ module Ganeti
 
     def build_json(params)
       tenants = JSON.parse(params.data[:body])
-      puts "-------------response--------"
-      puts tenants
       i = 0
       js = tenants["tenants"].map { |c|
         i = i+1
         builder(i, c)
       }
-      puts "---------------js-----------"
-      puts js
       j=0
       quota_json = tenants["tenants"].map { |c|
         j = j+1
         getQuotaJson(j)
       }
-      puts "-----------quote----------------"
-      puts quota_json
       json = {
-        "TENANT_POOL" => {
-          "TENANT" =>  js,
+        "GROUP_POOL" => {
+          "GROUP" =>  js,
           "QUOTAS"=> quota_json,
-          "DEFAULT_TENANT_QUOTAS"=>{
+          "DEFAULT_GROUP_QUOTAS"=>{
             "DATASTORE_QUOTA"=>{},
             "NETWORK_QUOTA"=>{},
             "VM_QUOTA"=>{},
@@ -111,19 +159,15 @@ module Ganeti
           }
         }
       }
-      puts "---------------json--------------------"
-      puts json
       json.to_json
     end
 
     def builder(id, param)
       cluster_name = get_cluster()
-      puts "----------cluster-----------------"
-      puts cluster_name
       b_json = {
-        "ID" => id,
+        "ID" => param["id"],
         "NAME" => param["name"],
-        "NOOFHOSTS" => 2,
+        "NOOFUSERS" => 2,
         "CLUSTER" => cluster_name,
         "TEMPLATE" => {},
         "USERS" => {
@@ -224,5 +268,4 @@ json = {
 }
 }
 =end
-
 

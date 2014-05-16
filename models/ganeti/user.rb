@@ -57,21 +57,6 @@ module Ganeti
       @client = client
     end
 
-    #######################################################################
-    # XML-RPC Methods for the User Object
-    #######################################################################
-
-    # Retrieves the information of the given User.
-    def info(params)
-      # super(USER_METHODS[:info], 'USER')
-      #require 'sqlite3'
-      #db = SQLite3::Database.new( "ganeti.db" )
-      #rows = db.execute( "select * from users where user_name = '" + username + "'" )
-      #{:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
-      @info = @client.keystone("users/#{params}", 'GET')
-      @info["response"]
-    end
-
     def tenant_info(params)
       @options={}
       options={}
@@ -159,12 +144,10 @@ module Ganeti
         },
         "GNAME"=>"oneadmin",
         "NAME"=>param["username"],
-        "PASSWORD"=>"f1e91974588eb5a6f87711a1b44ee6d8f3c17522",
+        "PASSWORD"=>"",
         "AUTH_DRIVER"=>"core",
         "ENABLED"=>"1",
-        "TEMPLATE"=>{
-          "TOKEN_PASSWORD"=>"7e53060a659d012590de42f7da5e876aa2ce494e"
-        }
+        "TEMPLATE"=>{}
       }
       json
     end
@@ -192,9 +175,7 @@ module Ganeti
               "PASSWORD"=>"",
               "AUTH_DRIVER"=>"",
               "ENABLED"=>"",
-              "TEMPLATE"=>{
-                "TOKEN_PASSWORD"=>""
-              }
+              "TEMPLATE"=>{}
             }
           ],
           "QUOTAS"=>[{
@@ -210,6 +191,12 @@ module Ganeti
             "IMAGE_QUOTA"=>{}
           }}}
       json.to_json
+    end
+
+    # Retrieves the information of the given User.
+    def info(params)     
+      @info = @client.keystone("users/#{params}", 'GET')
+      @info["response"]
     end
 
     def info_json
@@ -231,12 +218,11 @@ module Ganeti
           },
           "GNAME"=> "users",
           "NAME"=> user["user"]["username"],
-          "PASSWORD"=> "1f8ac10f23c5b5bc1167bda84b833e5c057a77d2",
+          "PASSWORD"=> "",
           "AUTH_DRIVER"=> "core",
-          "ENABLED"=> "1",
-          "TEMPLATE"=> {
-            "TOKEN_PASSWORD"=> "e5d6a0dba76545a03420655b9ebeeeb7b768e384"
-          },
+          "ENABLED"=> user["user"]["enabled"],
+          "EMAIL" => user["user"]["email"],
+          "TEMPLATE"=> {},
           "DATASTORE_QUOTA"=> {
           },
           "NETWORK_QUOTA"=> {

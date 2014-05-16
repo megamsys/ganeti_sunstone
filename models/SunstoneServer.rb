@@ -48,7 +48,7 @@ class SunstoneServer < CloudServer
     puts "************************"
     puts kind
     pool = case kind
-    when "tenant"     then Ganeti::Tenants.new(client)
+    when "group"     then Ganeti::Tenants.new(client)
     when "host"       then Ganeti::Hosts.new(client)
     when "image"      then Ganeti::Images.new(client)
     when "vmtemplate" then Ganeti::Templates.new(client)
@@ -77,7 +77,7 @@ class SunstoneServer < CloudServer
   def get_resource(kind, id)
     #resource = retrieve_resource(kind, id)
     resource = case kind
-    when "tenant"     then Ganeti::Tenants.new(@client)
+    when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
@@ -118,7 +118,7 @@ class SunstoneServer < CloudServer
   ############################################################################
   def create_resource(kind, json)
     resource = case kind
-    when "tenant"     then Ganeti::Tenants.new(@client)
+    when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
@@ -206,7 +206,7 @@ class SunstoneServer < CloudServer
   def perform_action(kind, id, action_json)
     #resource = retrieve_resource(kind, id)
     resource = case kind
-    when "tenant"     then Ganeti::Tenants.new(@client)
+    when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
@@ -419,7 +419,7 @@ return error
 end
 =end
     resource = case kind
-    when "tenant"     then Ganeti::Tenants.new(@client)
+    when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)

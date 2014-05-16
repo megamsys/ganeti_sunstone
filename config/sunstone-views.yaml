@@ -5,7 +5,7 @@ available_tabs:
     - system-tab
     - clusters-tab
     - users-tab
-    - tenants-tab
+    - groups-tab
     - vresources-tab
     - vms-tab
     - templates-tab

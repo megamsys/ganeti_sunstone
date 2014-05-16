@@ -106,14 +106,7 @@ module Ganeti
           "TEMPLATE_ID"=>"1",
           "VMID"=>"48"
         },
-        "USER_TEMPLATE"=>{
-          "EC2"=>{
-            "AMI"=>"ami-d85f0c8a",
-            "INSTANCETYPE"=>"m1.small",
-            "KEYPAIR"=>"megam_ec2",
-            "SECURITYGROUPS"=>"megam"
-          }
-        },
+        "USER_TEMPLATE"=>{},
         "HISTORY_RECORDS"=>{}
       }
       b_json
@@ -131,7 +124,7 @@ module Ganeti
         "beparams"=> {"memory"=> template_json["MEMORY"]},
         "os_type"=> template_json["OS"],
         "mode"=>"create",
-        "nics"=>[{"link"=>"virbr0", "mac"=>"00:16:37:67:da:51", "ip"=>"None", "mode"=>"bridged", "vlan"=>"", "network"=>"None", "name"=> "None", "bridge"=>"virbr0"}],
+        "nics"=>[{"link"=>"br0", "mac"=>"00:16:37:4d:68:ea", "ip"=>"None", "mode"=>"bridged", "vlan"=>"", "network"=>"None", "name"=> "None", "bridge"=>"br0"}],
         "ip_check"=> false,
         "name_check"=>false,
         "hypervisor"=>"kvm",

@@ -142,71 +142,7 @@ module Ganeti
       end
       cluster_name
     end
-
   end
 end
 
-=begin
-json = {
-"GROUP_POOL" => {
-"GROUP" => [{
-"ID" => "0",
-"NAME" => "oneadmin",
-"TEMPLATE" => {},
-"USERS" => {
-"ID" => ["0","1"]
-}
-},
-{
-"ID" => "1",
-"NAME"=>"users",
-"TEMPLATE"=>{},
-"USERS"=>{},
-"RESOURCE_PROVIDER"=>{
-"ZONE_ID"=>"0",
-"CLUSTER_ID"=>"10"
-}
-},
-{
-"ID"=>"100",
-"NAME"=>"customer1",
-"TEMPLATE"=>{
-"GROUP_ADMINS"=>"customer1-admin",
-"GROUP_ADMIN_VIEWS"=>"vdcadmin",
-"SUNSTONE_VIEWS"=>"user"
-},
-"USERS"=>{
-"ID"=>"2"
-},
-"RESOURCE_PROVIDER"=>{
-"ZONE_ID"=>"0",
-"CLUSTER_ID"=>"10"
-}}],
-"QUOTAS"=>[{
-"ID"=>"0",
-"DATASTORE_QUOTA"=>{},
-"NETWORK_QUOTA"=>{},
-"VM_QUOTA"=>{},
-"IMAGE_QUOTA"=>{}
-},{
-"ID"=>"1",
-"DATASTORE_QUOTA"=>{},
-"NETWORK_QUOTA"=>{},
-"VM_QUOTA"=>{},
-"IMAGE_QUOTA"=>{}
-},{
-"ID"=>"100",
-"DATASTORE_QUOTA"=>{},
-"NETWORK_QUOTA"=>{},
-"VM_QUOTA"=>{},
-"IMAGE_QUOTA"=>{}
-}],
-"DEFAULT_GROUP_QUOTAS"=>{
-"DATASTORE_QUOTA"=>{},
-"NETWORK_QUOTA"=>{},
-"VM_QUOTA"=>{},
-"IMAGE_QUOTA"=>{}
-}
-}
-}
-=end
+
