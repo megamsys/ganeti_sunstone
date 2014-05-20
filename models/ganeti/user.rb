@@ -69,7 +69,7 @@ module Ganeti
         }
       return res
       else
-        con = Excon.new("#{@endpoint}/tenants")
+        con = Excon.new("http://192.168.2.3:5000/v2.0/tenants")
         @options[:method]='GET'
         @options[:headers]={ "Content-Type" => "application/json", "X-Auth-Token" => params["token"]}
         res = con.request(@options)
@@ -86,8 +86,10 @@ module Ganeti
           result = {
             "ID" => params["user_id"],
             "NAME" => params["username"],
-            "GID" => json["tenants"]["id"],
-            "GNAME" => json["tenants"]["name"]
+            #"GID" => json["tenants"]["id"],
+            #"GNAME" => json["tenants"]["name"]
+            "GID" => "",
+            "GNAME" => ""
           }
         return result
         end
@@ -194,7 +196,7 @@ module Ganeti
     end
 
     # Retrieves the information of the given User.
-    def info(params)     
+    def info(params)
       @info = @client.keystone("users/#{params}", 'GET')
       @info["response"]
     end
@@ -212,7 +214,7 @@ module Ganeti
       res = {
         "USER"=> {
           "ID"=> user["user"]["id"],
-          "GID"=> "1",
+          "GID"=> user["user"]["tenantId"],
           "GROUPS"=> {
             "ID"=> "1"
           },
@@ -244,6 +246,42 @@ module Ganeti
         }
       }
       res.to_json
+    end
+
+    def create(options)
+      user = JSON.parse(options)
+      contents = {
+        "user" => {
+          "name" => user["user"]["name"],
+          "enabled"=> true,
+          "OS-KSADM:password"=> user["user"]["password"]
+        }
+      }
+      create = @client.keystone("users", 'POST', contents)
+      create["response"]
+    end
+
+    def action(id, action_json)
+      json = JSON.parse(action_json)
+      case "#{json['action']['perform']}"
+      when "addgroup"
+        return addgroup(id, json)
+      end
+    end
+
+    def addgroup(id, json)
+      contents = {
+        "user" => {
+          "tenantId" => json['action']['params']['group_id']
+        }
+      }
+      create = @client.keystone("users/#{id}", 'PUT', contents)
+      create["response"]
+    end
+
+    def delete(id)
+      del = @client.keystone("users/#{id}", 'DELETE')
+      del["response"]
     end
 
     alias_method :info!, :info

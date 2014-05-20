@@ -2047,29 +2047,29 @@ function wizard_tab_dd(){
         str += "<dd><a href='#storageTab'><i class='fa fa-tasks'></i><br>"+tr("Storage")+"</a></dd>";
     }
 
-   // if (Config.isTemplateCreationTabEnabled('network')){
-      //  str += "<dd><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
-   // }
+    if (Config.isTemplateCreationTabEnabled('network')){
+        str += "<dd><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
+    }
 
-   // if (Config.isTemplateCreationTabEnabled('os_booting')){
-   //     str += "<dd><a href='#osTab'><i class='fa fa-power-off'></i><br>OS Booting</a></dd>";
-   // }
-//
-   // if (Config.isTemplateCreationTabEnabled('input_output')){
-    //    str += "<dd><a href='#ioTab'><i class='fa fa-exchange'></i><br>Input/Output</a></dd>";
-   // }
+    if (Config.isTemplateCreationTabEnabled('os_booting')){
+        str += "<dd><a href='#osTab'><i class='fa fa-power-off'></i><br>OS Booting</a></dd>";
+    }
 
-   // if (Config.isTemplateCreationTabEnabled('context')){
-   //     str += "<dd><a href='#contextTab'><i class='fa fa-folder'></i><br>Context</a></dd>";
-   // }
+    if (Config.isTemplateCreationTabEnabled('input_output')){
+        str += "<dd><a href='#ioTab'><i class='fa fa-exchange'></i><br>Input/Output</a></dd>";
+    }
+
+    if (Config.isTemplateCreationTabEnabled('context')){
+        str += "<dd><a href='#contextTab'><i class='fa fa-folder'></i><br>Context</a></dd>";
+    }
 
     if (Config.isTemplateCreationTabEnabled('scheduling')){
         str += "<dd><a href='#schedulingTab'><i class='fa fa-sitemap'></i><br>Scheduling</a></dd>";
     }
 
-   // if (Config.isTemplateCreationTabEnabled('other')){
-   //     str += "<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>";
-  //  }
+    if (Config.isTemplateCreationTabEnabled('other')){
+        str += "<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>";
+    }
 
     return str;
 }

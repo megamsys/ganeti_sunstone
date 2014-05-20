@@ -45,10 +45,8 @@ class SunstoneServer < CloudServer
     else
       user_flag = POOL_FILTER
     end
-    puts "************************"
-    puts kind
     pool = case kind
-    when "group"     then Ganeti::Tenants.new(client)
+    when "group"      then Ganeti::Tenants.new(client)
     when "host"       then Ganeti::Hosts.new(client)
     when "image"      then Ganeti::Images.new(client)
     when "vmtemplate" then Ganeti::Templates.new(client)
@@ -131,9 +129,7 @@ class SunstoneServer < CloudServer
     error = Error.new("Error: #{kind} resource not supported")
     return error
     end
-    puts json
     res = resource.create(json)
-    puts res.inspect
     resource.call
     if res[:status].to_i != 200
       return [500, resource.to_json]
@@ -185,10 +181,7 @@ class SunstoneServer < CloudServer
   #
   ############################################################################
   def delete_resource(kind, id)
-    resource = retrieve_resource(kind, id)
-    if OpenNebula.is_error?(resource)
-      return [404, resource.to_json]
-    end
+    resource = retrieve_resource(kind, id)   
 
     res = resource.delete(id)
     resource.call
@@ -219,8 +212,6 @@ class SunstoneServer < CloudServer
     error = Error.new("Error: #{kind} resource not supported")
     return error
     end
-     puts "------------------------+++++++--------"
-    puts action_json
     res = resource.action(id, action_json)   
     resource.call
     if res[:status].to_i != 200

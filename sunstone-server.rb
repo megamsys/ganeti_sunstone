@@ -158,8 +158,6 @@ helpers do
       logger.info { "Unauthorized login attempt" }
       return [401, ""]
     else
-      puts "--------------result--------------"
-      puts result
       client  = $cloud_auth.client(nil, nil, result)
       user_id = Ganeti::User::SELF
       user_initialize    = Ganeti::User.new(client)
@@ -170,7 +168,6 @@ helpers do
       #    logger.error { rc.message }
       #    return [500, ""]
       # end
-
       session[:user]         = user["NAME"]
       session[:user_id]      = user["ID"]
       session[:user_gid]     = user["GID"]

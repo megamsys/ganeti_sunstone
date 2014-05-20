@@ -60,9 +60,15 @@ module Ganeti
         puts "else disk size"
         host_name = ''
       end
+      
+      if hash['vmtemplate'].has_key?("NIC")
+        network = hash['vmtemplate']['NIC'][0]['NETWORK']
+      else
+        network = ''
+      end
 
-      time = Time.new
-      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, host_name, created_at) values(1, '"+data['vmtemplate']['NAME']+"', '"+data['vmtemplate']['MEMORY']+"', '"+disk_size+"', '"+data['vmtemplate']['CPU']+"', '"+image+"', '"+host_name+"', '"+time.inspect+"')")
+      time = Time.new      
+      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, host_name, machine, kernel_path, initrd, kernel_args, network_name, created_at) values(1, '"+data['vmtemplate']['NAME']+"', '"+data['vmtemplate']['MEMORY']+"', '"+disk_size+"', '"+data['vmtemplate']['CPU']+"', '"+image+"', '"+host_name+"', '"+data['vmtemplate']['OS']['MACHINE']+"', '"+data['vmtemplate']['OS']['KERNEL']+"', '"+data['vmtemplate']['OS']['INITRD']+"', '"+data['vmtemplate']['OS']['KERNEL_CMD']+"', '"+network+"', '"+time.inspect+"')")
       puts rows
       {:status => 200}
     end
@@ -101,16 +107,17 @@ module Ganeti
           "OTHER_M"=>"0",
           "OTHER_A"=>"0"
         },
-        "REGTIME"=>tem_data[8],
+        "REGTIME"=>tem_data[13],
         "TEMPLATE"=>{
-          "CPU"=>"1",
-          "EC2"=>{
-            "AMI"=>"ami-d85f0c8a",
-            "INSTANCETYPE"=>"m1.small",
-            "KEYPAIR"=>"megam_ec2",
-            "SECURITYGROUPS"=>"megam"
-          },
-          "MEMORY"=>"1700"
+          "CPU"=>tem_data[5],
+           "OS"=>{"MACHINE"=>tem_data[8], "KERNEL_CMD"=>tem_data[11], "KERNEL"=>tem_data[9], "INITRD"=>tem_data[10]},
+          # "EC2"=>{
+          #  "AMI"=>"ami-d85f0c8a",
+           # "INSTANCETYPE"=>"m1.small",
+          # "KEYPAIR"=>"megam_ec2",
+           # "SECURITYGROUPS"=>"megam"
+         # },
+          "MEMORY"=>tem_data[3]
         }
       }
       js
@@ -158,16 +165,17 @@ module Ganeti
         "CPU"=>rows[0][5],
         "DISK_SIZE"=>rows[0][4],
         "HOST_NAME"=>rows[0][7],
-        "REGTIME"=>rows[0][8],
+        "REGTIME"=>rows[0][13],
         "TEMPLATE"=>{
-          "CPU"=>"1",
-          "EC2"=>{
-            "AMI"=>"ami-d85f0c8a",
-            "INSTANCETYPE"=>"m1.small",
-            "KEYPAIR"=>"megam_ec2",
-            "SECURITYGROUPS"=>"megam"
-          },
-          "MEMORY"=>"1700"
+          "CPU"=>rows[0][5],
+          "OS"=>{"MACHINE"=>rows[0][8], "KERNEL_CMD"=>rows[0][11], "KERNEL"=>rows[0][9], "INITRD"=>rows[0][10]},
+          #"EC2"=>{
+          #  "AMI"=>"ami-d85f0c8a",
+           # "INSTANCETYPE"=>"m1.small",
+           # "KEYPAIR"=>"megam_ec2",
+           # "SECURITYGROUPS"=>"megam"
+         # },
+          "MEMORY"=>rows[0][3]
         }
       }
       js

@@ -29,7 +29,7 @@ module Ganeti
 
     # Retrieves the information of the given User.
     def call
-      @cc = @client.call(@path, 'GET')
+      @cc = @client.call(@path, 'GET')      
       @cc
     #{:ID => rows[0][0], :NAME => rows[0][1], :GID => rows[0][4], :GNAME => rows[0][5]}
     end
@@ -54,6 +54,14 @@ module Ganeti
       @param = param
       @cli = @client.call(@path+"/"+@param, 'GET')
       @cli
+      #cli = @client.call(@path+"/"+@param+"/info", 'GET')
+      #if cli.data[:status].to_i != 200
+         #return cli
+     # else
+       #  job = JSON.parse(cli.data[:body])
+        # res = @client.call(@path+"/jobs/"+job, 'GET')
+        # return res    
+      #end
     end
 
     def info_json
@@ -66,7 +74,6 @@ module Ganeti
     def build_json(id=nil, name)
       ins_data = @client.call(@path+"/#{name}", 'GET')
       inst_data = JSON.parse(ins_data.data[:body])
-
       b_json = {
         "ID"=>inst_data["serial_no"],
         "UID"=>"0",
@@ -124,17 +131,24 @@ module Ganeti
         "beparams"=> {"memory"=> template_json["MEMORY"]},
         "os_type"=> template_json["OS"],
         "mode"=>"create",
-        "nics"=>[{"link"=>"br0", "mac"=>"00:16:37:4d:68:ea", "ip"=>"None", "mode"=>"bridged", "vlan"=>"", "network"=>"None", "name"=> "None", "bridge"=>"br0"}],
+        "nics"=>[{"link"=>"br0", "mac"=>"", "ip"=>"None", "mode"=>"bridged", "vlan"=>"", "network"=>"blue_lan", "name"=> "None", "bridge"=>"br0"}],
+        #"nics"=>[{"link"=>"br0", "ip"=>"None", "network"=>"blue_lan", "mode"=>"bridged", "bridge"=>"br0"}],
         "ip_check"=> false,
         "name_check"=>false,
-        "hypervisor"=>"kvm",
-        "hvparams"=> {"vnc_bind_address" => "0.0.0.0", "kernel_path"=>""},
+        "hypervisor"=>template_json['TEMPLATE']['OS']["MACHINE"],
+        "hvparams"=> {
+           "vnc_bind_address" => "0.0.0.0", 
+           "kernel_path"=> template_json['TEMPLATE']['OS']['KERNEL'],  
+           "initrd_path" => template_json['TEMPLATE']['OS']['INITRD'], 
+           "kernel_args" => template_json['TEMPLATE']['OS']['KERNEL_CMD']
+           },
         "instance_name"=> post_data["vm"]["vm_name"]
        } 
        if template_json["HOST_NAME"].length > 0
        options["pnode"]=template_json["HOST_NAME"]
        end
       post = @client.call(@path, 'POST', options)
+      puts post.inspect
       post
     end
 
@@ -153,7 +167,6 @@ module Ganeti
       json = JSON.parse(action_json)
       data = @VM_METHODS[json["action"]["perform"]]
       res = @client.call(@path+"/"+id+"/"+data["ACTION"], data["METHOD"], data["options"])
-      puts res.inspect
       res
      end
 
