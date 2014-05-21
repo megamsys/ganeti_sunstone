@@ -529,7 +529,6 @@ function updateHostsView (request,host_list){
     });
 
     updateView(host_list_array,dataTable_hosts);
-
     if (max_disk > 0) {
         var ratio_allocated_disk = Math.round((allocated_disk / max_disk) * 100);
         info_str = humanize_size(allocated_disk) + ' / ' + humanize_size(max_disk) + ' (' + ratio_allocated_disk + '%)';

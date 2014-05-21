@@ -74,20 +74,18 @@ module Ganeti
       res
     end
 
-    def keystone(path, method)
+    def keystone(path, method, contents={})
       options={}
       con = Excon.new("#{@keystone_endpoint}/#{path}")
       options[:method]=method
       token = get_token('tokens', 'POST')
-      puts token.data
       if token.data[:status].to_i != 200
-        puts "-------------!- 200 ===================="
         param = { "result" => "token_error", "response" => token }
       return param
       else
-        puts "============================200===================="
         user = JSON.parse(token.data[:body])
         options[:headers]={"Content-Type" => "application/json", "X-Auth-Token" => "#{user['access']['token']['id']}" }
+        options[:body]=contents.to_json
         res = con.request(options)
         con.reset
         param = { "result" => "success", "response" => res }

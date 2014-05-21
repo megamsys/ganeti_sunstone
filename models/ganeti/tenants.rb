@@ -201,6 +201,19 @@ module Ganeti
       cluster_name
     end
 
+    def create(options)
+      tenant = JSON.parse(options)
+      contents = {
+        "tenant" => {
+          "name" => tenant["group"]["name"],
+          "description" => "",
+          "enabled" => true
+        }
+      }
+      create = @client.keystone("tenants", 'POST', contents)
+      create["response"]
+    end
+
   end
 end
 

@@ -525,7 +525,7 @@ var users_tab = {
           <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
           <th>'+tr("ID")+'</th>\
           <th>'+tr("Name")+'</th>\
-          <th>'+tr("Group")+'</th>\
+          <th style="display: none;">'+tr("Group")+'</th>\
           <th style="display: none;">'+tr("Auth driver")+'</th>\
           <th style="display: none;">'+tr("VMs")+'</th>\
           <th style="display: none;">'+tr("Memory")+'</th>\
@@ -579,7 +579,7 @@ function userElementArray(user_json){
         '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
         user.ID,
         user.NAME,
-        user.GNAME,
+        "",
         "",
         "",
         "",
@@ -658,8 +658,13 @@ function updateUserInfo(request,user){
                 <td></td>\
             </tr>\
             <tr>' +
-                insert_tenant_dropdown("User",info.ID,info.GNAME,info.GID,"#info_user_table") +
+             //   insert_tenant_dropdown("User",info.ID,info.GNAME,info.GID,"#info_user_table") +
             '</tr>\
+            <tr>\
+                 <td class="key_td">' + tr("Tenant ID") + '</td>\
+                 <td class="value_td">'+info.GID+'</td>\
+                 <td></td>\
+            </tr>\
             <tr>\
                 <td class="key_td">' + tr("ENABLED") + '</td>\
                 <td class="value_td">'+info.ENABLED+'</td>\
