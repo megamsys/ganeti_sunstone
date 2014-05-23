@@ -9,7 +9,7 @@ puts "Database Initiated!"
 end
 
 task :clean => :default do
-tables = ['users', 'templates']
+tables = ['vms', 'templates', 'users']
 tables.each {|table| @db.execute("drop table #{table};") }
 puts "Tables are cleaned"
 end
@@ -21,6 +21,8 @@ puts "Users table is created"
 puts "Templates table is created"
 @db.execute("INSERT INTO USERS(user_name, password, enabled, gid, gname) values('oneadmin', 'team4megam', 1, 0, 'oneadmin');")
 puts "Default user inserted...."
+@db.execute("CREATE TABLE vms (id INTEGER PRIMARY KEY AUTOINCREMENT, user_name varchar(256), user_id text, tenant_name text, tenant_id text, vm_name text, host text, template_id integer, result text, job_id text);")
+puts "Virtual Machine table created"
 end
 
 task :init => :migrate do  
@@ -34,4 +36,7 @@ puts "Users table is created"
 puts "Templates table is created"
 @db.execute("INSERT INTO USERS(user_name, password, enabled, gid, gname) values('oneadmin', 'team4megam', 1, 0, 'oneadmin');")
 puts "Default user inserted...."
+@db.execute("CREATE TABLE vms (id INTEGER PRIMARY KEY AUTOINCREMENT, user_name varchar(256), user_id text, tenant_name text, tenant_id text, vm_name text, host text, template_id integer, os text, result text, job_id);")
+puts "Virtual Machine table created"
 end
+

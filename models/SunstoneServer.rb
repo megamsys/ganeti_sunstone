@@ -37,20 +37,20 @@ class SunstoneServer < CloudServer
   ############################################################################
   #
   ############################################################################
-  def get_pool(kind,gid, client=nil)
+  def get_pool(kind,gid, client=nil, options)
     client = @client if !client
-
     if gid == "0"
       user_flag = Pool::INFO_ALL
     else
       user_flag = POOL_FILTER
     end
+    puts "----------------------get pool----------------------------"
     pool = case kind
     when "group"      then Ganeti::Tenants.new(client)
     when "host"       then Ganeti::Hosts.new(client)
     when "image"      then Ganeti::Images.new(client)
     when "vmtemplate" then Ganeti::Templates.new(client)
-    when "vm"         then Ganeti::VirtualMachines.new(client)
+    when "vm"         then Ganeti::VirtualMachines.new(client, options)
     when "vnet"       then Ganeti::VirtualNetworks.new(client)
     when "user"       then Ganeti::User.new(client)
     when "zone"       then Ganeti::Zones.new(client)
@@ -72,14 +72,15 @@ class SunstoneServer < CloudServer
   ############################################################################
   #
   ############################################################################
-  def get_resource(kind, id)
+  def get_resource(kind, id, options)
     #resource = retrieve_resource(kind, id)
+     puts "----------------------get resourse----------------------------"
     resource = case kind
     when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
-    when "vm"         then Ganeti::VirtualMachines.new(@client)
+    when "vm"         then Ganeti::VirtualMachines.new(@client, options)
     when "vnet"       then Ganeti::VirtualNetworks.new(@client)
     when "user"       then Ganeti::User.new(@client)
     when "zone"       then Ganeti::Zones.new(@client)
@@ -102,6 +103,7 @@ class SunstoneServer < CloudServer
   #
   ############################################################################
   def get_template(kind,id)
+     puts "----------------------get template----------------------------"
     resource = retrieve_resource(kind,id)
     if OpenNebula.is_error?(resource)
       return [404, resource.to_json]
@@ -114,13 +116,14 @@ class SunstoneServer < CloudServer
   ############################################################################
   #
   ############################################################################
-  def create_resource(kind, json)
+  def create_resource(kind, json, options)
+     puts "----------------------create resource----------------------------"
     resource = case kind
-    when "group"     then Ganeti::Tenants.new(@client)
+    when "group"      then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
-    when "vm"         then Ganeti::VirtualMachines.new(@client)
+    when "vm"         then Ganeti::VirtualMachines.new(@client, options)
     when "vnet"       then Ganeti::VirtualNetworks.new(@client)
     when "user"       then Ganeti::User.new(@client)
     when "zone"       then Ganeti::Zones.new(@client)
@@ -128,7 +131,7 @@ class SunstoneServer < CloudServer
     else
     error = Error.new("Error: #{kind} resource not supported")
     return error
-    end
+    end    
     res = resource.create(json)
     resource.call
     if res[:status].to_i != 200
@@ -180,8 +183,8 @@ class SunstoneServer < CloudServer
   ############################################################################
   #
   ############################################################################
-  def delete_resource(kind, id)
-    resource = retrieve_resource(kind, id)   
+  def delete_resource(kind, id, options)
+    resource = retrieve_resource(kind, id, options)   
 
     res = resource.delete(id)
     resource.call
@@ -189,6 +192,7 @@ class SunstoneServer < CloudServer
       return [500, resource.to_json]
     else
     #resource.info
+      resource.purge(id)
       return [201, resource.to_json]
     end
   end
@@ -196,14 +200,15 @@ class SunstoneServer < CloudServer
   ############################################################################
   #
   ############################################################################
-  def perform_action(kind, id, action_json)
+  def perform_action(kind, id, action_json, options)
     #resource = retrieve_resource(kind, id)
+     puts "----------------------perform action----------------------------"
     resource = case kind
     when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
-    when "vm"         then Ganeti::VirtualMachines.new(@client)
+    when "vm"         then Ganeti::VirtualMachines.new(@client, options)
     when "vnet"       then Ganeti::VirtualNetworks.new(@client)
     when "user"       then Ganeti::User.new(@client)
     when "zone"       then Ganeti::Zones.new(@client)
@@ -390,7 +395,7 @@ class SunstoneServer < CloudServer
   ############################################################################
   #
   ############################################################################
-  def retrieve_resource(kind, id)
+  def retrieve_resource(kind, id, options= {})
 =begin
 resource = case kind
 when "group"      then GroupJSON.new_with_id(id, @client)
@@ -410,11 +415,11 @@ return error
 end
 =end
     resource = case kind
-    when "group"     then Ganeti::Tenants.new(@client)
+    when "group"      then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
     when "vmtemplate" then Ganeti::Templates.new(@client)
-    when "vm"         then Ganeti::VirtualMachines.new(@client)
+    when "vm"         then Ganeti::VirtualMachines.new(@client, options)
     when "vnet"       then Ganeti::VirtualNetworks.new(@client)
     when "user"       then Ganeti::User.new(@client)
     when "zone"       then Ganeti::Zones.new(@client)
