@@ -225,9 +225,10 @@ var template_actions = {
     "Template.create" : {
         type: "create",
         call: OpenNebula.Template.create,
-        callback: function(request, response){
+        callback: function(request, response){          
           $create_template_dialog.foundation('reveal', 'close');
-          addTemplateElement(request, response);
+          $create_template_dialog.empty();
+          addTemplateElement(request, response);          
           notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
         },
         error: onError
@@ -1634,14 +1635,14 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '<thead>'+
           '<tr>'+
             '<th></th>'+
-            '<th>'+tr("ID")+'</th>'+
-            '<th>'+tr("Owner")+'</th>'+
-            '<th>'+tr("Group")+'</th>'+
-            '<th>'+tr("Name")+'</th>'+
-            '<th>'+tr("Cluster")+'</th>'+
-            '<th>'+tr("Type")+'</th>'+
-            '<th>'+tr("Bridge")+'</th>'+
-            '<th>'+tr("Leases")+'</th>'+
+            '<th>'+tr("Name")+'</th>\
+            <th style="display: none;">'+tr("ID")+'</th>\
+            <th style="display: none;">'+tr("Owner")+'</th>\
+            <th style="display: none;">'+tr("Group")+'</th>'+          
+            '<th style="display: none;">'+tr("Cluster")+'</th>\
+            <th style="display: none;">'+tr("Type")+'</th>\
+            <th style="display: none;">'+tr("Bridge")+'</th>\
+            <th style="display: none;">'+tr("Leases")+'</th>'+
           '</tr>'+
         '</thead>'+
         '<tbody id="tbodynetworks">'+
@@ -1869,7 +1870,7 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
         $("td", this).addClass('markrow');
         $('input.check_item', this).attr('checked','checked');
 
-        $('#NETWORK_NAME', nic_section).text(aData[4]);
+        $('#NETWORK_NAME', nic_section).text(aData[1]);
         $('#NETWORK_ID', nic_section).val("");
         $('#NETWORK', nic_section).val(aData[4]);
         $('#NETWORK_UNAME', nic_section).val(aData[2]);
@@ -3824,7 +3825,7 @@ function initialize_create_template_dialog(dialog) {
         //
         // NIC
         //
-
+        vm_json["NETWORK_NAME"] = $('#NETWORK_NAME',$('.nic',dialog)).text();
         vm_json["NIC"] = [];
 
         $('.nic',dialog).each(function(){
@@ -3907,8 +3908,8 @@ function initialize_create_template_dialog(dialog) {
           if ($('#KEY', $(this)).val()) {
             vm_json[$('#KEY', $(this)).val()] = escapeDoubleQuotes($('#VALUE', $(this)).val());
           }
-        });
-
+        });              
+        
         // remove empty elements
         vm_json = removeEmptyObjects(vm_json);
         return vm_json;
@@ -4163,7 +4164,6 @@ function fillTemplatePopUp(template, dialog){
         var nic_section  = $('#' + str_nic_tab_id + 'Tab', dialog);
 
         var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
-
         var nic_network_id = nic.NETWORK_ID
         var nic_network = nic.NETWORK
         var nic_network_uname = nic.NETWORK_UNAME
@@ -4180,7 +4180,7 @@ function fillTemplatePopUp(template, dialog){
                         $('.alert-box', nic_section).hide();
                         $('#network_selected', nic_section).show();
                         $('#select_network', nic_section).hide();
-                        $('#NETWORK_NAME', nic_section).text(this[4]);
+                        $('#NETWORK_NAME', nic_section).text(this[1]);
                         if (nic_network_id) $('#NETWORK_ID', nic_section).val(this[1]);
                         if (nic_network) $('#NETWORK', nic_section).val(this[4]);
                         if (nic_network_uname) $('#NETWORK_UNAME', nic_section).val(this[2]);

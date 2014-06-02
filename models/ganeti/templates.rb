@@ -16,7 +16,7 @@
 
 module Ganeti
   class Templates
-    def initialize(client)
+    def initialize(client=nil)
       @path = "/2/os"
       @client = client
     end
@@ -37,7 +37,7 @@ module Ganeti
 
     def create(template)
       data = JSON.parse(template)
-      
+
       puts template
       hash = JSON[template]
       puts hash
@@ -50,40 +50,60 @@ module Ganeti
       if hash['vmtemplate'].has_key?("DISK_SIZE")
         disk_size = hash['vmtemplate']['DISK_SIZE']
       else
-      disk_size = '512'
+        disk_size = '512'
       end
 
-       if hash['vmtemplate'].has_key?("SCHED_REQUIREMENTS")
+      if hash['vmtemplate'].has_key?("SCHED_REQUIREMENTS")
         puts "if disk size"
         host_name = (hash['vmtemplate']['SCHED_REQUIREMENTS'].split("="))[1]
       else
         puts "else disk size"
         host_name = ''
       end
-      
-      if hash['vmtemplate'].has_key?("NIC")
-        network = hash['vmtemplate']['NIC'][0]['NETWORK']
+
+      if hash['vmtemplate'].has_key?("CONTEXT")
+        if hash['vmtemplate']['CONTEXT'].has_key?("SSH_PUBLIC_KEY")
+          if hash['vmtemplate']['CONTEXT']['SSH_PUBLIC_KEY'] == '$USER[SSH_PUBLIC_KEY]'
+            sshkey = ''
+          else
+            sshkey = hash['vmtemplate']['CONTEXT']['SSH_PUBLIC_KEY']
+          end
+        else
+          sshkey = ''
+        end
+      else
+        sshkey = ''
+      end
+
+      if hash['vmtemplate'].has_key?("NETWORK_NAME")
+        network = hash['vmtemplate']['NETWORK_NAME']
       else
         network = ''
       end
 
-      time = Time.new      
-      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, host_name, machine, kernel_path, initrd, kernel_args, network_name, created_at) values(1, '"+data['vmtemplate']['NAME']+"', '"+data['vmtemplate']['MEMORY']+"', '"+disk_size+"', '"+data['vmtemplate']['CPU']+"', '"+image+"', '"+host_name+"', '"+data['vmtemplate']['OS']['MACHINE']+"', '"+data['vmtemplate']['OS']['KERNEL']+"', '"+data['vmtemplate']['OS']['INITRD']+"', '"+data['vmtemplate']['OS']['KERNEL_CMD']+"', '"+network+"', '"+time.inspect+"')")
+      time = Time.new
+      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, host_name, machine, kernel_path, initrd, kernel_args, network_name, sshkey, created_at) values(1, '"+data['vmtemplate']['NAME']+"', '"+data['vmtemplate']['MEMORY']+"', '"+disk_size+"', '"+data['vmtemplate']['CPU']+"', '"+image+"', '"+host_name+"', '"+data['vmtemplate']['OS']['MACHINE']+"', '"+data['vmtemplate']['OS']['KERNEL']+"', '"+data['vmtemplate']['OS']['INITRD']+"', '"+data['vmtemplate']['OS']['KERNEL_CMD']+"', '"+network+"', '"+sshkey+"', '"+time.inspect+"')")
       puts rows
       {:status => 200}
     end
 
     def to_json
       #zone = JSON.parse(@cc.data[:body])
+      json={}
       inst_data = connect.execute( "select * from templates where uid = 1" )
-      puts inst_data.class
-      js = inst_data.map { |c|
-        build_json(c)
-      }
-      json = {
-        "VMTEMPLATE_POOL"=>{
-          "VMTEMPLATE"=> js }
-      }
+      if inst_data.empty?
+        json = {
+          "VMTEMPLATE_POOL"=>{}
+        }
+      else
+        js = inst_data.map { |c|
+          build_json(c)
+        }
+        json = {
+          "VMTEMPLATE_POOL"=>{
+            "VMTEMPLATE"=> js }
+        }
+      end
       json.to_json
     end
 
@@ -107,16 +127,16 @@ module Ganeti
           "OTHER_M"=>"0",
           "OTHER_A"=>"0"
         },
-        "REGTIME"=>tem_data[13],
+        "REGTIME"=>tem_data[14],
         "TEMPLATE"=>{
           "CPU"=>tem_data[5],
-           "OS"=>{"MACHINE"=>tem_data[8], "KERNEL_CMD"=>tem_data[11], "KERNEL"=>tem_data[9], "INITRD"=>tem_data[10]},
+          "OS"=>{"MACHINE"=>tem_data[8], "KERNEL_CMD"=>tem_data[11], "KERNEL"=>tem_data[9], "INITRD"=>tem_data[10]},
           # "EC2"=>{
           #  "AMI"=>"ami-d85f0c8a",
-           # "INSTANCETYPE"=>"m1.small",
+          # "INSTANCETYPE"=>"m1.small",
           # "KEYPAIR"=>"megam_ec2",
-           # "SECURITYGROUPS"=>"megam"
-         # },
+          # "SECURITYGROUPS"=>"megam"
+          # },
           "MEMORY"=>tem_data[3]
         }
       }
@@ -165,20 +185,63 @@ module Ganeti
         "CPU"=>rows[0][5],
         "DISK_SIZE"=>rows[0][4],
         "HOST_NAME"=>rows[0][7],
-        "REGTIME"=>rows[0][13],
+        "NETWORK"=>rows[0][12],
+        "REGTIME"=>rows[0][14],
         "TEMPLATE"=>{
           "CPU"=>rows[0][5],
           "OS"=>{"MACHINE"=>rows[0][8], "KERNEL_CMD"=>rows[0][11], "KERNEL"=>rows[0][9], "INITRD"=>rows[0][10]},
           #"EC2"=>{
           #  "AMI"=>"ami-d85f0c8a",
-           # "INSTANCETYPE"=>"m1.small",
-           # "KEYPAIR"=>"megam_ec2",
-           # "SECURITYGROUPS"=>"megam"
-         # },
+          # "INSTANCETYPE"=>"m1.small",
+          # "KEYPAIR"=>"megam_ec2",
+          # "SECURITYGROUPS"=>"megam"
+          # },
           "MEMORY"=>rows[0][3]
         }
       }
       js
+    end
+
+    def delete(param)
+      id = param.split("-")[0]
+      require 'sqlite3'
+      db = SQLite3::Database.new( "ganeti.db" )
+      rows = db.execute( "DELETE FROM templates WHERE id = '" + id + "'" )
+      {:status => 200}
+    end
+
+    def purge(id)
+    end
+
+    def get_sshkey(param)
+      auth_options={}
+      admin_username = ENV['GANETI_USER']
+      admin_password = ENV['GANETI_PASSWORD']
+      if param["username"] == admin_username && param["password"] == admin_password
+        port = 35357
+        type = "admin"
+        options = {"auth"=>{"tenantName"=> "admin", "passwordCredentials"=>{"username"=> param["username"], "password"=> param["password"]}}}
+      else
+        port = 5000
+        type = "user"
+        options = {"auth"=>{"passwordCredentials"=>{"username"=> param["username"], "password"=> param["password"]}}}
+      end
+      con = Excon.new("http://192.168.2.3:#{port}/v2.0/tokens")
+      auth_options[:method]='POST'
+      auth_options[:headers]={ "Content-Type" => "application/json"}
+      auth_options[:body]=options.to_json
+      res = con.request(auth_options)
+      con.reset
+      if res[:status] == 200
+        require 'sqlite3'
+        db = SQLite3::Database.new( "ganeti.db" )
+        inst_data = connect.execute( "select * from vms where vm_name = '" + param["instance_name"] + "'" )
+        template_id = inst_data[0][7]
+        data = connect.execute( "select * from templates where id = #{template_id} " )
+      return data[0][13]
+      else
+        return ""
+      end
     end
 
   end

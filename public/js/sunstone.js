@@ -802,7 +802,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 context = $("#"+custom_id+"user_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
-                break;
+                break;               
             case "del":
                 context = $("#"+custom_id+"delete_buttons", buttons_row);
                 text = '<i class=" fa fa-trash-o"/> ';
@@ -927,12 +927,27 @@ function setupConfirmDialogs(){
         var value = $(this).val();
         var action = SunstoneCfg["actions"][value];
         var param = $('select.resource_list_select',context).val();
-
+        //var param1 = $('#mode', context).val();
         if (!param.length){
             notifyError("You must select a value");
             return false;
         };
 
+        if(value == "Network.addgrp") {
+        	var network_mode = $('select.network_mode', context).val();
+        	if (network_mode == ""){
+                notifyError("You must select a mode");
+                return false;
+            };
+        	var mode_name = $('#mode_name', context).val();
+        	if (mode_name == ""){
+                notifyError("You must enter a mode name");
+                return false;
+            };            
+        	//json = '{ "mode_name": "'+ mode_name + '", "network_mode": "' +  network_mode + '", "id": "' + $('select.resource_list_select',context).val() +'"}'
+        	//param = jQuery.parseJSON( json );
+            param = $('select.resource_list_select',context).val() + ":" + network_mode + ":" + mode_name
+        };
         if (!action) { notifyError("Action "+value+" not defined."); return false;};
         switch (action.type){
         case "multiple": //find the datatable
@@ -1728,9 +1743,15 @@ function getSelectedNodes(dataTable, force_datatable){
 // TODO: Too many arguments. Change to use a params object
 function insertSelectOptions(id, context, resource, init_val, empty_value,
     extra_options, filter_att, filter_val){
-
+    console.log(id);
+    console.log(context);
+    console.log(resource);
+    console.log(init_val);
+    console.log(extra_options);
+    console.log(filter_att);
+    console.log(filter_val);
     $(id, context).html('<i class="fa fa-spinner fa-spin"></i>');
-
+    
     OpenNebula[resource].list({
         timeout: true,
         success: function (request, obj_list){
@@ -1771,13 +1792,26 @@ function insertSelectOptions(id, context, resource, init_val, empty_value,
                 }
 
                 if (add){
-                    select_str +='<option elem_id="'+id+'" value="'+id+'">'+
+                    select_str +='<option elem_id="'+id+'" value="'+id+':'+name+'">'+
                                     id+': '+name+'</option>';
                 }
             });
 
             select_str+="</select>";
-
+            if(resource == "HGroup") {                                                 //change for network mode modify
+            	select_str +='<label for="mode" >Select mode:</label>';
+            	select_str +='<select class="network_mode">';
+            	if (empty_value){
+                    select_str += '<option class="empty_value" value="">'+
+                                    tr("Please select")+'</option>';
+                }
+            	select_str +='<option elem_id="bridged" value="bridged">bridged</option>';
+            	select_str +='<option elem_id="routed" value="routed">routed</option>';
+            	select_str+="</select>";
+            	select_str +='<label for="mode_name" >Enter mode name:</label>'
+            	select_str+="<input type='text' id='mode_name' name='mode_name'/>"
+            }
+            
             $(id, context).html(select_str);
 
             if (init_val){

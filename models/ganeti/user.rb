@@ -262,7 +262,7 @@ module Ganeti
     end
 
     def action(id, action_json)
-      json = JSON.parse(action_json)
+      json = JSON.parse(action_json)      
       case "#{json['action']['perform']}"
       when "addgroup"
         return addgroup(id, json)
@@ -270,9 +270,10 @@ module Ganeti
     end
 
     def addgroup(id, json)
+      gid = json['action']['params']['group_id'].split(":")
       contents = {
         "user" => {
-          "tenantId" => json['action']['params']['group_id']
+          "tenantId" => gid[0]
         }
       }
       create = @client.keystone("users/#{id}", 'PUT', contents)

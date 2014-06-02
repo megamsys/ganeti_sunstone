@@ -247,8 +247,16 @@ end
 before do
   cache_control :no_store
   content_type 'application/json', :charset => 'utf-8'
-  unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
+  puts "+++++++++++++++++++++++++"
+  puts request.path
+  unless request.path=='/login' || request.path=='/' || request.path=='/vnc' 
+    puts "+++++++++1111++++++++++++++++"
+    puts request.path
+    if request.path != '/keys/template'
+      puts "++++++3333+++++++++++++++++++"
+  puts request.path
     halt 401 unless authorized?
+    end
   end
 
   if env['HTTP_ZONE_NAME']
@@ -451,6 +459,11 @@ end
 
 get '/:resource/:id/template' do
   @SunstoneServer.get_template(params[:resource], params[:id])
+end
+
+get '/keys/template' do
+  template = Ganeti::Templates.new
+  template.get_sshkey(params)
 end
 
 get '/:resource/:id' do

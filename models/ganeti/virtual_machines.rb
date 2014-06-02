@@ -36,20 +36,15 @@ module Ganeti
     end
 
     def to_json
+      json={}
       #c1 = JSON.parse(@cc.data[:body])
       if ENV['GANETI_USER'] == @user_details['username'] && @user_details["group_name"] == "admin"
         c1 = connect.execute( "select * from vms" )
-        js = c1.map { |c|
-          builder(c)
-        }
-        json = {
-          "VM_POOL"=>{
-            "VM"=> js}
-        }
-      else
-        c1 = connect.execute( "select * from vms where user_id = '" + @user_details['user_id'] + "'")
-        puts c1.length
-        if c1.length > 0
+        if c1.empty?
+          json = {
+            "VM_POOL"=>{}
+          }
+        else
           js = c1.map { |c|
             builder(c)
           }
@@ -57,9 +52,21 @@ module Ganeti
             "VM_POOL"=>{
               "VM"=> js}
           }
-        else
+        end
+      else
+        c1 = connect.execute( "select * from vms where user_id = '" + @user_details['user_id'] + "'")
+        puts c1.length
+        if c1.empty?
           json = {
             "VM_POOL"=>{}
+          }
+        else
+          js = c1.map { |c|
+            builder(c)
+          }
+          json = {
+            "VM_POOL"=>{
+              "VM"=> js}
           }
         end
       end
@@ -112,8 +119,8 @@ module Ganeti
       @param = param
       @cli = @client.call("/2/info", 'GET')
       @cli
-      #@cli = @client.call(@path+"/"+@param, 'GET')
-     # @cli
+    #@cli = @client.call(@path+"/"+@param, 'GET')
+    # @cli
     #cli = @client.call(@path+"/"+@param+"/info", 'GET')
     #if cli.data[:status].to_i != 200
     #return cli
@@ -138,14 +145,14 @@ module Ganeti
       c1 = connect.execute( "select * from vms where vm_name = '" + name + "'")
       template = getTemplate(c1[0][7].to_s)
       if c1[0][9] != "success"
-         return get_error_info(name, template, c1[0][10])
+        return get_error_info(name, template, c1[0][10])
       else
-         return get_success_info(name, template, c1[0][10])
-      end      
+        return get_success_info(name, template, c1[0][10])
+      end
     end
 
     def get_error_info(name, template, job_id)
-      info = get_error_job(name, job_id)      
+      info = get_error_job(name, job_id)
       b_json = {
         "ID"=>0,
         "UID"=>@user_details['user_id'],
@@ -186,11 +193,11 @@ module Ganeti
         "HYPERVISOR"=>'ERROR',
         "OS"=>'ERROR',
         "DISKS"=> [{
-        "DISK_TEMPLATE"=> 'ERROR',
-        "SIZE"=> 'ERROR',
-        "ACCESS_MODE"=> 'ERROR',
-        "LOGICAL_ID"=> 'ERROR'
-      }],
+            "DISK_TEMPLATE"=> 'ERROR',
+            "SIZE"=> 'ERROR',
+            "ACCESS_MODE"=> 'ERROR',
+            "LOGICAL_ID"=> 'ERROR'
+          }],
         "TEMPLATE"=>{
           "NAME"=> template["NAME"],
           "CPU"=> template["CPU"],
@@ -284,16 +291,16 @@ module Ganeti
       }
     end
 
-    def get_error_job(name, job_id)     
+    def get_error_job(name, job_id)
       ins_data = @client.call("/2/jobs/#{job_id}", 'GET')
       JSON.parse(ins_data.data[:body])
     #ins_data.data[:body]
     end
 
     def get_info(name, job_id)
-     ins_data = @client.call(@path+"/#{name}/info", 'GET')
-     job = ins_data.data[:body]
-     sleep 2
+      ins_data = @client.call(@path+"/#{name}/info", 'GET')
+      job = ins_data.data[:body]
+      sleep 2
       ins_data = @client.call("/2/jobs/#{job}", 'GET')
       JSON.parse(ins_data.data[:body])
     #ins_data.data[:body]
@@ -312,7 +319,7 @@ module Ganeti
         "os_type"=> template_json["OS"],
         "mode"=>"create",
         #"nics"=>[{"link"=>"br0", "mac"=>"None", "ip"=>"None", "mode"=>"bridged", "vlan"=>"", "network"=>"blue_lan", "name"=> "None", "bridge"=>"br0"}],
-        "nics"=>[{}],
+        "nics"=>[{"network"=>template_json['NETWORK'], "ip"=>"pool"}],
         "ip_check"=> false,
         "name_check"=>false,
         "hypervisor"=>template_json['TEMPLATE']['OS']["MACHINE"],
@@ -367,7 +374,7 @@ module Ganeti
       job_res = @client.call("/2/jobs/#{job}", 'GET')
       js = JSON.parse(job_res.data[:body])
       puts js["status"]
-      if js["status"] != "running" 
+      if js["status"] != "running"
         rows = connect.execute("insert into vms(user_name, user_id, tenant_name, tenant_id, vm_name, host, template_id, os, result, job_id) values('"+@user_details['username']+"', '"+@user_details['user_id']+"', '"+@user_details['group_name']+"', '"+@user_details['group_id']+"', '"+params['vm_name']+"', '"+params['host']+"', '"+params['template_id']+"', '"+params['os']+"', 'error', '"+ job +"')")
       else
         rows = connect.execute("insert into vms(user_name, user_id, tenant_name, tenant_id, vm_name, host, template_id, os, result, job_id) values('"+@user_details['username']+"', '"+@user_details['user_id']+"', '"+@user_details['group_name']+"', '"+@user_details['group_id']+"', '"+params['vm_name']+"', '"+params['host']+"', '"+params['template_id']+"', '"+params['os']+"', 'success', '"+ job +"')")

@@ -532,7 +532,33 @@ var OpenNebula = {
                                             action_obj,
                                             path);
         },
+        
+        "rmgrp": function(params, resource, path){
+            var id = params.data.extra_param;
+            var action_obj = {"owner_id": "-1",
+                              "group_id": id};
 
+            OpenNebula.Action.simple_action(params,
+                                            resource,
+                                            "rmgrp",
+                                            action_obj,
+                                            path);
+        },
+
+        "addgrp": function(params, resource, path){
+        	console.log("-------addgrp---------"+params.data.id);
+            var id = params.data.extra_param;
+            var action_obj = {"id": params.data.id,
+            		          "owner_id": "-1",
+                              "group_id": id};
+
+            OpenNebula.Action.simple_action(params,
+                                            resource,
+                                            "addgrp",
+                                            action_obj,
+                                            path);
+        },
+        
         //Example: Simple action: publish. Simple action with action obj: deploy
         "simple_action": function(params, resource, method, action_obj, path){
             var callback = params.success;
@@ -723,6 +749,12 @@ var OpenNebula = {
         },
         "chown" : function(params){
             OpenNebula.Action.chown(params,OpenNebula.Network.resource);
+        },
+        "addgrp" : function(params){
+            OpenNebula.Action.addgrp(params,OpenNebula.Network.resource);
+        },
+        "rmgrp" : function(params){
+            OpenNebula.Action.rmgrp(params,OpenNebula.Network.resource);
         },
         "chgrp" : function(params){
             OpenNebula.Action.chgrp(params,OpenNebula.Network.resource);

@@ -117,7 +117,6 @@ class SunstoneServer < CloudServer
   #
   ############################################################################
   def create_resource(kind, json, options)
-     puts "----------------------create resource----------------------------"
     resource = case kind
     when "group"      then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)

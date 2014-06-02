@@ -398,6 +398,22 @@ var group_buttons = {
         layout: "del",
         condition: mustBeAdmin
     },
+    "Group.chgrp" : {
+        type: "confirm_with_select",
+        text: tr("Change group"),
+        layout: "group_select",
+        select: "Group",
+        tip: tr("This will change the main group of the selected users. Select the new group")+":",
+        condition: mustBeAdmin
+    },
+    "Group.addgroup" : {
+        type: "confirm_with_select",
+        text: tr("Add to group"),
+        layout: "group_select",
+        select: "Group",
+        tip: tr("This will add the user to a secondary group. Select the new group")+":",
+        condition: mustBeAdmin
+    },
 };
 
 var group_info_panel = {
