@@ -522,17 +522,13 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div id="provision_info_vm_resume" class="large-10 large-centered columns">'+
+    '<div id="provision_info_vm_common" class="large-10 large-centered columns">'+
     '</div>'+
-  '</div>'+
-  '<div class="row">'+
-     '<div id="provision_info_vm_host" class="large-10 large-centered columns">'+
-     '</div>'+
-      '</div>'+
-   '<div class="row">'+
-      '<div id="provision_info_vm_ips" class="large-10 large-centered columns">'+
-      '</div>'+
-  '</div>'+
+  '</div>'+  
+   //'<div class="row">'+
+   //   '<div id="provision_info_vm_ips" class="large-10 large-centered columns">'+
+   //   '</div>'+
+  //'</div>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+  
       // '<div class="large-6 medium-6 columns">'+
@@ -1149,6 +1145,7 @@ function get_provision_vm_state(data) {
           state_str = tr("DEPLOYING") + " (3/3)";
           break;
         case tr("RUNNING"):
+        case tr("up"):
         case tr("SNAPSHOT"):
         case tr("MIGRATE"):
           state_color = 'running';
@@ -1186,9 +1183,21 @@ function get_provision_vm_state(data) {
       state_color = 'off';
       state_str = tr("OFF");
       break;
+    case tr("up"):  
+    	state_color = 'running';
+        state_str = tr("RUNNING");
+        break;  
     case tr("running"):  
     	state_color = 'running';
         state_str = tr("RUNNING");
+        break;
+    case tr("down"):
+        state_color = 'error';
+        state_str = tr("DOWN");
+    break;    
+    case tr("ERROR"):
+        state_color = 'error';
+        state_str = tr("ERROR");
         break;
     case tr("ERROR_down"):
         state_color = 'error';
@@ -1323,6 +1332,17 @@ function update_provision_vm_info(data) {
       $("#provision_snapshot_button_disabled").show();
       $("#provision_vnc_button_disabled").hide();
       break;
+    case "up":
+        $("#provision_reboot_confirm_button").show();
+        $("#provision_poweroff_confirm_button").show();
+        $("#provision_poweron_button").hide();
+        $("#provision_delete_confirm_button").hide();
+        $("#provision_shutdownhard_confirm_button").show();
+        $("#provision_snapshot_button").hide();
+        $("#provision_vnc_button").show();
+        $("#provision_snapshot_button_disabled").show();
+        $("#provision_vnc_button_disabled").hide();
+        break;  
     case "off":
       $("#provision_reboot_confirm_button").hide();
       $("#provision_poweroff_confirm_button").hide();
@@ -1373,39 +1393,94 @@ function update_provision_vm_info(data) {
             (Math.floor(data.MEMORY/1024)+'GB') :
             (data.MEMORY+'MB'))+
         '</span>'+
-      '</li>'+
-      // '<li>'+
-      // '<span>'+
-         // get_provision_disk_image(data) +
-       // data.HOST +
-       // '</span>'+
-     // '</li>'+
-     // '<li>'+
-      // '<span>'+
-       // get_provision_ips(data) +
-      // '</span>'+
-     // '</li>'+
+      '</li>'+      
       '<li class="right">'+
         '<span style="color: #afafaf; font-size:14px">'+
           "ID: " +
           data.ID+
         '</span>' +
       '</li>'+
-    '</ul>');
+    '</ul>');  
   
-  $("#provision_info_vm_host").html('<ul class="inline-list" style="color: #555; font-size: 14px;">'+	      
-	       '<li>'+
-	       '<span>'+
-	         // get_provision_disk_image(data) +
-	        data.HOST +
-	        '</span>'+
-	      '</li>'+
-	     // '<li>'+
-	      // '<span>'+
-	       // get_provision_ips(data) +
-	      // '</span>'+
-	     // '</li>'+
-	    '</ul>');
+  var info = '';
+  if(data.UUID == "ERROR") {
+	  info = '<div class="row">'+
+		'<div class="text-center large-11 columns" style="font-size: 18px; color: #999">'+
+        '<br>'+
+        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fa fa-thumbs-down fa-stack-1x fa-inverse"></i>'+
+        '</span>'+
+        '<br>'+
+        '<br>'+
+        '<span style=" color: #999">'+
+               'Instance creation was failed, so please contact administrator...'+
+        '</span>'+
+        '</div>'+
+        '</div>' 
+  } else {
+	  info = '<table id="info_vm_table" class="dataTable extended_table">'+          
+      '<tbody>\
+      <tr>\
+         <td class="key_td">'+tr("Serial No.")+'</td>\
+         <td class="value_td">'+data.ID+'</td>\
+         <td></td>\
+       </tr>'+                                   
+        '<tr>\
+           <td class="key_td">'+tr("UUID")+'</td>\
+           <td class="value_td">'+tr(data.UUID)+'</td>\
+           <td></td>\
+        </tr>'+              
+        '<tr>\
+           <td class="key_td">'+tr("Creation time")+'</td>\
+           <td class="value_td">'+ pretty_time(data.STIME) +'</td>\
+           <td></td>\
+        </tr>\
+        <tr>\
+           <td class="key_td">'+tr("Modification time")+'</td>\
+           <td class="value_td">'+pretty_time(data.MTIME)+'</td>\
+           <td></td>\
+        </tr>\
+        <tr>\
+           <td class="key_td">'+tr("Configuration state")+'</td>\
+           <td class="value_td">'+data.CONFIG_STATE+'</td>\
+           <td></td>\
+        </tr>\
+        <tr>\
+            <td class="key_td">'+tr("Status")+'</td>\
+            <td class="value_td">'+data.STATE+'</td>\
+            <td></td>\
+        </tr>'+  
+        '<tr>\
+        <td class="key_td">'+tr("Host Group")+'</td>\
+        <td class="value_td">'+data.HOST_GROUP+'</td>\
+        <td></td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">'+tr("Host")+'</td>\
+        <td class="value_td">'+data.HOST+'</td>\
+        <td></td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">'+tr("Operating system")+'</td>\
+        <td class="value_td">'+data.OS+'</td>\
+        <td></td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">'+tr("Allocated Network port")+'</td>\
+        <td class="value_td">'+data.ALLOCATED_PORT+'</td>\
+        <td></td>\
+    </tr>\
+    <tr>\
+        <td class="key_td">'+tr("Hypervisor")+'</td>\
+        <td class="value_td">'+tr(data.HYPERVISOR)+'</td>\
+        <td></td>\
+     </tr>'+   
+        '</tbody>'+
+         '</table>'
+  }
+  $("#provision_info_vm_common").html(info);  
+  
   
   $("#provision_info_vm_ips").html('<ul class="inline-list" style="color: #555; font-size: 14px;">'+	
 		   '<li>'+
@@ -2135,34 +2210,43 @@ $(document).ready(function(){
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VM;
         var state = get_provision_vm_state(data);
-
+        console.log(data.MEMORY);
         $("#provision_vms_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.NAME+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" style="padding-bottom: 5px">'+
                 '<a class="provision_info_vm_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/>'+ data.NAME + '</a>'+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
-                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-                'x'+data.CPU+' - '+
-                ((data.MEMORY > 1000) ?
-                  (Math.floor(data.MEMORY/1024)+'GB') :
-                  (data.MEMORY+'MB'))+
-              '</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left:15px">'+
+              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+              //  'x'+data.CPU+' - '+
+              //  ((data.MEMORY > 1000) ?
+               //   (Math.floor(data.MEMORY/1024)+'GB') :
+               //   (data.MEMORY+'MB'))+
+             // '</li>'+
               '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
                // get_provision_disk_image(data) +
+              '<i class="fa fa-fw fa-laptop"/>&emsp;'+
                   data.HOST +
               '</li>'+
               '<li class="provision-bullet-item text-left" style="margin-left:15px">'+
-                get_provision_ips(data) +
-              '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #23435; margin-top:15px; padding-bottom:10px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                _format_date(data.STIME)+
-                '<span class="'+ state.color +'-color left">'+
-                  '<i class="fa fa-fw fa-square"/>&emsp;'+
-                  state.str+
-                '</span>'+
-              '</li>'+
+              // get_provision_disk_image(data) +
+              '<span class="left">'+
+                '<i class="fa fa-fw fa-square"/>&emsp;'+
+                data.OS +
+               '</span>'+
+                 
+             '</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left:15px">'+
+              //  get_provision_ips(data) +
+             // '</li>'+
+              //'<li class="provision-bullet-item text-right" style="font-size:12px; color: #23435; margin-top:15px; padding-bottom:10px">'+
+               // '<i class="fa fa-fw fa-clock-o"/>'+
+               // _format_date(data.STIME)+
+               // '<span class="'+ state.color +'-color left">'+
+                //  '<i class="fa fa-fw fa-square"/>&emsp;'+
+                //  state.str+
+               // '</span>'+
+             // '</li>'+
               // '<li class="provision-bullet-item" style="padding: 0px">'+
               // '<div style="height:1px" class="'+ state.color
 				// +'-bg"></div>'+

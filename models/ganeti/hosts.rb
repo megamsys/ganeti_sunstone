@@ -92,17 +92,7 @@ module Ganeti
           "RUNNING_VMS" => inst_data["pinst_list"],
           "DATASTORES" => {}},
         "VMS" => vms,
-        "TEMPLATE" => {
-          "CPUSPEED" => "1000",
-          "HOSTNAME" => "localhost",
-          "HYPERVISOR" => "ganeti",
-          "PRIORITY" => "-1",
-          "PUBLIC_CLOUD" => "YES",
-          "RESERVED_CPU" => "",
-          "RESERVED_MEM" => "",
-          "TOTAL_WILDS" => "3",
-          "WILDS" => "i-f9bae2d1, i-c888d0e0, i-ad89d185"
-        }
+        "TEMPLATE" => {}
       }
       b_json
     end

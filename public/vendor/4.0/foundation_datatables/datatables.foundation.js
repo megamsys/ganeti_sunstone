@@ -27,7 +27,7 @@ $.extend( true, $.fn.dataTable.defaults, {
 // rather than  custom plug-in
 if ( $.fn.dataTable.Api ) {
     $.fn.dataTable.defaults.renderer = 'foundation';
-    $.fn.dataTable.ext.renderer.pageButton.foundation = function ( settings, host, idx, buttons, page, pages ) {
+    $.fn.dataTable.ext.renderer.pageButton.foundation = function( settings, host, idx, buttons, page, pages ) {
         var api = new $.fn.dataTable.Api( settings );
         var classes = settings.oClasses;
         var lang = settings.oLanguage.oPaginate;

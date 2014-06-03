@@ -184,6 +184,7 @@ helpers do
       logger.info { params[:remember] }
       logger.info { session[:display_name] }
 
+
       #User IU options initialization
       #Load options either from user settings or default config.
       # - LANG
@@ -246,8 +247,16 @@ end
 before do
   cache_control :no_store
   content_type 'application/json', :charset => 'utf-8'
-  unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
+  puts "+++++++++++++++++++++++++"
+  puts request.path
+  unless request.path=='/login' || request.path=='/' || request.path=='/vnc' 
+    puts "+++++++++1111++++++++++++++++"
+    puts request.path
+    if request.path != '/keys/template'
+      puts "++++++3333+++++++++++++++++++"
+  puts request.path
     halt 401 unless authorized?
+    end
   end
 
   if env['HTTP_ZONE_NAME']
@@ -440,7 +449,8 @@ get '/:pool' do
   res << {"ZONE_POOL" => {"ZONE" => {"ID" => session[:user_gid], "NAME" => zone["name"],"TEMPLATE" => {"ENDPOINT" => "http://localhost:2633/RPC2"}}}}
 =end 
   #zone_client = $cloud_auth.client(session[:user])
-  @SunstoneServer.get_pool(params[:pool], session[:user_gid], zone_client) 
+  user_details = {"username" => session[:user], "user_id" => session[:user_id], "group_name" => session[:user_gname], "group_id" => session[:user_gid]}     
+  @SunstoneServer.get_pool(params[:pool], session[:user_gid], zone_client, user_details) 
 end
 
 ##############################################################################
@@ -451,15 +461,22 @@ get '/:resource/:id/template' do
   @SunstoneServer.get_template(params[:resource], params[:id])
 end
 
+get '/keys/template' do
+  template = Ganeti::Templates.new
+  template.get_sshkey(params)
+end
+
 get '/:resource/:id' do
-  @SunstoneServer.get_resource(params[:resource], params[:id])
+  user_details = {"username" => session[:user], "user_id" => session[:user_id], "group_name" => session[:user_gname], "group_id" => session[:user_gid]}     
+  @SunstoneServer.get_resource(params[:resource], params[:id], user_details)
 end
 
 ##############################################################################
 # Delete Resource
 ##############################################################################
 delete '/:resource/:id' do
-  @SunstoneServer.delete_resource(params[:resource], params[:id])
+    user_details = {"username" => session[:user], "user_id" => session[:user_id], "group_name" => session[:user_gname], "group_id" => session[:user_gid]}     
+   @SunstoneServer.delete_resource(params[:resource], params[:id], user_details)
 end
 
 ##############################################################################
@@ -493,7 +510,8 @@ end
 # Create a new Resource
 ##############################################################################
 post '/:pool' do
-  @SunstoneServer.create_resource(params[:pool], request.body.read)
+  user_details = {"username" => session[:user], "user_id" => session[:user_id], "group_name" => session[:user_gname], "group_id" => session[:user_gid]}     
+  @SunstoneServer.create_resource(params[:pool], request.body.read, user_details)
 end
 
 ##############################################################################
@@ -508,9 +526,8 @@ end
 # Perform an action on a Resource
 ##############################################################################
 post '/:resource/:id/action' do
-  @SunstoneServer.perform_action(params[:resource],
-  params[:id],
-  request.body.read)
+    user_details = {"username" => session[:user], "user_id" => session[:user_id], "group_name" => session[:user_gname], "group_id" => session[:user_gid]}     
+   @SunstoneServer.perform_action(params[:resource], params[:id], request.body.read, user_details)
 end
 
 Sinatra::Application.run! if(!defined?(WITH_RACKUP))

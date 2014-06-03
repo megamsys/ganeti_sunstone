@@ -56,12 +56,16 @@ var create_vn_tmpl =
                     <div class="large-6 columns">\
                         <label for="net_address">'+tr("N. Address")+'</label>\
                         <input type="text" name="net_address" id="net_address" />\
-                    </div>\
-                    <div class="large-6 columns">\
-                        <label for="net_mask">'+tr("N. Mask")+':</label>\
-                        <input type="text" name="net_mask" id="net_mask" />\
-                    </div>\
-                  </div>\
+                    </div>'+
+                    //<div class="large-6 columns">\
+                      //  <label for="net_mask">'+tr("N. Mask")+':</label>\
+                     //   <input type="text" name="net_mask" id="net_mask" />\
+                    //</div>\
+                    '<div class="large-6 columns">\
+                      <label for="mac_prefix">'+tr("MAC prefix")+':</label>\
+                      <input type="text" name="mac_prefix" id="mac_prefix" />\
+                  </div>'+   
+                  '</div>\
                   <div class="row">\
                     <div class="large-6 columns">\
                         <label for="site_prefix">'+tr("Site prefix")+':</label>\
@@ -73,20 +77,20 @@ var create_vn_tmpl =
                     </div>\
                   </div>\
                   <div class="row">\
-                    <div class="large-6 columns">\
+                  <div class="large-6 columns"">\
+                      <label for="net_gateway">'+tr("Gateway")+':</label>\
+                      <input type="text" name="net_gateway" id="net_gateway" />\
+                  </div>\
+                   <div class="large-6 columns" style="display: none;">\
                         <label for="net_dns">'+tr("DNS")+':</label>\
                         <input type="text" name="net_dns" id="net_dns" />\
-                    </div>\
-                    <div class="large-6 columns">\
-                        <label for="net_gateway">'+tr("Gateway")+':</label>\
-                        <input type="text" name="net_gateway" id="net_gateway" />\
-                    </div>\
-                  </div>\
+                    </div>'+                                        
+                  '</div>\
                   <hr>\
                   <div class="row">\
                     <div class="large-12 columns">\
-                      <input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" checked="checked"/><label for="fixed_check">'+tr("Fixed network")+'</label>\
-                      <input type="radio" name="fixed_ranged" id="ranged_check" value="ranged"/><label for="ranged_check">'+tr("Ranged network")+'</label>\
+                      <input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" style="display: none;"/><label for="fixed_check" style="display: none;">'+tr("Fixed network")+'</label>\
+                      <input type="radio" name="fixed_ranged" id="ranged_check" value="ranged" checked="checked"/><label for="ranged_check">'+tr("Ranged network")+'</label>\
                     </div>\
                   </div>\
                   <div id="fixed">\
@@ -154,7 +158,7 @@ var create_vn_tmpl =
               </fieldset>\
               </div>\
             </div>\
-            <div class="row">\
+            <div class="row" style="display: none;">\
               <div class="large-6 columns">\
                 <label for="network_mode">'+tr("Network model")+':</label>\
                 <select name="network_mode" id="network_mode">\
@@ -167,6 +171,12 @@ var create_vn_tmpl =
               </div>\
             </div>\
             <div class="row">\
+              <div class="large-6 columns">\
+                 <label for="net_ips">'+tr("Reserved IP's")+':</label>\
+                  <input type="text" name="net_ips" id="net_ips" />\
+              </div>\
+            </div>\
+            <div class="row" style="display: none;">\
               <div class="large-6 columns">\
                 <div class="row">\
                   <div class="large-12 columns">\
@@ -181,7 +191,7 @@ var create_vn_tmpl =
                   </div>\
                 </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="large-6 columns" style="display: none;">\
                 <div class="row">\
                   <div class="large-12 columns">\
                     <label for="vlan">'+tr("VLAN")+':</label>\
@@ -199,7 +209,7 @@ var create_vn_tmpl =
                 </div>\
               </div>\
             </div>\
-            <div class="row">\
+            <div class="row" style="display: none;">\
               <div class="large-12 columns">\
                 <fieldset>\
                   <legend>' + tr("Custom attributes") + '</legend>\
@@ -323,7 +333,6 @@ var $create_vn_dialog;
 var $lease_vn_dialog;
 
 //Setup actions
-
 var vnet_actions = {
     "Network.create" : {
         type: "create",
@@ -450,10 +459,20 @@ var vnet_actions = {
         elements: vnElements,
         error:onError
     },
-
-    "Network.chgrp" : {
+    
+    "Network.addgrp" : {    	
         type: "multiple",
-        call: OpenNebula.Network.chgrp,
+        call: OpenNebula.Network.addgrp,
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0]);
+        },
+        elements: vnElements,
+        error:onError
+    },
+
+    "Network.rmgrp" : {
+        type: "multiple",
+        call: OpenNebula.Network.rmgrp,
         callback: function(req) {
           Sunstone.runAction("Network.show",req.request.data[0]);
         },
@@ -540,7 +559,7 @@ var vnet_buttons = {
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
     },
-    "Network.chown" : {
+  /*  "Network.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
         layout: "user_select",
@@ -555,6 +574,24 @@ var vnet_buttons = {
         layout: "user_select",
         select: "Group",
         tip: tr("Select the new group")+":",
+        condition: mustBeAdmin
+    },*/
+    
+    "Network.addgrp" : {
+        type: "confirm_with_select",
+        text: tr("Add group"),
+        layout: "main",
+        select: "HGroup",       
+        tip: tr("Select the new group")+":",
+        condition: mustBeAdmin
+    },
+
+    "Network.rmgrp" : {
+        type: "confirm_with_select",
+        text: tr("Remove group"),
+        layout: "main",
+        select: "HGroup",
+        tip: tr("Select the group")+":",
         condition: mustBeAdmin
     },
 
@@ -590,15 +627,15 @@ var vnets_tab = {
     table: '<table id="datatable_vnetworks" class="datatable twelve">\
       <thead>\
         <tr>\
-          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
-          <th>'+tr("ID")+'</th>\
-          <th>'+tr("Owner")+'</th>\
-          <th>'+tr("Group")+'</th>\
-          <th>'+tr("Name")+'</th>\
-          <th>'+tr("Cluster")+'</th>\
-          <th>'+tr("Type")+'</th>\
-          <th>'+tr("Bridge")+'</th>\
-          <th>'+tr("Leases")+'</th>\
+          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+          
+          '<th>'+tr("Name")+'</th>\
+          <th style="display: none;">'+tr("ID")+'</th>\
+          <th style="display: none;">'+tr("Owner")+'</th>\
+          <th style="display: none;">'+tr("Group")+'</th>'+          
+          '<th style="display: none;">'+tr("Cluster")+'</th>\
+          <th style="display: none;">'+tr("Type")+'</th>\
+          <th style="display: none;">'+tr("Bridge")+'</th>\
+          <th style="display: none;">'+tr("Leases")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodyvnetworks">\
@@ -609,7 +646,6 @@ var vnets_tab = {
 Sunstone.addActions(vnet_actions);
 Sunstone.addMainTab('vnets-tab',vnets_tab);
 Sunstone.addInfoPanel('vnet_info_panel',vnet_info_panel);
-
 // return list of selected elements in list
 function vnElements(){
     return getSelectedNodes(dataTable_vNetworks);
@@ -617,20 +653,28 @@ function vnElements(){
 
 //returns an array with the VNET information fetched from the JSON object
 function vNetworkElementArray(vn_json){
-    var network = vn_json.VNET;
-
-    addresses_vnets = addresses_vnets + parseInt(network.TOTAL_LEASES);
+    var network = vn_json.VNET;    
+    //addresses_vnets = addresses_vnets + parseInt(network.TOTAL_LEASES);
 
     return [
-        '<input class="check_item" type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
-        network.ID,
-        network.UNAME,
-        network.GNAME,
+        '<input class="check_item" type="checkbox" id="vnetwork_'+network.NAME+'" name="selected_items" value="'+network.NAME+'"/>',
         network.NAME,
-        network.CLUSTER.length ? network.CLUSTER : "-",
-        parseInt(network.TYPE) ? "FIXED" : "RANGED",
-        network.BRIDGE,
-        network.TOTAL_LEASES ];
+        "",
+        "",
+        "",        
+        "",
+        "",
+        "",
+        "" ];
+    
+   // network.ID,
+   // network.UNAME,
+   // network.GNAME,
+   // network.NAME,
+   // network.CLUSTER.length ? network.CLUSTER : "-",
+   // parseInt(network.TYPE) ? "FIXED" : "RANGED",
+   // network.BRIDGE,
+  //  network.TOTAL_LEASES ];
 }
 
 //Callback to update a vnet element after an action on it
@@ -640,7 +684,7 @@ function updateVNetworkElement(request, vn_json){
     updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
 
     //we update this too, even if it is not shown.
-    $('#leases_form').replaceWith(printLeases(vn_json.VNET));
+   // $('#leases_form').replaceWith(printLeases(vn_json.VNET));
 }
 
 //Callback to delete a vnet element from the table
@@ -680,22 +724,59 @@ function updateVNetworkInfo(request,vn){
         <div class="large-6 columns">\
         <table id="info_vn_table" class="dataTable extended_table">\
             <thead>\
-               <tr><th colspan="3">'+tr("Information")+'</th></tr>\
+               <tr><th colspan="4">'+tr("Information")+'</th></tr>\
             </thead>\
             <tr>\
-              <td class="key_td">'+tr("ID")+'</td>\
+              <td class="key_td">'+tr("Serial No.")+'</td>\
               <td class="value_td">'+vn_info.ID+'</td>\
               <td></td>\
-            </tr>'+
-            insert_rename_tr(
-                'vnets-tab',
-                "Network",
-                vn_info.ID,
-                vn_info.NAME)+
-            '<tr>' +
-        insert_cluster_dropdown("Network",vn_info.ID,vn_info.CLUSTER,vn_info.CLUSTER_ID,"#info_vn_table") +
-            '</tr>\
-        </table>\
+            </tr>\
+            <tr>\
+               <td class="key_td">'+tr("Name")+'</td>\
+               <td class="value_td">'+vn_info.NAME+'</td>\
+               <td></td>\
+             </tr>\
+             <tr>\
+               <td class="key_td">'+tr("UUID")+'</td>\
+               <td class="value_td">'+vn_info.UUID+'</td>\
+               <td></td>\
+             </tr>\
+             <tr>\
+               <td class="key_td">'+tr("Subnet")+'</td>\
+               <td class="value_td">'+vn_info.NETWORK+'</td>\
+               <td></td>\
+             </tr>\
+             <tr>\
+               <td class="key_td">'+tr("Gateway")+'</td>\
+               <td class="value_td">'+vn_info.GATEWAY+'</td>\
+               <td></td>\
+             <tr>'+             
+             '<tr>\
+               <td class="key_td">'+tr("IPv6 Subnet")+'</td>\
+               <td class="value_td">'+vn_info.NETWORK6+'</td>\
+               <td></td>\
+             <tr>\
+             <tr>\
+             <td class="key_td">'+tr("IPv6 Gateway")+'</td>\
+             <td class="value_td">'+vn_info.GATEWAY6+'</td>\
+             <td></td>\
+           <tr>\
+           <tr>\
+             <td class="key_td">'+tr("MAC prefix")+'</td>\
+             <td class="value_td">'+vn_info.MAC_PREFIX+'</td>\
+             <td></td>\
+           <tr>\
+           <tr>\
+             <td class="key_td">'+tr("Reserved IPs")+'</td>\
+             <td class="value_td">'+vn_info.EXTERNAL_RESERVATIONS+'</td>\
+             <td></td>\
+           <tr>\
+           <tr>\
+             <td class="key_td">'+tr("Connected to node groups")+'</td>\
+             <td class="value_td">'+vn_info.GROUP_LIST+'</td>\
+             <td></td>\
+          <tr>'+        
+         '</table>\
         </div>\
         <div class="large-6 columns">' +
             insert_permissions_table('vnets-tab',
@@ -917,7 +998,8 @@ function setupCreateVNetDialog() {
 
     //Make the tabs look nice for the creation mode
     //$('#vn_tabs',dialog).tabs();
-    $('div#ranged',dialog).hide();
+    $('div#fixed',dialog).hide();
+    $('div#ranged',dialog).show();
     $('div#ranged_ipv6',dialog).hide();
 
     $('input#site_prefix,label[for="site_prefix"]',$create_vn_dialog).hide();
@@ -927,7 +1009,7 @@ function setupCreateVNetDialog() {
       var fixed_ranged = $('input[name="fixed_ranged"]:checked',dialog).val();
 
       if (this.id == 'ipv4_check') {
-        $('input#net_mask,label[for="net_mask"]',$create_vn_dialog).show();
+        $('input#mac_prefix,label[for="mac_prefix"]',$create_vn_dialog).show();
         $('input#net_address,label[for="net_address"]',$create_vn_dialog).show();
 
         $('input#site_prefix,label[for="site_prefix"]',$create_vn_dialog).hide();
@@ -940,7 +1022,7 @@ function setupCreateVNetDialog() {
           $('div#ranged_ipv6',$create_vn_dialog).hide();
         }
       } else {
-        $('input#net_mask,label[for="net_mask"]',$create_vn_dialog).hide();
+        $('input#mac_prefix,label[for="mac_prefix"]',$create_vn_dialog).hide();
         $('input#net_address,label[for="net_address"]',$create_vn_dialog).hide();
 
         $('input#site_prefix,label[for="site_prefix"]',$create_vn_dialog).show();
@@ -1095,6 +1177,41 @@ function setupCreateVNetDialog() {
             return false;
         }
 
+        if ( $('input[name="ip_version"]:checked',dialog).val() == "ipv4" ){
+        	var net_address = $('#net_address', dialog).val();
+        	if (!net_address.length){
+                notifyError(tr("Virtual Network address missing!"));
+                return false;
+            }
+        	var mac_prefix = $('#mac_prefix', dialog).val();
+        	if (!mac_prefix.length){
+                notifyError(tr("Virtual Network MAC prefix value missing!"));
+                return false;
+            }
+        	var ip_start = $('#ip_start', dialog).val();
+        	if (!ip_start.length){
+                notifyError(tr("Virtual Network starting ip address missing!"));
+                return false;
+            }
+        	var ip_end = $('#ip_end', dialog).val();
+        	if (!ip_end.length){
+                notifyError(tr("Virtual Network ending ip address missing!"));
+                return false;
+            }
+        }
+        
+        var gateway = $('#net_gateway', dialog).val();
+    	if (!gateway.length){
+            notifyError(tr("Virtual Network gateway missing!"));
+            return false;
+        }
+        
+    	var ips = $('#net_ips', dialog).val();
+    	//if (!ips.length){
+         //   notifyError(tr("Virtual Network reserved ips missing!"));
+           // return false;
+       // } 
+    	
         var description = $('#DESCRIPTION',dialog).val();
         var network_json = {"name" : name, "description" : description};
 
@@ -1103,10 +1220,10 @@ function setupCreateVNetDialog() {
         var phydev = $('#phydev',dialog).val();
         var vlan = $('#vlan',dialog).val();
         var vlan_id = $('#vlan_id',dialog).val();
-
+        network_json['ips']= ips;
         //Depending on network mode we include certain params in the
         //template
-        switch (network_mode) {
+        /*switch (network_mode) {
         case "default":
             if (!bridge && !phydev){
                 notifyError("Bridge or physical device must be specified");
@@ -1147,7 +1264,7 @@ function setupCreateVNetDialog() {
                 network_json['vlan_id']=vlan_id;
             };
             break;
-        };
+        };*/
 
         var ip_version = $('input[name="ip_version"]:checked',dialog).val();
 
@@ -1156,7 +1273,7 @@ function setupCreateVNetDialog() {
         //TODO: Name and bridge provided?!
 
         var network_addr    = $('#net_address',dialog).val();
-        var network_mask    = $('#net_mask',dialog).val();
+        var mac_prefix      = $('#mac_prefix',dialog).val();
         var network_dns     = $('#net_dns',dialog).val();
         var network_gateway = $('#net_gateway',dialog).val();
 
@@ -1180,8 +1297,8 @@ function setupCreateVNetDialog() {
           if (network_addr.length)
               network_json["network_address"]=network_addr;
 
-          if (network_mask.length)
-              network_json["network_mask"]=network_mask;
+          if (mac_prefix.length)
+              network_json["mac_prefix"]=mac_prefix;
 
           if (network_gateway.length)
               network_json["gateway"] = network_gateway;
