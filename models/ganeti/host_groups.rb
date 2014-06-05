@@ -46,11 +46,7 @@ module Ganeti
           "NAME"=> inst_data["name"],
           "NOOFHOSTS" => no_of_hosts,
           "CLUSTER" => cluster_name,
-          "TEMPLATE"=> {
-            "HGROUP_ADMINS"=> "customer1-admin",
-            "HGROUP_ADMIN_VIEWS"=> "vdcadmin",
-            "SUNSTONE_VIEWS"=> "user"
-          },
+          "TEMPLATE"=> {},
           "USERS"=> {
             "ID"=> "2"
           },

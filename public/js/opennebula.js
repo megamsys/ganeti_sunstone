@@ -130,7 +130,8 @@ var OpenNebula = {
                                "SHUTDOWN",
                                "EPILOG",
                                "PROLOG",
-                               "BOOT"][value]);
+                               "BOOT",
+                               "up"][value]);
                     break;
                 case "IMAGE":
                 case "image":
@@ -940,10 +941,13 @@ var OpenNebula = {
             var callback_error = params.error;
             var id = params.data.id;
             var resource = OpenNebula.VM.resource;
-
+            console.log("++++++++++++++++++"+params.data);
             var method = startstop;
             var action = OpenNebula.Helper.action(method);
             var request = OpenNebula.Helper.request(resource,method, id);
+            console.log("++++++++method++++++++++"+method);
+            console.log("++++++++++action++++++++"+action);
+            console.log("++++++++++++request++++++"+request);
             $.ajax({
                 url: "vm/" + id + "/" + method,
                 type: "POST",

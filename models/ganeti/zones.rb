@@ -51,13 +51,13 @@ module Ganeti
     def build_json(id, name)
       #ins_data = @client.call(@path+"/#{name}", 'GET')
       #inst_data = JSON.parse(ins_data.data[:body])
-
+      endpoint = ENV['KEYSTONE_ENDPOINT_WITHOUT_PORT']
       b_json = {
         "ZONE" => {
           "ID" => id,
           "NAME" => name,
           "TEMPLATE" => {
-            "ENDPOINT" => "https://192.168.2.3:5080"
+            "ENDPOINT" => "#{endpoint}:5080"
           }
         }
       }

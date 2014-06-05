@@ -17,7 +17,7 @@ end
 task :migrate => :clean do
 @db.execute("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, user_name varchar(256) UNIQUE DEFAULT NULL, password text, enabled int(11) DEFAULT NULL, gid integer, gname text);")  
 puts "Users table is created"
-@db.execute("CREATE TABLE templates(id INTEGER PRIMARY KEY AUTOINCREMENT, uid integer, name varchar(256), memory text, disk_size text, cpu text, os text, host_name text, machine text, kernel_path text, initrd text, kernel_args text, network_name text, sshkey text, created_at text, FOREIGN KEY(uid) REFERENCES users(id));")  
+@db.execute("CREATE TABLE templates(id INTEGER PRIMARY KEY AUTOINCREMENT, uid integer, name varchar(256), memory text, disk_size text, cpu text, os text, host_name text, machine text, kernel_path text, initrd text, kernel_args text, network_name text, sshkey text, created_at text, updated_at text, FOREIGN KEY(uid) REFERENCES users(id));")  
 puts "Templates table is created"
 @db.execute("INSERT INTO USERS(user_name, password, enabled, gid, gname) values('oneadmin', 'team4megam', 1, 0, 'oneadmin');")
 puts "Default user inserted...."
@@ -32,7 +32,7 @@ end
 task :create => :default do
 @db.execute("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, user_name varchar(256) UNIQUE DEFAULT NULL, password text, enabled int(11) DEFAULT NULL, gid integer, gname text);")  
 puts "Users table is created"
-@db.execute("CREATE TABLE templates(id INTEGER PRIMARY KEY AUTOINCREMENT, uid integer, name varchar(256), memory text, disk_size text, cpu text, os text, host_name text, machine text, kernel_path text, initrd text, kernel_args text, network_name text, sshkey text, created_at text, FOREIGN KEY(uid) REFERENCES users(id));")  
+@db.execute("CREATE TABLE templates(id INTEGER PRIMARY KEY AUTOINCREMENT, uid integer, name varchar(256), memory text, disk_size text, cpu text, os text, host_name text, machine text, kernel_path text, initrd text, kernel_args text, network_name text, sshkey text, created_at text, updated_at text, FOREIGN KEY(uid) REFERENCES users(id));")  
 puts "Templates table is created"
 @db.execute("INSERT INTO USERS(user_name, password, enabled, gid, gname) values('oneadmin', 'team4megam', 1, 0, 'oneadmin');")
 puts "Default user inserted...."

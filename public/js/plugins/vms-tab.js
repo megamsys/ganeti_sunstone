@@ -975,63 +975,63 @@ var vm_buttons = {
         text: tr("Launch"),
         alwaysActive: true
     },
-    "VM.chown" : {
-        type: "confirm_with_select",
-        text: tr("Change owner"),
-        select: "User",
-        layout: "user_select",
-        tip: tr("Select the new owner")+":",
-        condition: mustBeAdmin
-    },
+   // "VM.chown" : {
+  //      type: "confirm_with_select",
+    //    text: tr("Change owner"),
+    //    select: "User",
+    //    layout: "user_select",
+     //   tip: tr("Select the new owner")+":",
+     //   condition: mustBeAdmin
+   // },
 
-    "VM.chgrp" : {
-        type: "confirm_with_select",
-        text: tr("Change group"),
-        select: "Group",
-        layout: "user_select",
-        tip: tr("Select the new group")+":",
-        condition: mustBeAdmin
-    },
-    "VM.deploy" : {
-        type: "action",
-        text: tr("Deploy"),
-        tip: tr("This will deploy the selected VMs on the chosen host"),
-        layout: "vmsplanification_buttons",
-        condition: mustBeAdmin
-    },
-    "VM.migrate" : {
-        type: "action",
-        text: tr("Migrate"),
-        tip: tr("This will migrate the selected VMs to the chosen host"),
-        layout: "vmsplanification_buttons",
-        condition: mustBeAdmin
+    //"VM.chgrp" : {
+    //    type: "confirm_with_select",
+    //    text: tr("Change group"),
+     //   select: "Group",
+     //   layout: "user_select",
+     //   tip: tr("Select the new group")+":",
+     //   condition: mustBeAdmin
+   // },
+   // "VM.deploy" : {
+   //     type: "action",
+   //     text: tr("Deploy"),
+    //    tip: tr("This will deploy the selected VMs on the chosen host"),
+     //   layout: "vmsplanification_buttons",
+     ///   condition: mustBeAdmin
+   // },
+  //  "VM.migrate" : {
+    //    type: "action",
+    //    text: tr("Migrate"),
+    //    tip: tr("This will migrate the selected VMs to the chosen host"),
+    //    layout: "vmsplanification_buttons",
+    //    condition: mustBeAdmin
 
-    },
-    "VM.migrate_live" : {
-        type: "action",
-        text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
-        tip: tr("This will live-migrate the selected VMs to the chosen host"),
-        layout: "vmsplanification_buttons",
-        condition: mustBeAdmin
-    },
-    "VM.hold" : {
-        type: "action",
-        text: tr("Hold"),
-        tip: tr("This will hold selected pending VMs from being deployed"),
-        layout: "vmsplanification_buttons",
-    },
-    "VM.release" : {
-        type: "action",
-        text: tr("Release"),
-        layout: "vmsplanification_buttons",
-        tip: tr("This will release held machines")
-    },
-    "VM.suspend" : {
-        type: "action",
-        text: tr("Suspend"),
-        layout: "vmspause_buttons",
-        tip: tr("This will suspend selected machines")
-    },
+   // },
+  //  "VM.migrate_live" : {
+   //     type: "action",
+    //    text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
+    //    tip: tr("This will live-migrate the selected VMs to the chosen host"),
+    //    layout: "vmsplanification_buttons",
+    //    condition: mustBeAdmin
+   // },
+   // "VM.hold" : {
+   //     type: "action",
+    //    text: tr("Hold"),
+    //    tip: tr("This will hold selected pending VMs from being deployed"),
+     //   layout: "vmsplanification_buttons",
+   // },
+   // "VM.release" : {
+     //   type: "action",
+     //   text: tr("Release"),
+     //   layout: "vmsplanification_buttons",
+     //   tip: tr("This will release held machines")
+  //  },
+   // "VM.suspend" : {
+       // type: "action",
+      //  text: tr("Suspend"),
+      //  layout: "vmspause_buttons",
+      //  tip: tr("This will suspend selected machines")
+   // },
     "VM.resume" : {
         type: "action",
         text: '<i class="fa fa-play"/>',
@@ -1044,60 +1044,60 @@ var vm_buttons = {
         layout: "vmsstop_buttons",
         tip: tr("This will stop selected VMs")
     },
-    "VM.boot" : {
-        type: "action",
-        text: tr("Boot"),
-        layout: "vmsplanification_buttons",
-        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state")
-    },
+   // "VM.boot" : {
+    //    type: "action",
+    //    text: tr("Boot"),
+    //    layout: "vmsplanification_buttons",
+    //    tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state")
+  //  },
     "VM.reboot" : {
         type: "action",
         text: tr("Reboot"),
         layout: "vmsrepeat_buttons",
         tip: tr("This will send a reboot action to running VMs")
     },
-    "VM.reboot_hard" : {
-        type: "action",
-        text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
-        layout: "vmsrepeat_buttons",
-        tip: tr("This will perform a hard reboot on selected VMs")
-    },
-    "VM.poweroff" : {
-        type: "action",
-        text: tr("Power Off"),
-        layout: "vmspause_buttons",
-        tip: tr("This will send a power off signal to running VMs. They can be resumed later.")
-    },
-    "VM.poweroff_hard" : {
-        type: "action",
-        text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
-        layout: "vmspause_buttons",
-        tip: tr("This will send a forced power off signal to running VMs. They can be resumed later.")
-    },
-    "VM.undeploy" : {
-        type: "action",
-        text: tr("Undeploy"),
-        layout: "vmsstop_buttons",
-        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
-    },
-    "VM.undeploy_hard" : {
-        type: "action",
-        text: tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
-        layout: "vmsstop_buttons",
-        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
-    },
-    "VM.shutdown" : {
-        type: "confirm",
-        text: tr("Shutdown"),
-        layout: "vmsdelete_buttons",
-        tip: tr("This will initiate the shutdown process in the selected VMs")
-    },
-    "VM.shutdown_hard" : {
-        type: "confirm",
-        text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
-        layout: "vmsdelete_buttons",
-        tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
-    },
+  //  "VM.reboot_hard" : {
+     //   type: "action",
+     //   text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
+    //    layout: "vmsrepeat_buttons",
+    //    tip: tr("This will perform a hard reboot on selected VMs")
+  //  },
+  //  "VM.poweroff" : {
+   //     type: "action",
+   //     text: tr("Power Off"),
+    //    layout: "vmspause_buttons",
+   //     tip: tr("This will send a power off signal to running VMs. They can be resumed later.")
+  //  },
+   // "VM.poweroff_hard" : {
+    //    type: "action",
+    //    text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
+    //    layout: "vmspause_buttons",
+    //    tip: tr("This will send a forced power off signal to running VMs. They can be resumed later.")
+  //  },
+  //  "VM.undeploy" : {
+   //     type: "action",
+   //     text: tr("Undeploy"),
+    //    layout: "vmsstop_buttons",
+    //    tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+   // },
+   // "VM.undeploy_hard" : {
+    ////    type: "action",
+     //   text: tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
+     //   layout: "vmsstop_buttons",
+     //   tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+   // },
+   // "VM.shutdown" : {
+    //    type: "confirm",
+     //   text: tr("Shutdown"),
+    //    layout: "vmsdelete_buttons",
+    //    tip: tr("This will initiate the shutdown process in the selected VMs")
+   // },
+   // "VM.shutdown_hard" : {
+    //    type: "confirm",
+    //    text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
+    //    layout: "vmsdelete_buttons",
+     //   tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
+   // },
 
     "VM.delete" : {
         type: "confirm",
@@ -1105,35 +1105,35 @@ var vm_buttons = {
         layout: "vmsdelete_buttons",
         tip: tr("This will delete the selected VMs from the database")
     },
-    "VM.delete_recreate" : {
-        type: "confirm",
-        text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
-        layout: "vmsrepeat_buttons",
-        tip: tr("This will delete and recreate VMs to PENDING state")
-    },
-    "VM.resched" : {
-        type: "action",
-        text: tr("Reschedule"),
-        layout: "vmsplanification_buttons",
-        tip: tr("This will reschedule selected VMs")
-    },
-    "VM.unresched" : {
-        type: "action",
-        text: tr("Un-Reschedule"),
-        layout: "vmsplanification_buttons",
-        tip: tr("This will cancel the rescheduling for the selected VMs")
-    },
-    "VM.recover" : {
-        type: "confirm_with_select",
-        text: tr("Recover"),
-        layout: "vmsplanification_buttons",
-        custom_select: '<select class="resource_list_select"><option value="success">' + tr("success") + '</option>\
-                 <option value="failure">' + tr("failure") + '</option></select>',
-        tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
-                The recovery may be done by failing or succeeding the pending operation. \
-                YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
-                was successful or not.")
-    },
+   // "VM.delete_recreate" : {
+   //     type: "confirm",
+     //   text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
+     //   layout: "vmsrepeat_buttons",
+     //   tip: tr("This will delete and recreate VMs to PENDING state")
+   // },
+   // "VM.resched" : {
+    //    type: "action",
+    //    text: tr("Reschedule"),
+    //    layout: "vmsplanification_buttons",
+    //    tip: tr("This will reschedule selected VMs")
+   // },
+   // "VM.unresched" : {
+   //     type: "action",
+    //    text: tr("Un-Reschedule"),
+    // /   layout: "vmsplanification_buttons",
+     //   tip: tr("This will cancel the rescheduling for the selected VMs")
+    //},
+   // "VM.recover" : {
+    //    type: "confirm_with_select",
+    //    text: tr("Recover"),
+    //    layout: "vmsplanification_buttons",
+     //   custom_select: '<select class="resource_list_select"><option value="success">' + tr("success") + '</option>\
+     //            <option value="failure">' + tr("failure") + '</option></select>',
+     //   tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
+      //          The recovery may be done by failing or succeeding the pending operation. \
+       //         YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
+        //        was successful or not.")
+   // },
     "VM.startvnc" : {
         type: "action",
         text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> '+tr("VNC"),
@@ -1156,8 +1156,8 @@ var vms_tab = {
     list_header: '<i class="fa fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Machines"),
     info_header: '<i class="fa fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Machine"),
     subheader: '<span class="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span class="running_vms"/> <small>'+tr("RUNNING")+'</small>&emsp;\
-        <span class="error_down_vms"/> <small>'+tr("ERROR_DOWN")+'</small>&emsp;\
+        <span class="running_vms" style="display: none;"/> <small style="display: none;">'+tr("RUNNING")+'</small>&emsp;\
+        <span class="error_down_vms" style="display: none;"/> <small style="display: none;">'+tr("ERROR_DOWN")+'</small>&emsp;\
         <span class="active_vms" style="display: none;"/> <small style="display: none;">'+tr("ACTIVE")+'</small>&emsp;\
         <span class="off_vms" style="display: none;"/> <small style="display: none;">'+tr("OFF")+'</small>&emsp;\
         <span class="pending_vms" style="display: none;"/> <small style="display: none;">'+tr("PENDING")+'</small>&emsp;\
@@ -1626,18 +1626,18 @@ function updateVMInfo(request,vm){
                </tr>'+                  
               '</tbody>\
                </table>\
-            </div>\
-            <div class="large-6 columns">' +
-               insert_permissions_table('vms-tab',
-                                        "VM",
-                                        vm_info.ID,
-                                        vm_info.UNAME,
-                                        vm_info.GNAME,
-                                        vm_info.UID,
-                                        vm_info.GID) +
+            </div>'+
+            //<div class="large-6 columns">' +
+           //    insert_permissions_table('vms-tab',
+                     //                   "VM",
+                     //                   vm_info.ID,
+                      //                  vm_info.UNAME,
+                       //                 vm_info.GNAME,
+                       //                 vm_info.UID,
+                        //                vm_info.GID) +
 
+           // '</div>\
             '</div>\
-            </div>\
             <div class="row">\
               <div class="large-9 columns">'+
                  insert_extended_template_table(stripped_vm_template,
@@ -2332,13 +2332,16 @@ function printNics(vm_info){
          <table class="info_table dataTable extended_table">\
            <thead>\
              <tr>\
-                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Name")+'</th>\
                 <th>'+tr("Network")+'</th>\
                 <th>'+tr("IP")+'</th>\
-                <th>'+tr("MAC")+'</th>\
-                <th>'+tr("IPv6 Site")+'</th>\
-                <th>'+tr("IPv6 Global")+'</th>\
-                <th colspan="">'+tr("Actions")+'</th>\
+                <th>'+tr("MAC")+'</th>'+
+                //<th>'+tr("IPv6 Site")+'</th>\
+                //<th>'+tr("IPv6 Global")+'</th>\
+                //<th colspan="">'+tr("Actions")+'</th>\
+                '<th>'+tr("Mode")+'</th>\
+                <th>'+tr("Link")+'</th>\
+                <th>'+tr("Gateway")+'</th>\
                 <th>';
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
@@ -2359,10 +2362,10 @@ function printNics(vm_info){
 
 
     var nics = []
-    if ($.isArray(vm_info.TEMPLATE.NIC))
-        nics = vm_info.TEMPLATE.NIC
-    else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
-        nics = [vm_info.TEMPLATE.NIC]
+    if ($.isArray(vm_info.NICS))
+        nics = vm_info.NICS
+    else if (!$.isEmptyObject(vm_info.NICS))
+        nics = [vm_info.NICS]
 
     if (!nics.length){
         html += '\
@@ -2377,27 +2380,27 @@ function printNics(vm_info){
 
             var actions;
             // Attach / Detach
-            if (
-               ( // ACTIVE
-                vm_info.STATE == "3") &&
-               ( // HOTPLUG_NIC
-                vm_info.LCM_STATE == "25") &&
-               ( //
-                nic.ATTACH == "YES")
-               ) {
-              actions = 'attach/detach in progress'
-            }
-            else {
-              actions = '';
+            //if (
+           //    ( // ACTIVE
+             //   vm_info.STATE == "3") &&
+            //   ( // HOTPLUG_NIC
+            //    vm_info.LCM_STATE == "25") &&
+            //   ( //
+           //     nic.ATTACH == "YES")
+           //    ) {
+          //    actions = 'attach/detach in progress'
+         //   }
+         //   else {
+          //    actions = '';
+//
+            //  if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
+            //    if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+             //     actions += '<a href="VM.detachnic" class="detachnic" ><i class="fa fa-times"/>'+tr("Detach")+'</a>'
+             //   }
+            //  }
+            //}
 
-              if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-                if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
-                  actions += '<a href="VM.detachnic" class="detachnic" ><i class="fa fa-times"/>'+tr("Detach")+'</a>'
-                }
-              }
-            }
-
-            html += '\
+       /*     html += '\
               <tr nic_id="'+(nic.NIC_ID)+'">\
                 <td>' + nic.NIC_ID + '</td>\
                 <td>' + nic.NETWORK + '</td>\
@@ -2406,7 +2409,17 @@ function printNics(vm_info){
                 <td>' + (nic.IP6_SITE ? nic.IP6_SITE : "--") +'</td>\
                 <td>' + (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--") +'</td>\
                 <td>' + actions + '</td>\
-            </tr>';
+            </tr>';*/
+            html += '\
+                <tr nic_id="'+(nic[2])+'">\
+                  <td>' + nic[8].name + '</td>\
+                  <td>' + nic[8].network + '</td>\
+                  <td>' + nic[2] + '</td>\
+                  <td>' + nic[3] + '</td>\
+                  <td>' + nic[4] +'</td>\
+                  <td>' + nic[5] +'</td>\
+                  <td>' + nic[8].gateway + '</td>\
+              </tr>';
         }
     }
 
@@ -2415,7 +2428,7 @@ function printNics(vm_info){
           </table>\
         </div>\
         </div>\
-        <div class="row">\
+        <div class="row" style="display: none;">\
             <div class="large-6 columns">\
               <div class="row text-center">\
                 <h3 class="subheader"><small>'+tr("NET RX")+'</small></h3>\

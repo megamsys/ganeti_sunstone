@@ -214,6 +214,11 @@ module Ganeti
       create["response"]
     end
 
+    def delete(id)
+      del = @client.keystone("tenants/#{id}", 'DELETE')
+      del["response"]
+    end
+
   end
 end
 

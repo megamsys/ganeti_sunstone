@@ -292,26 +292,26 @@ var host_buttons = {
         condition: mustBeAdmin
     },
 
-    "Host.addtocluster" : {
-        type: "confirm_with_select",
-        text: tr("Select cluster"),
-        select: "Cluster",
-        tip: tr("Select the destination cluster:"),
-        layout: "main",
-        condition: mustBeAdmin
-    },
-    "Host.enable" : {
-        type: "action",
-        text: tr("Enable"),
-        layout: "main",
-        condition: mustBeAdmin
-    },
-    "Host.disable" : {
-        type: "action",
-        text: tr("Disable"),
-        layout: "main",
-        condition: mustBeAdmin
-    },
+  //  "Host.addtocluster" : {
+     //   type: "confirm_with_select",
+     //   text: tr("Select cluster"),
+     //   select: "Cluster",
+     //   tip: tr("Select the destination cluster:"),
+     //   layout: "main",
+     //   condition: mustBeAdmin
+   // },
+   // "Host.enable" : {
+    //    type: "action",
+    ///    text: tr("Enable"),
+    //    layout: "main",
+      //  condition: mustBeAdmin
+   // },
+  //  "Host.disable" : {
+    //    type: "action",
+    //    text: tr("Disable"),
+    //    layout: "main",
+     //   condition: mustBeAdmin
+   // },
     "Host.delete" : {
         type: "confirm",
         text: tr("Delete host"),
@@ -357,8 +357,11 @@ var hosts_tab = {
           <th>' + tr("Allocated Disks") + '</th>\
           <th>' + tr("MEMORY USAGE") + '</th>\
           <th>' + tr("Allocated MEM") + '</th>\
-          <th>' + tr("Status") + '</th>\
-          <th>' + tr("Last monitored on") + '</th>\
+          <th style="display: none;">' + tr("Status") + '</th>\
+          <th style="display: none;">' + tr("Last monitored on") + '</th>\
+          <th style="display: none;">' + tr("Status") + '</th>\
+          <th style="display: none;">' + tr("Last monitored on") + '</th>\
+          <th style="display: none;">' + tr("Last monitored on") + '</th>\
         </tr>\
       </thead>\
       <tbody id="tbodyhosts">\
@@ -473,10 +476,15 @@ function hostElementArray(host_json){
         disk_bars.allocated,
         mem_bars.real,
         mem_bars.allocated,
-        state_simple,
-        host.IM_MAD,
-        host.VM_MAD,
-        pretty_time(host.LAST_MON_TIME)
+        "",
+        "",
+        "",
+        "",
+        ""
+       // state_simple,
+       // host.IM_MAD,        
+       // host.VM_MAD,
+      //  pretty_time(host.LAST_MON_TIME)
     ];
 }
 

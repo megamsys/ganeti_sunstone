@@ -381,39 +381,39 @@ var group_buttons = {
         layout: "create",
         condition: mustBeAdmin
     },
-    "Group.update_dialog" : {
-        type : "action",
-        layout: "main",
-        text : tr("Update")
-    },
-    "Group.quotas_dialog" : {
-        type : "action",
-        text : tr("Quotas"),
-        layout: "main",
-        condition: mustBeAdmin
-    },
+ //   "Group.update_dialog" : {
+  //      type : "action",
+   //     layout: "main",
+   //     text : tr("Update")
+  //  },
+  //  "Group.quotas_dialog" : {
+    //    type : "action",
+   //     text : tr("Quotas"),
+   //     layout: "main",
+    //    condition: mustBeAdmin
+   // },
     "Group.delete" : {
         type: "confirm",
         text: tr("Delete"),
         layout: "del",
         condition: mustBeAdmin
     },
-    "Group.chgrp" : {
-        type: "confirm_with_select",
-        text: tr("Change group"),
-        layout: "group_select",
-        select: "Group",
-        tip: tr("This will change the main group of the selected users. Select the new group")+":",
-        condition: mustBeAdmin
-    },
-    "Group.addgroup" : {
-        type: "confirm_with_select",
-        text: tr("Add to group"),
-        layout: "group_select",
-        select: "Group",
-        tip: tr("This will add the user to a secondary group. Select the new group")+":",
-        condition: mustBeAdmin
-    },
+ //   "Group.chgrp" : {
+   //     type: "confirm_with_select",
+   ////     text: tr("Change group"),
+   //     layout: "group_select",
+    //    select: "Group",
+    //    tip: tr("This will change the main group of the selected users. Select the new group")+":",
+     //   condition: mustBeAdmin
+   // },
+    //"Group.addgroup" : {
+    ////    type: "confirm_with_select",
+     //   text: tr("Add to group"),
+     //   layout: "group_select",
+     //   select: "Group",
+     //   tip: tr("This will add the user to a secondary group. Select the new group")+":",
+     //   condition: mustBeAdmin
+   // },
 };
 
 var group_info_panel = {
@@ -705,11 +705,11 @@ function updateGroupInfo(request,group){
             </div>'
     }
 
-    var quotas_tab = {
-        title : tr("Quotas"),
-        icon: "fa-align-left",
-        content : quotas_html
-    };
+   // var quotas_tab = {
+  //      title : tr("Quotas"),
+   //     icon: "fa-align-left",
+   //     content : quotas_html
+  //  };
 
 
     var providers_tab = {
@@ -739,8 +739,8 @@ function updateGroupInfo(request,group){
     };
 
     Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
+   // Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
+    //Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){

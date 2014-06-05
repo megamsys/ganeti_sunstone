@@ -19,7 +19,7 @@ var create_template_tmpl = '\
   '<div class="large-5 columns">'+
     '<h3 class="subheader" id="create_template_header">'+tr("Create VM Template")+'</h3><h3 class="subheader" id="update_template_header" class="hidden">'+tr("Update VM Template")+'</h3>'+
   '</div>'+
-  '<div class="large-7 columns">'+
+  '<div class="large-7 columns" style="display: none;">'+
     '<dl class="tabs right wizard_tabs" data-tab>' +
       '<dd id="wizard_mode" class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
       '<dd id="advanced_mode"><a id="advanced_mode_a" href="#manual">'+tr("Advanced mode")+'</a></dd>' +
@@ -465,22 +465,22 @@ var template_buttons = {
         layout: "main",
         text: tr("Instantiate")
     },
-    "Template.chown" : {
-        type: "confirm_with_select",
-        text: tr("Change owner"),
-        layout: "user_select",
-        select: "User",
-        tip: tr("Select the new owner")+":",
-        condition: mustBeAdmin
-    },
-    "Template.chgrp" : {
-        type: "confirm_with_select",
-        text: tr("Change group"),
-        layout: "user_select",
-        select: "Group",
-        tip: tr("Select the new group")+":",
-        condition: mustBeAdmin
-    },
+   // "Template.chown" : {
+    //    type: "confirm_with_select",
+    //    text: tr("Change owner"),
+    //    layout: "user_select",
+     //   select: "User",
+    ///    tip: tr("Select the new owner")+":",
+    //    condition: mustBeAdmin
+   // },
+  //  "Template.chgrp" : {
+    //    type: "confirm_with_select",
+    //    text: tr("Change group"),
+    //    layout: "user_select",
+    //    select: "Group",
+    //    tip: tr("Select the new group")+":",
+    //    condition: mustBeAdmin
+   // },
     "Template.clone_dialog" : {
         type: "action",
         layout: "main",
@@ -649,8 +649,8 @@ function generate_capacity_tab_content() {
       '</select>'+
     '</div>'+
     '</div>'+
-    '<div class="row">'+
-        '<div class="large-2 columns">'+
+    '<div class="row" style="display: none;">'+
+        '<div class="large-2 columns" style="display: none;">'+
           '<label class="inline" for="CPU">'+tr("CPU")+'\
             <span class="tip right">'+tr("Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")+'</span>\
           </label>'+
@@ -665,12 +665,12 @@ function generate_capacity_tab_content() {
     '</div>'+
     '<div class="row">'+
       '<div class="large-12 columns">'+
-        '<dl class="tabs wizard_tabs" data-tab>' +
+        '<dl class="tabs wizard_tabs" data-tab style="display: none;">' +
           '<dd><a href="#advanced_capacity">'+tr("Advanced options")+'</a></dd>' +
         '</dl>' +
       '</div>'+
     '</div>'+
-    '<div class="tabs-content">' +
+    '<div class="tabs-content" style="display: none;">' +
       '<div class="content row" id="advanced_capacity">' +
         '<div class="large-2 columns">'+
           '<label class="inline" for="VCPU">'+tr("VCPU")+'\
@@ -972,8 +972,8 @@ function setup_capacity_tab_content(capacity_section) {
 function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
   var html = '<div class="row">'+
         '<div class="large-12 columns text-center">'+
-          '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> <label for="'+str_disk_tab_id+'radioImage">'+tr("Image")+'</label>'+
-          '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> <label for="'+str_disk_tab_id+'radioVolatile">'+tr("Volatile Disk")+'</label>'+
+          '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" style="display: none;" checked> <label for="'+str_disk_tab_id+'radioImage" style="display: none;">'+tr("Image")+'</label>'+
+          '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile" style="display: none;"> <label for="'+str_disk_tab_id+'radioVolatile" style="display: none;">'+tr("Volatile Disk")+'</label>'+
         '</div>'+
       '</div>'+
       '<br>'+
@@ -991,17 +991,17 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '<tr>'+
                 '<th></th>'+
                 '<th>'+tr("ID")+'</th>'+
-                '<th>'+tr("Owner")+'</th>'+
-                '<th>'+tr("Group")+'</th>'+
                 '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Datastore")+'</th>'+
-                '<th>'+tr("Size")+'</th>'+
-                '<th>'+tr("Type")+'</th>'+
-                '<th>'+tr("Registration time")+'</th>'+
-                '<th>'+tr("Persistent")+'</th>'+
-                '<th>'+tr("Status")+'</th>'+
-                '<th>'+tr("#VMS")+'</th>'+
-                '<th>'+tr("Target")+'</th>'+
+                '<th style="display: none;">'+tr("Group")+'</th>'+
+                '<th style="display: none;">'+tr("Owner")+'</th>'+
+                '<th style="display: none;">'+tr("Datastore")+'</th>'+
+                '<th style="display: none;">'+tr("Size")+'</th>'+
+                '<th style="display: none;">'+tr("Type")+'</th>'+
+                '<th style="display: none;">'+tr("Registration time")+'</th>'+
+                '<th style="display: none;">'+tr("Persistent")+'</th>'+
+                '<th style="display: none;">'+tr("Status")+'</th>'+
+                '<th style="display: none;">'+tr("#VMS")+'</th>'+
+                '<th style="display: none;">'+tr("Target")+'</th>'+
               '</tr>'+
             '</thead>'+
             '<tbody id="tbodyimages">'+
@@ -1013,14 +1013,14 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '<span id="image_selected" class="radius secondary label " style="display: none;">'+tr("You selected the following image: ")+
             '</span>'+
             '<span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>'+
-            '<div class="alert-box alert" style="display: none;">'+
+            '<div class="alert-box alert" hidden>'+
             tr("The image you specified cannot be selected in the table") +
             '</div>'+
           '</div>'+
-        '<div class="show_hide" id="advanced_image">'+
+        '<div class="show_hide" id="advanced_image" hidden>'+
           '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
-        '<div class="advanced">'+
+        '<div class="advanced" style="display: none;">'+
           '<fieldset>'+
           '<legend>'+tr("Image")+'</legend>'+
           '<div class="row advanced vm_param">'+
@@ -1178,10 +1178,10 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '<input type="text" id="FORMAT" name="format" />'+
           '</div>'+
         '</div>'+
-        '<div class="show_hide" id="advanced_volatile">'+
+        '<div class="show_hide" id="advanced_volatile" style="display: none;">'+
           '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
         '</div>'+
-        '<div class="advanced">'+
+        '<div class="advanced" style="display: none;">'+
           '<div class="row advanced vm_param">'+
             '<div class="large-6 columns">'+
               '<label for="TARGET">'+tr("Target")+
@@ -1397,9 +1397,9 @@ function update_datatable_template_files(datatable, fnDrawCallback) {
             var image_list_array = [];
 
             $.each(images_list,function(){
-              var image_element_array = fileElementArray(this);
-              if (image_element_array)
-                    image_list_array.push(image_element_array);
+             // var image_element_array = fileElementArray(this);
+             // if (image_element_array)
+              //      image_list_array.push(image_element_array);
             });
 
             updateView(image_list_array, datatable);
@@ -1434,20 +1434,20 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
           // Select Image or Volatile disk. The div is hidden depending on the
 			// selection, and the
     // vm_param class is included to be computed when the template is generated.
-    $("input[name='"+str_disk_tab_id+"']", disk_section).change(function(){
-      if ($("input[name='"+str_disk_tab_id+"']:checked", disk_section).val() == "image") {
-          $("div.image",  disk_section).toggle();
+    //$("input[name='"+str_disk_tab_id+"']", disk_section).change(function(){
+    //  if ($("input[name='"+str_disk_tab_id+"']:checked", disk_section).val() == "image") {
+       //   $("div.image",  disk_section).toggle();
           $("div.image",  disk_section).addClass('vm_param');
           $("div.volatile",  disk_section).hide();
           $("div.volatile",  disk_section).removeClass('vm_param');
-      }
-      else {
-          $("div.image",  disk_section).hide();
-          $("div.image",  disk_section).removeClass('vm_param');
-          $("div.volatile",  disk_section).toggle();
-          $("div.volatile",  disk_section).addClass('vm_param');
-      }
-    });
+     // }
+     // else {
+      //    $("div.image",  disk_section).hide();
+      //    $("div.image",  disk_section).removeClass('vm_param');
+      //    $("div.volatile",  disk_section).toggle();
+      //    $("div.volatile",  disk_section).addClass('vm_param');
+     // }
+   // });
 
 
     // Define the size slider
@@ -1551,7 +1551,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         "sDom" : '<"H">t<"F"p>',
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
+         //   { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
         ],
         "bSortClasses" : false,
         "bDeferRender": true,
@@ -1592,7 +1592,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         $("td", this).addClass('markrow');
         $('input.check_item', this).attr('checked','checked');
 
-        $('#IMAGE_NAME', disk_section).text(aData[4]);
+        $('#IMAGE_NAME', disk_section).text(aData[2]);
         $('#IMAGE_ID', disk_section).val("");
         $('#IMAGE', disk_section).val(aData[4]);
         $('#IMAGE_UNAME', disk_section).val(aData[2]);
@@ -1660,12 +1660,12 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '</div>'+
       '</div>'+
     '</div>'+
-    '<div class="show_hide row" id="advanced">'+
+    '<div class="show_hide row" id="advanced" style="display: none;">'+
       '<div class="large-12 columns">'+
           '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
       '</div>'+
     '</div>'+
-    '<div class="advanced">'+
+    '<div class="advanced" style="display: none;">'+
       '<fieldset>'+
         '<legend>'+tr("Network")+'</legend>'+
         '<div class="row advanced vm_param">'+
@@ -1906,12 +1906,12 @@ function updateTemplateInfo(request,template){
                <td class="value_td">'+template_info.ID+'</td>\
                <td>\
              </tr>'+
-            insert_rename_tr(
-                'templates-tab',
-                "Template",
-                template_info.ID,
-                template_info.NAME)+
-                '<tr>\
+             '<tr>\
+                <td class="key_td">'+tr("Name")+'</td>\
+                 <td class="value_td">'+template_info.NAME+'</td>\
+                 <td>\
+              </tr>'+           
+              '<tr>\
                 <td class="key_td">'+tr("Image")+'</td>\
                 <td class="value_td">'+template_info.OS+'</td>\
                 <td></td>\
@@ -1920,33 +1920,33 @@ function updateTemplateInfo(request,template){
               <td class="key_td">'+tr("Memory")+'</td>\
               <td class="value_td">'+template_info.MEMORY+'</td>\
               <td></td>\
+            </tr>'+            
+           '<tr>\
+             <td class="key_td">'+tr("Disk size")+'</td>\
+             <td class="value_td">'+template_info.DISK_SIZE+'</td>\
+             <td></td>\
             </tr>\
             <tr>\
-            <td class="key_td">'+tr("CPU")+'</td>\
-            <td class="value_td">'+template_info.CPU+'</td>\
-            <td></td>\
-          </tr>\
-          <tr>\
-          <td class="key_td">'+tr("Disk size")+'</td>\
-          <td class="value_td">'+template_info.DISK_SIZE+'</td>\
-          <td></td>\
-        </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Register time")+'</td>\
-                 <td class="value_td">'+template_info.REGTIME+'</td>\
-                 <td></td>\
-              </tr>\
-            </table>\
-        </div>\
-        <div class="large-6 columns">' + insert_permissions_table('templates-tab',
-                                                              "Template",
-                                                              template_info.ID,
-                                                              template_info.UNAME,
-                                                              template_info.GNAME,
-                                                              template_info.UID,
-                                                              template_info.GID) +
-        '</div>\
-      </div>'
+              <td class="key_td">'+tr("Register time")+'</td>\
+              <td class="value_td">'+template_info.REGTIME+'</td>\
+              <td></td>\
+            </tr>\
+            <tr>\
+               <td class="key_td">'+tr("Update Time")+'</td>\
+               <td class="value_td">'+template_info.UPDATE_TIME+'</td>\
+               <td></td>\
+            </tr>'+  
+            '</table>\
+        </div>'+
+       //<div class="large-6 columns">' + insert_permissions_table('templates-tab',
+                           //                                   "Template",
+                              //                                template_info.ID,
+                             //                                 template_info.UNAME,
+                              //                                template_info.GNAME,
+                             //                                 template_info.UID,
+                              //                                template_info.GID) +
+        //'</div>\
+      '</div>'
     };
     var template_tab = {
         title: tr("Template"),
@@ -2068,9 +2068,9 @@ function wizard_tab_dd(){
         str += "<dd><a href='#schedulingTab'><i class='fa fa-sitemap'></i><br>Scheduling</a></dd>";
     }
 
-    if (Config.isTemplateCreationTabEnabled('other')){
-        str += "<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>";
-    }
+  //  if (Config.isTemplateCreationTabEnabled('other')){
+   //     str += "<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>";
+  //  }
 
     return str;
 }
@@ -2089,7 +2089,7 @@ function wizard_tab_content(){
         str +=
         '<div id="storageTab" class="wizard_tab content">'+
           '<dl class="tabs vertical" id="template_create_storage_tabs" data-tab>'+
-            '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="fa fa-plus"></span>'+tr("Add another disk")+'</button></dt>'+
+            '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_disks" style="display: none;"><span class="fa fa-plus"></span>'+tr("Add another disk")+'</button></dt>'+
           '</dl>'+
           '<div class="tabs-content vertical" id="template_create_storage_tabs_content">'+
           '</div>'+
@@ -2100,7 +2100,7 @@ function wizard_tab_content(){
         str +=
         '<div id="networkTab" class="content wizard_tab">'+
           '<dl class="tabs vertical" id="template_create_network_tabs" data-tab>'+
-            '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
+            '<dt class="text-center" style="display: none;"><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
           '</dl>'+
           '<div class="tabs-content vertical" id="template_create_network_tabs_content">'+
           '</div>'+
@@ -2114,12 +2114,12 @@ function wizard_tab_content(){
       '<dd class="active"><a href="#bootTab">'+tr("Boot")+'</a></dd>'+
       '<dd><a href="#kernelTab">'+tr("Kernel")+'</a></dd>'+
       '<dd><a href="#ramdiskTab">'+tr("Ramdisk")+'</a></dd>'+
-      '<dd><a href="#featuresTab">'+tr("Features")+'</a></dd>'+
+      '<dd style="display: none;"><a href="#featuresTab">'+tr("Features")+'</a></dd>'+
     '</dl>'+
     '<div class="tabs-content vertical">'+
       '<div class="wizard_internal_tab active content" id="bootTab">'+
         '<div class="row vm_param">'+
-          '<div class="large-3 columns">'+
+          '<div class="large-3 columns" style="display: none;">'+
             '<label for="ARCH">'+tr("Arch")+
               '<span class="tip">'+tr("CPU architecture to virtualization")+'</span>'+
             '</label>'+
@@ -2135,7 +2135,7 @@ function wizard_tab_content(){
             '</label>'+
             '<input type="text" id="MACHINE" name="machine" />'+
           '</div>'+
-          '<div class="large-5 columns">'+
+          '<div class="large-5 columns" style="display: none;">'+
             '<label for="GUESTOS">'+tr("Guest OS")+
               '<span class="tip">'+tr("Set the OS of the VM, only for VMware")+'</span>'+
             '</label>'+
@@ -2237,8 +2237,8 @@ function wizard_tab_content(){
           '</div>'+
         '</div>'+
         '<br>'+
-        '<div class="row vm_param">'+
-          '<div class="large-6 columns">'+
+        '<div class="row vm_param" style="display: none;">'+
+          '<div class="large-6 columns" >'+
             '<label for="ROOT">'+tr("Root")+
               '<span class="tip">'+tr("Device to be mounted as root")+'</span>'+
             '</label>'+
@@ -2265,7 +2265,7 @@ function wizard_tab_content(){
             '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
           '</div>'+
         '</div>'+
-        '<div class="row vm_param">'+
+        '<div class="row vm_param" style="display: none;">'+
           '<div class="large-12 columns">'+
             '<label for="BOOTLOADER">'+tr("Bootloader")+
               '<span class="tip">'+tr("Path to the bootloader executable")+'</span>'+
@@ -2275,14 +2275,14 @@ function wizard_tab_content(){
         '</div>'+
       '</div>'+
       '<div id="kernelTab" class="wizard_internal_tab content">'+
-        '<div class="row">'+
+        '<div class="row" style="display: none;">'+
           '<div class="large-12 columns text-center">'+
-            '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked/><label for="radioKernelDs">'+tr("Registered Image")+'</label>'+
-            '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"/><label for="radioKernelPath">'+tr("Remote PATH")+'</label>'+
+            '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" /><label for="radioKernelDs">'+tr("Registered Image")+'</label>'+
+            '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path" checked/><label for="radioKernelPath">'+tr("Remote PATH")+'</label>'+
           '</div>'+
         '</div>'+
         '<br>'+
-        '<div class="kernel_ds">'+
+        '<div class="kernel_ds" hidden>'+
           '<div class="row">'+
             '<div class="large-8 columns">' +
               '<button id="refresh_kernel_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
@@ -2332,7 +2332,7 @@ function wizard_tab_content(){
             '</div>'+
           '</div>'+
         '</div>'+
-        '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
+        '<div id="kernel_path_inputs" class="kernel_path row" hidden>'+
           '<div class="large-12 columns">'+
             '<label for="KERNEL">'+tr("PATH")+
               '<span class="tip">'+tr("Path to the OS kernel to boot the image")+'</span>'+
@@ -2342,14 +2342,14 @@ function wizard_tab_content(){
         '</div>'+
       '</div>'+
       '<div id="ramdiskTab" class="wizard_internal_tab content">'+
-        '<div class="row">'+
+        '<div class="row" style="display: none;">'+
           '<div class="large-12 columns text-center">'+
-            '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked><label for="radioInintrdDs">'+tr("Registered Image ") +"</label>"+
-            '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"><label for="radioInitrdPath">'+tr("Remote PATH")+"</label>"+
+            '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" ><label for="radioInintrdDs">'+tr("Registered Image ") +"</label>"+
+            '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path" checked><label for="radioInitrdPath">'+tr("Remote PATH")+"</label>"+
           '</div>'+
         '</div>'+
         '<br>'+
-        '<div class="initrd_ds">'+
+        '<div class="initrd_ds" hidden>'+
           '<div class="row">'+
             '<div class="large-8 columns">' +
               '<button id="refresh_ramdisk_table" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
@@ -2399,7 +2399,7 @@ function wizard_tab_content(){
             '</div>'+
           '</div>'+
         '</div>'+
-        '<div id="initrd_path_inputs" class="initrd_path hidden">'+
+        '<div id="initrd_path_inputs" class="initrd_path" hidden>'+
           '<div class="row">'+
             '<div class="large-12 columns">'+
               '<label class="inline" for="INITRD">'+tr("PATH")+
@@ -2602,12 +2602,12 @@ function wizard_tab_content(){
     '<div id="contextTab" class="wizard_tab content">'+
       '<dl id="context_tabs" class="tabs vertical" data-tab>'+
         '<dd class="active"><a href="#netsshTab">'+tr("Network & SSH")+'</a></dd>'+
-        '<dd><a href="#filesTab">'+tr("Files")+'</a></dd>'+
-        '<dd><a href="#zcustomTab">'+tr("Custom vars")+'</a></dd>'+
+        '<dd style="display: none;"><a href="#filesTab">'+tr("Files")+'</a></dd>'+
+        '<dd style="display: none;"><a href="#zcustomTab">'+tr("Custom vars")+'</a></dd>'+
       '</dl>'+
       '<div class="tabs-content vertical">'+
           '<div class="wizard_internal_tab active content" id="netsshTab">'+
-            '<div class="row">'+
+            '<div class="row" style="display: none;">'+
               '<div class="columns large-12">'+
                   '<input type="checkbox" name="ssh_context" id="ssh_context" checked>'+
                   '<label for="ssh_context">'+ tr("  Add SSH contextualization")+
@@ -2622,7 +2622,7 @@ function wizard_tab_content(){
               '</div>'+
             '</div>'+
             '<br>'+
-            '<div class="row">'+
+            '<div class="row" style="display: none;">'+
               '<div class="columns large-12">'+
                   '<input type="checkbox" name="network_context" id="network_context" checked>'+
                   '<label class="inline" for="network_context">'+ tr("  Add Network contextualization")+
@@ -2630,7 +2630,7 @@ function wizard_tab_content(){
                   '</label>'+
               '</div>'+
             '</div>'+
-            '<div class="row">'+
+            '<div class="row" style="display: none;">'+
               '<div class="columns large-12">'+
                   '<input type="checkbox" name="token_context" id="token_context">'+
                   '<label class="inline" for="token_context">'+ tr("  Add OneGate token")+
@@ -2738,20 +2738,20 @@ function wizard_tab_content(){
       '<div id="schedulingTab" class="wizard_tab content">'+
         '<dl class="tabs vertical" data-tab>'+
           '<dd class="active"><a href="#placementTab">'+tr("Placement")+'</a></dd>'+
-          '<dd><a href="#policyTab">'+tr("Policy")+'</a></dd>'+
+          '<dd style="display: none;"><a href="#policyTab">'+tr("Policy")+'</a></dd>'+
         '</dl>'+
         '<div class="tabs-content vertical">'+
             '<div class="requirements wizard_internal_tab active content" id="placementTab">'+
               '<fieldset>'+
                 '<legend>'+tr("Host Requirements")+'</legend>'+
                 '<div class="row">'+
-                  '<div class="large-12 columns text-center">'+
+                  '<div class="large-12 columns text-center" style="display: none;">'+
                       '<input type="radio" id="hosts_req" name="req_select" value="host_select"><label for="hosts_req">'+tr("Select Hosts ")+"</label>"+
                       '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"><label for="clusters_req">'+tr("Select Clusters ")+"</label>"+
                   '</div>'+
                 '</div>'+
                 '<br>'+
-                '<div id="req_type" class="host_select" hidden>'+
+                '<div id="req_type" class="host_select">'+
                     '<div class="row">'+
                       '<div class="large-8 columns">' +
                          '<button id="refresh_hosts_placement" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
@@ -2766,19 +2766,19 @@ function wizard_tab_content(){
                             '<thead>'+
                             '<tr>'+
                                 '<th></th>'+
-                                '<th>' + tr("ID") + '</th>'+
-                                '<th>' + tr("Name") + '</th>'+
-                                '<th>' + tr("Cluster") + '</th>'+
-                                '<th>' + tr("RVMs") + '</th>'+
-                                '<th>' + tr("Real CPU") + '</th>'+
-                                '<th>' + tr("Allocated CPU") + '</th>'+
-                                '<th>' + tr("Real MEM") + '</th>'+
-                                '<th>' + tr("Allocated MEM") + '</th>'+
-                                '<th>' + tr("Status") + '</th>'+
-                                '<th>' + tr("IM MAD") + '</th>'+
-                                '<th>' + tr("VM MAD") + '</th>'+
-                                '<th>' + tr("Last monitored on") + '</th>'+
-                            '</tr>'+
+                                '<th>' + tr("ID") + '</th>\
+                                <th>' + tr("Name") + '</th>\
+                                <th>' + tr("RVMs") + '</th>\
+                                <th>' + tr("DISK USAGE") + '</th>\
+                                <th>' + tr("Allocated Disks") + '</th>\
+                                <th>' + tr("MEMORY USAGE") + '</th>\
+                                <th>' + tr("Allocated MEM") + '</th>\
+                                <th style="display: none;">' + tr("Status") + '</th>\
+                                <th style="display: none;">' + tr("Last monitored on") + '</th>\
+                                <th style="display: none;">' + tr("Status") + '</th>\
+                                <th style="display: none;">' + tr("Last monitored on") + '</th>\
+                                <th style="display: none;">' + tr("Last monitored on") + '</th>\
+                            </tr>'+
                             '</thead>'+
                             '<tbody id="tbodyhosts">'+
                             '</tbody>'+
@@ -2789,7 +2789,8 @@ function wizard_tab_content(){
                       '<div class="large-12 columns" id="selected_hosts_template">' +
                         '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
                         '<span id="hosts_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following hosts:")+'</span> '+
-                        '<input id="select_host_json_data" type="text" placeholder="'+tr("selected")+'"/>'+
+                        '<span class="radius label" type="text" id="HOST_NAME" name="image"></span>'+
+                        '<input id="select_host_json_data" type="hidden" placeholder="'+tr("selected")+'"/>'+
                         '</div>'+
                     '</div>'+
                 '</div>'+
@@ -2829,7 +2830,7 @@ function wizard_tab_content(){
                 '</div>'+
                 '<br>'+
                 '<div class="row vm_param">'+
-                    '<div class="large-12 columns">'+
+                    '<div class="large-12 columns" >'+
                         '<label for="SCHED_REQUIREMENTS">'+tr("Expression")+
                           '<span class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'.</span>'+
                         '</label>'+
@@ -2837,7 +2838,7 @@ function wizard_tab_content(){
                     '</div>'+
                 '</div>'+
               '</fieldset>'+
-              '<fieldset>'+
+              '<fieldset style="display: none;">'+
                 '<legend>'+tr("Datastore Requirements")+'</legend>'+
                 '<div class="row vm_param">'+
                     '<div class="large-12 columns">'+
@@ -3089,35 +3090,35 @@ function setup_os_tab_content(os_section) {
     // Select Kernel Image or Path. The div is hidden depending on the
 	// selection, and the
     // vm_param class is included to be computed when the template is generated.
-    $("input[name='kernel_type']", os_section).change(function(){
-      if ($("input[name='kernel_type']:checked").val() == "kernel_ds") {
-          $("div.kernel_ds",  os_section).toggle();
-          $("div#kernel_ds_inputs",  os_section).addClass('vm_param');
-          $("div.kernel_path",  os_section).hide();
-          $("div#kernel_path_inputs",  os_section).removeClass('vm_param');
-      }
-      else {
+  //  $("input[name='kernel_type']", os_section).change(function(){
+    //  if ($("input[name='kernel_type']:checked").val() == "kernel_ds") {
+     //     $("div.kernel_ds",  os_section).toggle();
+     //     $("div#kernel_ds_inputs",  os_section).addClass('vm_param');
+     //    $("div.kernel_path",  os_section).hide();
+      //    $("div#kernel_path_inputs",  os_section).removeClass('vm_param');
+     // }
+    // else {
           $("div.kernel_ds",  os_section).hide();
           $("div#kernel_ds_inputs",  os_section).removeClass('vm_param');
           $("div.kernel_path",  os_section).toggle();
           $("div#kernel_path_inputs",  os_section).addClass('vm_param');
-      }
-    });
+     // }
+   //});
 
-    $("input[name='initrd_type']", os_section).change(function(){
-      if ($("input[name='initrd_type']:checked").val() == "initrd_ds") {
-          $("div.initrd_ds",  os_section).toggle();
-          $("div#initrd_ds_inputs",  os_section).addClass('vm_param');
-          $("div.initrd_path",  os_section).hide();
-          $("div#initrd_path_inputs",  os_section).removeClass('vm_param');
-      }
-      else {
+   // $("input[name='initrd_type']", os_section).change(function(){
+     // if ($("input[name='initrd_type']:checked").val() == "initrd_ds") {
+      //    $("div.initrd_ds",  os_section).toggle();
+       //   $("div#initrd_ds_inputs",  os_section).addClass('vm_param');
+       //   $("div.initrd_path",  os_section).hide();
+       //   $("div#initrd_path_inputs",  os_section).removeClass('vm_param');
+     // }
+     // else {
           $("div.initrd_ds",  os_section).hide();
           $("div#initrd_ds_inputs",  os_section).removeClass('vm_param');
           $("div.initrd_path",  os_section).toggle();
           $("div#initrd_path_inputs",  os_section).addClass('vm_param');
-      }
-    });
+     // }
+   // });
 
     var dataTable_template_kernel = $('#datatable_kernel', os_section).dataTable({
         "bAutoWidth":false,
@@ -3799,8 +3800,7 @@ function initialize_create_template_dialog(dialog) {
         addSectionJSON(vm_json["OS"],$('#osTab #bootTab',dialog));
         addSectionJSON(vm_json["OS"],$('#osTab #kernelTab',dialog));
         addSectionJSON(vm_json["OS"],$('#osTab #ramdiskTab',dialog));
-
-        //
+       
         // FEATURES
         //
 
@@ -4045,18 +4045,41 @@ function fillTemplatePopUp(template, dialog){
         var inputs = $('input',params);
         var selects = $('select:enabled',params);
         var fields = $.merge(inputs,selects);
-
+        var number_of_disks = 0;
+        var number_of_nics = 0;
+        var str_disk_tab_id  = 'disk' + number_of_disks;
+        var disk_section = $('#' +str_disk_tab_id+'Tab', dialog);
+        var str_nic_tab_id = 'nic' + number_of_nics;
+        var nic_section  = $('#' + str_nic_tab_id + 'Tab', dialog);
+        var host_section = $('#schedulingTab', dialog);
         fields.each(function(){
             var field = $(this);
-                if (template_json[field.attr('id')]){ // if has a length
+                if(template_json[field.attr('id')]){ // if has a length
+                	if(field.attr('id') == 'IMAGE') {
+                		$('#image_selected', disk_section).show();
+                        $('#select_image', disk_section).hide();
+                        $('.alert-box', disk_section).hide();
+                		$("#IMAGE_NAME", disk_section).text(escapeDoubleQuotes(htmlDecode(template_json[field.attr('id')])));
+                	}
+                	if(field.attr('id') == 'NETWORK') {
+                		$('#network_selected', nic_section).show();
+                        $('#select_network', nic_section).hide();
+                        $('.alert-box', nic_section).hide();
+                		$("#NETWORK_NAME", nic_section).text(escapeDoubleQuotes(htmlDecode(template_json[field.attr('id')])));
+                	}
+                	if(field.attr('id') == 'TARGET') {
+                		$('#hosts_selected', host_section).show();
+                        $('#select_hosts', host_section).hide();
+                		$("#HOST_NAME", host_section).text(escapeDoubleQuotes(htmlDecode(template_json[field.attr('id')])));
+                	}
                     field.val(escapeDoubleQuotes(htmlDecode(template_json[field.attr('id')])));
                     field.change();
 
                     delete template_json[field.attr('id')]
 
-                    if (field.parents(".advanced")) {
-                        $('.advanced', context).show();
-                    }
+                   // if (field.parents(".advanced")) {
+                     //   $('.advanced', context).show();
+                   // }
                 };
         });
     };
@@ -4104,7 +4127,7 @@ function fillTemplatePopUp(template, dialog){
                             $(".alert-box", disk_section).hide();
                             $('#image_selected', disk_section).show();
                             $('#select_image', disk_section).hide();
-                            $('#IMAGE_NAME', disk_section).text(this[4]);
+                            $('#IMAGE_NAME', disk_section).text(this[2]);
                             if(disk_image_id) $('#IMAGE_ID', disk_section).val(this[1]);
                             if(disk_image_uname) $('#IMAGE_UNAME', disk_section).val(this[2]);
                             if(disk_image) $('#IMAGE', disk_section).val(this[4]);
@@ -4816,7 +4839,7 @@ function setupInstantiateTemplateDialog(easy_provision){
           $("td", this).addClass('markrow');
           $('input.check_item', this).attr('checked','checked');
 
-          $('#IMAGE_NAME', dialog).text(aData[4]);
+          $('#IMAGE_NAME', dialog).text(aData[2]);
           $('#IMAGE_ID', dialog).val(aData[1]);
           return true;
       });

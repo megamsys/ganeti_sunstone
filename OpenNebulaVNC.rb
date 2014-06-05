@@ -22,11 +22,11 @@ require 'rubygems'
 require 'json'
 #require 'opennebula'
 
-
+#ONE_LOCATION = "/home/rajthilak/code/megam/workspace/ganeti"
 if !ONE_LOCATION
     NOVNC_LOCK_FILE = "/var/lock/one/.novnc.lock"
 else
-    NOVNC_LOCK_FILE= ONE_LOCATION + "/var/.novnc.lock"
+    NOVNC_LOCK_FILE= ONE_LOCATION + "/.novnc.lock"
 end
 
 TOKEN_EXPIRE_SECONDS = 4
@@ -35,7 +35,7 @@ VNC_STATES = [
         #0,  #LCM_INIT
         #1,  #PROLOG
         #2,  #BOOT
-        "3",  #RUNNING
+        "up",  #3-RUNNING
         "4",  #MIGRATE
         #5,  #SAVE_STOP
         #6,  #SAVE_SUSPEND
@@ -149,30 +149,38 @@ class OpenNebulaVNC
         true
     end
 
-    def proxy(vm_resource)
+    def proxy(vm_resource, id)
         # Check configurations and VM attributes
         if !is_running?
             return error(400, "VNC Proxy is not running")
         end
-
-        if !VNC_STATES.include?(vm_resource['LCM_STATE'])
-            return error(400,"Wrong state (#{vm_resource['LCM_STATE']}) to open a VNC session")
+        vm_data = {}      
+        res = vm_resource.info(id)
+        if res.data[:status].to_i != 200
+           return error(500,"Server Error")   
+        else
+          vm_data = JSON.parse(vm_resource.info_json)        
+        end
+        if !VNC_STATES.include?(vm_data['VM']['STATE'])
+            return error(400,"Wrong state (#{vm_data['VM']['STATE']}) to open a VNC session")
         end
 
-        if vm_resource['TEMPLATE/GRAPHICS/TYPE'].nil? ||
-           vm_resource['TEMPLATE/GRAPHICS/TYPE'].downcase != "vnc"
-            return error(400,"VM has no VNC configured")
-        end
+        #if vm_data['TEMPLATE/GRAPHICS/TYPE'].nil? ||
+         #  vm_resource['TEMPLATE/GRAPHICS/TYPE'].downcase != "vnc"
+         #   return error(400,"VM has no VNC configured")
+        #end
 
         # Proxy data
-        host     = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
-        vnc_port = vm_resource['TEMPLATE/GRAPHICS/PORT']
-        vnc_pw = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
+        #host     = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
+        #vnc_port = vm_resource['TEMPLATE/GRAPHICS/PORT']
+        vnc_pw = vm_data['VM']['TEMPLATE/GRAPHICS/PASSWD']
+         host   =  vm_data['VM']['HOST']
+         vnc_port = vm_data['VM']['ALLOCATED_PORT']
 
         # Generate token random_str: host:port
         random_str = rand(36**20).to_s(36) #random string a-z0-9 length 20
         token = "#{random_str}: #{host}:#{vnc_port}"
-        token_file = 'one-'+vm_resource['ID']
+        token_file = 'one-'+vm_data['VM']['NAME']
 
         # Create token file
         begin
@@ -187,7 +195,7 @@ class OpenNebulaVNC
         info   = {
             :password => vnc_pw,
             :token => random_str,
-            :vm_name => vm_resource['NAME']
+            :vm_name => vm_data['VM']['NAME']
         }
 
         return [200, info.to_json]

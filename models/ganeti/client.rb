@@ -22,7 +22,7 @@ module Ganeti
     def initialize(secret=nil, endpoint=nil, options={})
       @options = {}
       ganeti_endpoint = ENV['GANETI_ENDPOINT']
-      @keystone_endpoint = ENV['KEYSTONE_ENDPOINT']
+      @keystone_endpoint = ENV['KEYSTONE_ENDPOINT_WITH_PORT']
       endpoint ||= ganeti_endpoint
       @token = options["token"]
       Excon.defaults[:ssl_ca_file] = File.expand_path(File.join(File.dirname(__FILE__), "../..", "certs", "rapi_pub.pem"))

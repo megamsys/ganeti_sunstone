@@ -16,9 +16,10 @@
 
 module Ganeti
   class Templates
-    def initialize(client=nil)
+    def initialize(client=nil, options={})
       @path = "/2/os"
       @client = client
+      @user_details = options
     end
 
     # Retrieves the information of the given User.
@@ -42,7 +43,7 @@ module Ganeti
       hash = JSON[template]
       puts hash
       if hash['vmtemplate'].has_key?("DISK")
-        image = hash['vmtemplate']['DISK'][0]['IMAGE']
+        image = hash['vmtemplate']['DISK'][0]['IMAGE_UNAME']
       else
         image = 'debootstrap+default'
       end
@@ -81,8 +82,8 @@ module Ganeti
         network = ''
       end
 
-      time = Time.new
-      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, host_name, machine, kernel_path, initrd, kernel_args, network_name, sshkey, created_at) values(1, '"+data['vmtemplate']['NAME']+"', '"+data['vmtemplate']['MEMORY']+"', '"+disk_size+"', '"+data['vmtemplate']['CPU']+"', '"+image+"', '"+host_name+"', '"+data['vmtemplate']['OS']['MACHINE']+"', '"+data['vmtemplate']['OS']['KERNEL']+"', '"+data['vmtemplate']['OS']['INITRD']+"', '"+data['vmtemplate']['OS']['KERNEL_CMD']+"', '"+network+"', '"+sshkey+"', '"+time.inspect+"')")
+      time = Time.new      
+      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, host_name, machine, kernel_path, initrd, kernel_args, network_name, sshkey, created_at) values(1, '"+data['vmtemplate']['NAME']+"', '"+data['vmtemplate']['MEMORY']+"', '"+disk_size+"', '', '"+image+"', '"+host_name+"', '"+data['vmtemplate']['OS']['MACHINE']+"', '"+data['vmtemplate']['OS']['KERNEL']+"', '"+data['vmtemplate']['OS']['INITRD']+"', '"+data['vmtemplate']['OS']['KERNEL_CMD']+"', '"+network+"', '"+sshkey+"', '"+time.inspect+"')")
       puts rows
       {:status => 200}
     end
@@ -129,14 +130,7 @@ module Ganeti
         },
         "REGTIME"=>tem_data[14],
         "TEMPLATE"=>{
-          "CPU"=>tem_data[5],
           "OS"=>{"MACHINE"=>tem_data[8], "KERNEL_CMD"=>tem_data[11], "KERNEL"=>tem_data[9], "INITRD"=>tem_data[10]},
-          # "EC2"=>{
-          #  "AMI"=>"ami-d85f0c8a",
-          # "INSTANCETYPE"=>"m1.small",
-          # "KEYPAIR"=>"megam_ec2",
-          # "SECURITYGROUPS"=>"megam"
-          # },
           "MEMORY"=>tem_data[3]
         }
       }
@@ -187,16 +181,27 @@ module Ganeti
         "HOST_NAME"=>rows[0][7],
         "NETWORK"=>rows[0][12],
         "REGTIME"=>rows[0][14],
+        "UPDATE_TIME"=>rows[0][15],
         "TEMPLATE"=>{
-          "CPU"=>rows[0][5],
-          "OS"=>{"MACHINE"=>rows[0][8], "KERNEL_CMD"=>rows[0][11], "KERNEL"=>rows[0][9], "INITRD"=>rows[0][10]},
-          #"EC2"=>{
-          #  "AMI"=>"ami-d85f0c8a",
-          # "INSTANCETYPE"=>"m1.small",
-          # "KEYPAIR"=>"megam_ec2",
-          # "SECURITYGROUPS"=>"megam"
-          # },
-          "MEMORY"=>rows[0][3]
+          "OS"=>{
+            "MACHINE"=>rows[0][8],
+            "KERNEL_CMD"=>rows[0][11],
+            "KERNEL"=>rows[0][9],
+            "INITRD"=>rows[0][10]
+          },
+          "MEMORY"=>rows[0][3],
+          "DISK_SIZE"=>rows[0][4],
+          "CONTEXT" =>
+          {
+            "SSH_PUBLIC_KEY" => rows[0][13]
+          },
+          "DISK"=>{
+            "IMAGE"=>rows[0][6],
+            },
+          "NIC" => {
+             "NETWORK" => rows[0][12],
+          },
+           "SCHED_REQUIREMENTS"=> "HOST_NAME=\""+rows[0][7]+"\""
         }
       }
       js
@@ -217,6 +222,7 @@ module Ganeti
       auth_options={}
       admin_username = ENV['GANETI_USER']
       admin_password = ENV['GANETI_PASSWORD']
+      keystone_endpoint = ENV['KEYSTONE_ENDPOINT_WITHOUT_PORT']
       if param["username"] == admin_username && param["password"] == admin_password
         port = 35357
         type = "admin"
@@ -226,7 +232,7 @@ module Ganeti
         type = "user"
         options = {"auth"=>{"passwordCredentials"=>{"username"=> param["username"], "password"=> param["password"]}}}
       end
-      con = Excon.new("http://192.168.2.3:#{port}/v2.0/tokens")
+      con = Excon.new("#{keystone_endpoint}:#{port}/v2.0/tokens")
       auth_options[:method]='POST'
       auth_options[:headers]={ "Content-Type" => "application/json"}
       auth_options[:body]=options.to_json
@@ -244,5 +250,99 @@ module Ganeti
       end
     end
 
-  end
+   def action(id, json)
+     action_json = JSON.parse(json)
+     if action_json["action"]["perform"] == "instantiate" 
+       return instantiate(id, json)
+     elsif action_json["action"]["perform"] == "clone"
+       return clone(id, json)  
+     elsif action_json["action"]["perform"] == "update"
+       return update(id, json)  
+     end
+   end
+
+   def instantiate(id, json)
+      @options = {}
+      post_data = JSON.parse(json)
+      template_id = id.split("-")
+      template_json = getImageJson(template_id[0])
+
+      options = {
+        "__version__" => 1,
+        "disk_template"=> "plain",
+        "disks"=> [{"size"=> template_json["DISK_SIZE"]}],
+        "beparams"=> {"memory"=> template_json["MEMORY"]},
+        "os_type"=> template_json["OS"],
+        "mode"=>"create",
+        #"nics"=>[{"link"=>"br0", "mac"=>"None", "ip"=>"None", "mode"=>"bridged", "vlan"=>"", "network"=>"blue_lan", "name"=> "None", "bridge"=>"br0"}],
+        "nics"=>[{"network"=>template_json['NETWORK'], "ip"=>"pool"}],
+        "ip_check"=> false,
+        "name_check"=>false,
+        "hypervisor"=>template_json['TEMPLATE']['OS']["MACHINE"],
+        "hvparams"=> {
+          "vnc_bind_address" => "0.0.0.0",
+          "kernel_path"=> template_json['TEMPLATE']['OS']['KERNEL'],
+          "initrd_path" => template_json['TEMPLATE']['OS']['INITRD'],
+          "kernel_args" => template_json['TEMPLATE']['OS']['KERNEL_CMD']
+        },
+        "instance_name"=> post_data["action"]["params"]["vm_name"]
+      }
+      if template_json["HOST_NAME"].length > 0
+        options["pnode"]=template_json["HOST_NAME"]
+      end
+      post = @client.call("/2/instances", 'POST', options)
+      puts post.inspect 
+      entry_details = {"template_id" => template_id[0], "vm_name" => post_data["action"]["params"]["vm_name"], "host" => options["pnode"], "os" => template_json["OS"]}
+      instance_entry(post, entry_details)
+      #return post
+      # end
+      post
+    end
+    
+    def instance_entry(options, params)
+      job = options.data[:body]
+      sleep 2
+      job_res = @client.call("/2/jobs/#{job}", 'GET')
+      js = JSON.parse(job_res.data[:body])
+      puts js["status"]
+      if js["status"] != "running"
+        rows = connect.execute("insert into vms(user_name, user_id, tenant_name, tenant_id, vm_name, host, template_id, os, result, job_id) values('"+@user_details['username']+"', '"+@user_details['user_id']+"', '"+@user_details['group_name']+"', '"+@user_details['group_id']+"', '"+params['vm_name']+"', '"+params['host']+"', '"+params['template_id']+"', '"+params['os']+"', 'error', '"+ job +"')")
+      else
+        rows = connect.execute("insert into vms(user_name, user_id, tenant_name, tenant_id, vm_name, host, template_id, os, result, job_id) values('"+@user_details['username']+"', '"+@user_details['user_id']+"', '"+@user_details['group_name']+"', '"+@user_details['group_id']+"', '"+params['vm_name']+"', '"+params['host']+"', '"+params['template_id']+"', '"+params['os']+"', 'success', '"+ job +"')")
+      end
+    end
+
+    def clone(id, json)
+      template_id = id.split("-")
+      template_json = getImageJson(template_id[0])
+      action_json = JSON.parse(json)
+      time = Time.new
+      rows = connect.execute("insert into templates(uid, name, memory, disk_size, cpu, os, host_name, machine, kernel_path, initrd, kernel_args, network_name, sshkey, created_at) values(1, '"+action_json["action"]["params"]["name"]+"', '"+template_json["MEMORY"]+"', '"+template_json["DISK_SIZE"]+"', '', '"+template_json["OS"]+"', '"+template_json["HOST_NAME"]+"', '"+template_json['TEMPLATE']['OS']["MACHINE"]+"', '"+template_json['TEMPLATE']['OS']['KERNEL']+"', '"+template_json['TEMPLATE']['OS']['INITRD']+"', '"+template_json['TEMPLATE']['OS']['KERNEL_CMD']+"', '"+template_json['NETWORK']+"', '"+template_json['TEMPLATE']['CONTEXT']['SSH_PUBLIC_KEY']+"', '"+time.inspect+"')")
+      {:status => 200}
+    end
+    
+    def update(id, json)
+      #action_json = JSON.parse(json)
+      action_json = JSON[json]
+      time = Time.new      
+      template = JSON.parse(action_json["action"]["params"])
+            
+      host_name = (template['vmtemplate']['SCHED_REQUIREMENTS'].split("="))[1]      
+      rows = connect.execute("UPDATE templates SET 
+      memory='"+ template["vmtemplate"]["MEMORY"] + 
+      "', disk_size='" + template["vmtemplate"]["DISK_SIZE"] + 
+      "', os='" + template["vmtemplate"]["DISK"][0]["IMAGE"] + 
+      "', host_name='" + host_name + 
+      "', machine='" + template["vmtemplate"]["OS"]["MACHINE"] +
+      "', kernel_path='" + template["vmtemplate"]["OS"]["KERNEL"] +
+      "', initrd='" + template["vmtemplate"]["OS"]["INITRD"] +
+      "', kernel_args='" + template["vmtemplate"]["OS"]["KERNEL_CMD"] +
+      "', network_name='" + template["vmtemplate"]["NETWORK_NAME"] +
+      "', sshkey='" + template["vmtemplate"]["CONTEXT"]["SSH_PUBLIC_KEY"] +   
+      "', updated_at='" + time.inspect +    
+      "' WHERE id=#{id}")
+      {:status => 200}
+    end
+
+    end
 end 

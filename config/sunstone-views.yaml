@@ -1,5 +1,5 @@
 ---
-logo: images/opennebula-sunstone-v4.0.png
+logo: images/logo-megam12.png
 available_tabs:
     - dashboard-tab
     - system-tab
@@ -10,7 +10,7 @@ available_tabs:
     - vms-tab
     - templates-tab
     - images-tab
-    - files-tab
+ #   - files-tab
     - infra-tab    
     - hosts-tab
     - hgroups-tab
