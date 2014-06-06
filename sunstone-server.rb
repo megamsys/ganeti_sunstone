@@ -18,7 +18,7 @@
 #--------------------------------------------------------------------------- #
 
 #ONE_LOCATION = ENV["ONE_LOCATION"]
-ONE_LOCATION = "/home/rajthilak/code/megam/workspace/ganeti"
+ONE_LOCATION = "/home/rajthilak/code/megam/workspace/ganeti_sunstone"
 if !ONE_LOCATION
   LOG_LOCATION = "/var/log/one"
   VAR_LOCATION = "/var/lib/one"
@@ -127,7 +127,7 @@ $views_config = SunstoneViews.new
 
 #start VNC proxy
 
-#$vnc = OpenNebulaVNC.new($conf, logger)
+$vnc = OpenNebulaVNC.new($conf, logger)
 
 configure do
   set :run, false
@@ -247,14 +247,8 @@ end
 before do
   cache_control :no_store
   content_type 'application/json', :charset => 'utf-8'
-  puts "+++++++++++++++++++++++++"
-  puts request.path
   unless request.path=='/login' || request.path=='/' || request.path=='/vnc' 
-    puts "+++++++++1111++++++++++++++++"
-    puts request.path
     if request.path != '/keys/template'
-      puts "++++++3333+++++++++++++++++++"
-  puts request.path
     halt 401 unless authorized?
     end
   end
@@ -458,6 +452,7 @@ end
 ##############################################################################
 
 get '/:resource/:id/template' do
+  puts "++++++++++++++++get template+++++++++++++++++++"
   @SunstoneServer.get_template(params[:resource], params[:id])
 end
 

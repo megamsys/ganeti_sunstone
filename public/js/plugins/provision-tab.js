@@ -641,7 +641,7 @@ var provision_content = provision_user_info +
   provision_list_vms +
   provision_list_templates ;
 var provision_tab = {
-  list_header: '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
+  list_header: '<img src="images/logo-megam160x43.png" style="height:40px; vertical-align:top">'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
    '<ul class="inline-list text-center" style="font-size:12px">'+
     '<li>'+
@@ -862,8 +862,9 @@ var povision_actions = {
       call: OpenNebula.VM.startvnc,
       callback: function(request, response) {
         var proxy_host = window.location.hostname;
-        var proxy_port = config['system_config']['vnc_proxy_port'];
-        var pw = response["password"];
+        //var proxy_port = config['system_config']['vnc_proxy_port'];
+        var proxy_port = 29876;
+        var pw = response["password"];       
         var token = response["token"];
         var vm_name = response["vm_name"];
         var path = '?token='+token;
@@ -873,7 +874,8 @@ var povision_actions = {
         url += "&port=" + proxy_port;
         url += "&token=" + token;
         url += "&password=" + pw;
-        url += "&encrypt=" + config['user_config']['vnc_wss'];
+        //url += "&encrypt=" + config['user_config']['vnc_wss'];
+        url += "&encrypt=" + config['vnc_wss'];
         url += "&title=" + vm_name;
 
         window.open(url, '', '_blank');
@@ -1381,7 +1383,7 @@ function update_provision_vm_info(data) {
   }
 
   var context = $("#provision_info_vm");
-  $("#provision_info_vm").attr("vm_id", data.ID);
+  $("#provision_info_vm").attr("vm_id", data.NAME);
   $("#provision_info_vm_name", context).text(data.NAME);
 
   $("#provision_info_vm_resume").html('<ul class="inline-list" style="color: #555; font-size: 14px;">'+
@@ -2178,14 +2180,14 @@ $(document).ready(function(){
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-     // "aaSorting" : [[0, "desc"]],
+      "aaSorting" : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
       ],
-     // "aoColumns": [
-     // { "mDataProp": "VM.ID" },
-       // { "mDataProp": "VM.NAME" }
-     // ],
+      "aoColumns": [
+      { "mDataProp": "VM.ID" },
+        { "mDataProp": "VM.NAME" }
+      ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the
 		// dataTables_scrollbody div

@@ -123,13 +123,14 @@ var change_password_tmpl = '<div class="row">\
 <form id="change_password_form" action="">\
   <div class="row">\
     <div class="large-12 columns">\
-      <label for="driver">'+tr("Authentication")+':\
-        '+auth_drivers_div+'\
+      <label for="driver">'+tr("Authentication")+':'+
+       // '+auth_drivers_div+'\
+    	 '<h3 class="subheader">'+tr("Keystone")+'</h3>\
       </label>\
     </div>\
   </div>\
   <div class="form_buttons">\
-    <button class="button radius right success" id="change_password_submit" type="submit" value="User.change_authentication">'+tr("Change")+'</button>\
+    <button class="button radius right success" id="change_password_submit" type="submit" value="User.change_authentication" style="display: none;">'+tr("Change")+'</button>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
@@ -402,10 +403,10 @@ var user_actions = {
         error: onError
     },
 
-    "User.quotas_dialog" : {
-        type: "custom",
-        call: popUpUserQuotasDialog
-    },
+  //  "User.quotas_dialog" : {
+  //      type: "custom",
+  //      call: popUpUserQuotasDialog
+  //  },
 
     "User.set_quota" : {
         type: "multiple",
@@ -454,12 +455,12 @@ var user_buttons = {
         layout: "main_buttons",
         text : tr("Auth")
     },
-    "User.quotas_dialog" : {
-        type : "action",
-        layout: "main_buttons",
-        text : tr("Quotas"),
-        condition: mustBeAdmin
-    },
+   // "User.quotas_dialog" : {
+   //     type : "action",
+   //     layout: "main_buttons",
+   //     text : tr("Quotas"),
+   //     condition: mustBeAdmin
+   // },
     "User.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
@@ -497,10 +498,10 @@ var user_info_panel = {
         title: tr("Information"),
         content:""
     },
-    "user_quotas_tab" : {
-        title: tr("Quotas"),
-        content:""
-    },
+  //  "user_quotas_tab" : {
+  //      title: tr("Quotas"),
+  //      content:""
+  //  },
     //"user_acct_tab" : {
     //    title: tr("Historical usages"),
     //    content: ""
@@ -576,7 +577,7 @@ function userElementArray(user_json){
 
 
     return [
-        '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+"-"+user.NAME+'"/>',
         user.ID,
         user.NAME,
         "",
@@ -719,14 +720,14 @@ function updateUserInfo(request,user){
             </div>'
     }
 
-    var quotas_tab = {
-        title : tr("Quotas"),
-        icon: "fa-align-left",
-        content : quotas_html
-    };
+  //  var quotas_tab = {
+     //   title : tr("Quotas"),
+    //    icon: "fa-align-left",
+    //    content : quotas_html
+    //};
 
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
+   // Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
 };

@@ -22,9 +22,12 @@ module Ganeti
       @VM_METHODS = {
             "resume"     => {"METHOD" => "PUT", "ACTION" => "startup"},
             "stop"       => {"METHOD" => "PUT", "ACTION" => "shutdown"},
+            "shutdown"   => {"METHOD" => "PUT", "ACTION" => "shutdown"},
             "reboot"     => {"METHOD" => "POST", "ACTION" => "reboot"},
-            "reset"      => {"METHOD" => "POST", "ACTION" => "reboot", "options" => {"type" => "hard"}}
-        }
+            "reset"      => {"METHOD" => "POST", "ACTION" => "reboot", "options" => {"type" => "hard"}},
+            "resubmit"   => {"METHOD" => "POST", "ACTION" => "reboot", "options" => {"type" => "full"}}, 
+            "cancel"     => {"METHOD" => "DELETE", "ACTION" => "delete"}
+         }
       @user_details = options
     end
 
@@ -364,8 +367,13 @@ module Ganeti
     def action(id, action_json)
       json = JSON.parse(action_json)
       data = @VM_METHODS[json["action"]["perform"]]
-      res = @client.call(@path+"/"+id+"/"+data["ACTION"], data["METHOD"], data["options"])
-      res
+      if data["ACTION"] == "delete"
+        purge(id)
+        return delete(id)
+      else
+        res = @client.call(@path+"/"+id+"/"+data["ACTION"], data["METHOD"], data["options"])
+      return res
+      end
     end
 
     def instance_entry(options, params)

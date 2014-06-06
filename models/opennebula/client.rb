@@ -17,7 +17,7 @@
 require 'xmlrpc/client'
 require 'bigdecimal'
 require 'stringio'
-require "excon"
+#require "excon"
 
 module OpenNebula
   attr_accessor   :pool_page_size

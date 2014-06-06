@@ -443,56 +443,56 @@ var image_buttons = {
 //        layout: "top",
 //        alwaysActive: true
 //    },
-    "Image.create_dialog" : {
-        type: "create_dialog",
-        layout: "create"
-    },
-    "Image.chown" : {
-        type: "confirm_with_select",
-        text: tr("Change owner"),
-        layout: "user_select",
-        select: "User",
-        tip: tr("Select the new owner")+":",
-        condition: mustBeAdmin
-    },
-    "Image.chgrp" : {
-        type: "confirm_with_select",
-        text: tr("Change group"),
-        layout: "user_select",
-        select: "Group",
-        tip: tr("Select the new group")+":",
-        condition: mustBeAdmin
-    },
-    "Image.enable" : {
-        type: "action",
-        layout: "more_select",
-        text: tr("Enable")
-    },
-    "Image.disable" : {
-        type: "action",
-        layout: "more_select",
-        text: tr("Disable")
-    },
-    "Image.persistent" : {
-        type: "action",
-        layout: "more_select",
-        text: tr("Make persistent")
-    },
-    "Image.nonpersistent" : {
-        type: "action",
-        layout: "more_select",
-        text: tr("Make non persistent")
-    },
-    "Image.clone_dialog" : {
-        type: "action",
-        layout: "main",
-        text: tr("Clone")
-    },
-    "Image.delete" : {
-        type: "confirm",
-        layout: "del",
-        text: tr("Delete")
-    },
+  //  "Image.create_dialog" : {
+   //     type: "create_dialog",
+   //     layout: "create"
+   // },
+  //  "Image.chown" : {
+    //    type: "confirm_with_select",
+    //    text: tr("Change owner"),
+    //    layout: "user_select",
+    //    select: "User",
+    //    tip: tr("Select the new owner")+":",
+    //    condition: mustBeAdmin
+  //  },
+   // "Image.chgrp" : {
+   //     type: "confirm_with_select",
+    //    text: tr("Change group"),
+    //    layout: "user_select",
+    //    select: "Group",
+    //    tip: tr("Select the new group")+":",
+   //     condition: mustBeAdmin
+   // },
+   // "Image.enable" : {
+   //     type: "action",
+   //     layout: "more_select",
+  //      text: tr("Enable")
+  //  },
+   // "Image.disable" : {
+   //     type: "action",
+    //    layout: "more_select",
+     //   text: tr("Disable")
+   // },
+   // "Image.persistent" : {
+   //     type: "action",
+   //     layout: "more_select",
+   //     text: tr("Make persistent")
+  //  },
+   // "Image.nonpersistent" : {
+    //    type: "action",
+    //    layout: "more_select",
+    //    text: tr("Make non persistent")
+   // },
+  //  "Image.clone_dialog" : {
+     //   type: "action",
+    //    layout: "main",
+     //   text: tr("Clone")
+   // },
+  //  "Image.delete" : {
+    //    type: "confirm",
+      //  layout: "del",
+      //  text: tr("Delete")
+   // },
 }
 
 var image_info_panel = {
@@ -515,22 +515,22 @@ var images_tab = {
     list_header: '<i class="fa fa-fw fa-upload"></i>&emsp;'+tr("Images"),
     info_header: '<i class="fa fa-fw fa-upload"></i>&emsp;'+tr("Image"),
     subheader: '<span class="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;\
-        <span class="size_images"/> <small>'+tr("USED")+'</small>',
+        <span class="size_images" style="display: none;"/> <small style="display: none;">'+tr("USED")+'</small>',
     table: '<table id="datatable_images" class="datatable twelve">\
         <thead>\
           <tr>\
             <th class="check"><input type="checkbox" value=""></input></th>\
             <th>'+tr("ID")+'</th>\
-            <th>'+tr("Owner")+'</th>\
-            <th>'+tr("Group")+'</th>\
             <th>'+tr("Name")+'</th>\
-            <th>'+tr("Status")+'</th>\
-            <th>'+tr("Type")+'</th>\
-            <th>'+tr("Registration time")+'</th>\
-            <th>'+tr("Persistent")+'</th>\
-            <th>'+tr("Size")+'</th>\
-            <th>'+tr("#VMS")+'</th>\
-            <th>'+tr("Target")+'</th>\
+            <th style="display: none;">'+tr("Group")+'</th>\
+            <th style="display: none;">'+tr("Owner")+'</th>\
+            <th style="display: none;">'+tr("Status")+'</th>\
+            <th style="display: none;">'+tr("Type")+'</th>\
+            <th style="display: none;">'+tr("Registration time")+'</th>\
+            <th style="display: none;">'+tr("Persistent")+'</th>\
+            <th style="display: none;">'+tr("Size")+'</th>\
+            <th style="display: none;">'+tr("#VMS")+'</th>\
+            <th style="display: none;">'+tr("Target")+'</th>\
           </tr>\
         </thead>\
         <tbody id="tbodyimages">\
@@ -564,18 +564,34 @@ function imageElementArray(image_json){
     return [
         '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'-'+image.NAME+'"/>',
         image.ID,
-        image.UNAME,
-        image.GNAME,
-        image.NAME,        
-        OpenNebula.Helper.resource_state("image",image.STATE),
-        OpenNebula.Helper.image_type(image.TYPE),
-        pretty_time(image.REGTIME),
-        image.DATASTORE,
-        parseInt(image.PERSISTENT) ? "yes" : "no",
-        image.SIZE,
-        image.RUNNING_VMS,
-        image.TEMPLATE.TARGET ? image.TEMPLATE.TARGET : '--'
+        image.NAME,
+        "",
+        "",        
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
         ];
+ /*   
+    return [
+            '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'-'+image.NAME+'"/>',
+            image.ID,
+            image.NAME,
+            image.GNAME,
+            image.UNAME,        
+            OpenNebula.Helper.resource_state("image",image.STATE),
+            OpenNebula.Helper.image_type(image.TYPE),
+            pretty_time(image.REGTIME),
+            image.DATASTORE,
+            parseInt(image.PERSISTENT) ? "yes" : "no",
+            image.SIZE,
+            image.RUNNING_VMS,
+            image.TEMPLATE.TARGET ? image.TEMPLATE.TARGET : '--'
+            ];*/
 }
 
 // Callback to update an element in the dataTable
@@ -639,12 +655,12 @@ function updateImageInfo(request,img){
                 "Image",
                 img_info.ID,
                 img_info.NAME)+
-           '<tr>\
+           '<tr style="display: none;">\
               <td class="key_td">'+tr("Datastore")+'</td>\
               <td class="value_td">'+img_info.DATASTORE+'</td>\
               <td></td>\
            </tr>\
-           <tr>\
+           <tr style="display: none;">\
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
              <td><div id="div_edit_chg_type">\
@@ -652,12 +668,12 @@ function updateImageInfo(request,img){
                  </div>\
              </td>\
            </tr>\
-           <tr>\
+           <tr style="display: none;">\
              <td class="key_td">'+tr("Register time")+'</td>\
              <td class="value_td">'+pretty_time(img_info.REGTIME)+'</td>\
               <td></td>\
            </tr>\
-           <tr>\
+           <tr style="display: none;">\
              <td class="key_td">'+tr("Persistent")+'</td>\
              <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
              <td><div id="div_edit_persistency">\
@@ -665,29 +681,29 @@ function updateImageInfo(request,img){
                  </div>\
              </td>\
            </tr>\
-           <tr>\
+           <tr style="display: none;">\
               <td class="key_td">'+tr("Filesystem type")+'</td>\
               <td class="value_td">'+(typeof img_info.FSTYPE === "string" ? img_info.FSTYPE : "--")+'</td>\
               <td></td>\
            </tr>\
-           <tr>\
+           <tr style="display: none;">\
               <td class="key_td">'+tr("Size")+'</td>\
               <td class="value_td">'+humanize_size_from_mb(img_info.SIZE)+'</td>\
               <td></td>\
            </tr>\
-           <tr>\
+           <tr style="display: none;">\
               <td class="key_td">'+tr("State")+'</td>\
               <td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
               <td></td>\
            </tr>\
-           <tr>\
+           <tr style="display: none;">\
               <td class="key_td">'+tr("Running VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
               <td></td>\
            </tr>\
         </table>\
        </div>\
-       <div class="large-6 columns">' +
+       <div class="large-6 columns" style="display: none;">' +
          insert_permissions_table('images-tab',
                                      "Image",
                                      img_info.ID,

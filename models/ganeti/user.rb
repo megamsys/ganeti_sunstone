@@ -53,7 +53,7 @@ module Ganeti
     # Class constructor
     def initialize(client)
       @path = "/2/info"
-      @endpoint = ENV['KEYSTONE_ENDPOINT']
+      @endpoint = ENV['KEYSTONE_ENDPOINT_WITHOUT_PORT']
       @client = client
     end
 
@@ -69,7 +69,7 @@ module Ganeti
         }
       return res
       else
-        con = Excon.new("http://192.168.2.3:5000/v2.0/tenants")
+        con = Excon.new("#{@endpoint}:5000/v2.0/tenants")
         @options[:method]='GET'
         @options[:headers]={ "Content-Type" => "application/json", "X-Auth-Token" => params["token"]}
         res = con.request(@options)
@@ -197,7 +197,8 @@ module Ganeti
 
     # Retrieves the information of the given User.
     def info(params)
-      @info = @client.keystone("users/#{params}", 'GET')
+      user_id = (params.split("-"))[0]
+      @info = @client.keystone("users/#{user_id}", 'GET')
       @info["response"]
     end
 
@@ -261,11 +262,18 @@ module Ganeti
       create["response"]
     end
 
-    def action(id, action_json)
-      json = JSON.parse(action_json)      
+    def action(params, action_json)
+      user_id = (params.split("-"))[0]
+      json = JSON.parse(action_json)  
       case "#{json['action']['perform']}"
       when "addgroup"
-        return addgroup(id, json)
+        return addgroup(user_id, json)
+      when "passwd"  
+        return change_password(user_id, json)
+      when "chgrp"
+        return addgroup(user_id, json)  
+    #  when "delgroup"
+     #   return delgroup(user_id, json)  
       end
     end
 
@@ -279,10 +287,31 @@ module Ganeti
       create = @client.keystone("users/#{id}", 'PUT', contents)
       create["response"]
     end
-
+=begin    
+    def delgroup(id, json)
+      gid = json['action']['params']['group_id'].split(":")
+      contents = {
+        "user" => {
+          "tenantId" => "null"
+        }
+      }
+      create = @client.keystone("users/#{id}", 'PUT', contents)
+      create["response"]
+    end
+=end
     def delete(id)
       del = @client.keystone("users/#{id}", 'DELETE')
       del["response"]
+    end
+    
+    def change_password(id, json)
+      contents = {
+        "user" => {
+          "password"=> json['action']['params']['password']
+        }
+      }
+      create = @client.keystone("users/#{id}", 'PUT', contents)
+      create["response"]
     end
 
     alias_method :info!, :info

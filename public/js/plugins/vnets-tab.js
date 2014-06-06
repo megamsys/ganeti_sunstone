@@ -551,14 +551,14 @@ var vnet_buttons = {
         layout: "create"
     },
 
-    "Network.addtocluster" : {
-        type: "confirm_with_select",
-        text: tr("Select cluster"),
-        layout: "main",
-        select: "Cluster",
-        tip: tr("Select the destination cluster:"),
-        condition: mustBeAdmin
-    },
+   // "Network.addtocluster" : {
+    //    type: "confirm_with_select",
+    //    text: tr("Select cluster"),
+    //    layout: "main",
+    //    select: "Cluster",
+    //    tip: tr("Select the destination cluster:"),
+    //    condition: mustBeAdmin
+   // },
   /*  "Network.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
@@ -607,10 +607,10 @@ var vnet_info_panel = {
         title: tr("Virtual network information"),
         content: ""
     },
-    "vnet_leases_tab" : {
-        title: tr("Lease management"),
-        content: ""
-    }
+  //  "vnet_leases_tab" : {
+    //    title: tr("Lease management"),
+    //    content: ""
+   // }
 }
 
 var vnets_tab = {
@@ -778,7 +778,7 @@ function updateVNetworkInfo(request,vn){
           <tr>'+        
          '</table>\
         </div>\
-        <div class="large-6 columns">' +
+        <div class="large-6 columns" style="display: none;">' +
             insert_permissions_table('vnets-tab',
                                        "Network",
                                        vn_info.ID,
@@ -788,7 +788,7 @@ function updateVNetworkInfo(request,vn){
                                        vn_info.GID) +
         '</div>\
       </div>\
-      <div class="row">\
+      <div class="row" >\
         <div class="large-9 columns">' +
             insert_extended_template_table(vn_info.TEMPLATE,
                                                        "Network",
@@ -803,15 +803,15 @@ function updateVNetworkInfo(request,vn){
         content: info_tab_content
     };
 
-    var leases_tab = {
-        title: tr("Leases"),
-        icon: "fa-list-ul",
-        content: printLeases(vn_info)
-    };
+   // var leases_tab = {
+    //    title: tr("Leases"),
+    //    icon: "fa-list-ul",
+    //    content: printLeases(vn_info)
+   // };
 
 
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
+   // Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
 
     Sunstone.popUpInfoPanel("vnet_info_panel", "vnets-tab");
 

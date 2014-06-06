@@ -88,10 +88,7 @@ module Ganeti
             },
             "CLONES"=>{
             },
-            "TEMPLATE"=>{
-              "DESCRIPTION"=>"sample",
-              "DEV_PREFIX"=>"hd"
-            }
+            "TEMPLATE"=>{}
           }
          js 
     end

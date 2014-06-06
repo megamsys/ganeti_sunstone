@@ -379,17 +379,17 @@ var hgroup_buttons = {
         layout: "create",
         condition: mustBeAdmin
     },
-    "HGroup.update_dialog" : {
-        type : "action",
-        layout: "main",
-        text : tr("Update")
-    },
-    "HGroup.quotas_dialog" : {
-        type : "action",
-        text : tr("Quotas"),
-        layout: "main",
-        condition: mustBeAdmin
-    },
+  //  "HGroup.update_dialog" : {
+   //     type : "action",
+    //    layout: "main",
+    //    text : tr("Update")
+   // },
+   // "HGroup.quotas_dialog" : {
+    //    type : "action",
+    //    text : tr("Quotas"),
+      //  layout: "main",
+     //   condition: mustBeAdmin
+   // },
     "HGroup.delete" : {
         type: "confirm",
         text: tr("Delete"),
@@ -422,8 +422,8 @@ var hgroups_tab = {
           <th>'+tr("Name")+'</th>\
           <th>'+tr("Hosts")+'</th>\
           <th>'+tr("Cluster")+'</th>\
-          <th>'+tr("Memory")+'</th>\
-          <th>'+tr("CPU")+'</th>\
+          <th style="display: none;">'+tr("Memory")+'</th>\
+          <th style="display: none;">'+tr("CPU")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodyhgroups">\
@@ -497,8 +497,10 @@ function hgroupElementArray(hgroup_json){
         hgroup.NAME,
         hgroup.NOOFHOSTS,
         hgroup.CLUSTER,
-        memory,
-        cpu
+        "",
+        ""
+       // memory,
+     //   cpu
     ];
 }
 

@@ -35,6 +35,7 @@ module SunstoneCloudAuth
       tenant={}
       admin_username = ENV['GANETI_USER']
       admin_password = ENV['GANETI_PASSWORD']
+      endpoint = ENV['KEYSTONE_ENDPOINT_WITHOUT_PORT']
       if username == admin_username && password == admin_password
         port = 35357
         type = "admin"
@@ -44,7 +45,7 @@ module SunstoneCloudAuth
         type = "user"
         options = {"auth"=>{"passwordCredentials"=>{"username"=> username, "password"=> password}}}
       end
-      con = Excon.new("http://192.168.2.3:#{port}/v2.0/tokens")
+      con = Excon.new("#{endpoint}:#{port}/v2.0/tokens")
       @options[:method]='POST'
       @options[:headers]={ "Content-Type" => "application/json"}      
       @options[:body]=options.to_json

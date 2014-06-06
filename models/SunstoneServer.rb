@@ -206,7 +206,7 @@ class SunstoneServer < CloudServer
     when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
     when "image"      then Ganeti::Images.new(@client)
-    when "vmtemplate" then Ganeti::Templates.new(@client)
+    when "vmtemplate" then Ganeti::Templates.new(@client, options)
     when "vm"         then Ganeti::VirtualMachines.new(@client, options)
     when "vnet"       then Ganeti::VirtualNetworks.new(@client)
     when "user"       then Ganeti::User.new(@client)
@@ -216,13 +216,18 @@ class SunstoneServer < CloudServer
     error = Error.new("Error: #{kind} resource not supported")
     return error
     end
+    puts kind
+    puts id
+    puts action_json
     res = resource.action(id, action_json)   
-    resource.call
+   #resource.call
+   resource.info(id)
+   puts res.inspect
     if res[:status].to_i != 200
-      return [500, resource.to_json]
+      return [500, resource.info_json]
     else
     #resource.info
-      return [201, resource.to_json]
+      return [200, resource.info_json]
     end
   end
 
@@ -260,7 +265,7 @@ class SunstoneServer < CloudServer
       return [404, resource.to_json]
     end
 
-    return vnc.proxy(resource)
+    return vnc.proxy(resource, id)
   end
 
   ########################################################################
