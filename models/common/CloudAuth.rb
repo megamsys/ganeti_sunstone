@@ -1,38 +1,34 @@
-# -------------------------------------------------------------------------- #
-# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
-#                                                                            #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
-# not use this file except in compliance with the License. You may obtain    #
-# a copy of the License at                                                   #
-#                                                                            #
-# http://www.apache.org/licenses/LICENSE-2.0                                 #
-#                                                                            #
-# Unless required by applicable law or agreed to in writing, software        #
-# distributed under the License is distributed on an "AS IS" BASIS,          #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
-# See the License for the specific language governing permissions and        #
-# limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# Copyright [2013-2014] [Megam Systems]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 
 require 'thread'
 
 class CloudAuth
     # These are the authentication methods for the user requests
     AUTH_MODULES = {
-        "occi"       => 'OCCICloudAuth',
-        "sunstone"   => 'SunstoneCloudAuth' ,
-        "ec2"        => 'EC2CloudAuth',
-        "x509"       => 'X509CloudAuth',
-        "opennebula" => 'OpenNebulaCloudAuth',
-        "onegate"    => 'OneGateCloudAuth'
+        "sunstone"   => 'SunstoneCloudAuth'
     }
 
     # These are the authentication modules for the OpenNebula requests
     # Each entry is an array with the filename  for require and class name
     # to instantiate the object.
     AUTH_CORE_MODULES = {
-       "cipher" => [ 'server_cipher_auth', 'ServerCipherAuth' ],
-       "x509"   => [ 'server_x509_auth',   'ServerX509Auth' ]
+      # "cipher" => [ 'server_cipher_auth', 'ServerCipherAuth' ],
+       #"x509"   => [ 'server_x509_auth',   'ServerX509Auth' ]
+       "cipher" => [ 'server_cipher_auth', 'Ganeti::ServerCipherAuth' ]
     }
 
     # Default interval for timestamps. Tokens will be generated using the same
@@ -62,7 +58,7 @@ class CloudAuth
 
         # ------ Load Authorization Modules ------
 
-        if AUTH_MODULES.include?(@conf[:auth])
+        if AUTH_MODULES.include?(@conf[:auth])         
             require 'common/CloudAuth/' + AUTH_MODULES[@conf[:auth]]
             extend Kernel.const_get(AUTH_MODULES[@conf[:auth]])
 
@@ -80,14 +76,15 @@ class CloudAuth
         end
 
         begin
-            require "opennebula/#{core_auth[0]}"
+          puts core_auth[0]
+            require "ganeti/#{core_auth[0]}"           
             @server_auth = Kernel.const_get(core_auth[1]).new_client
         rescue => e
             raise e.message
         end
     end
 
-    # Generate a new OpenNebula client for the target User, if the username
+    # Generate a new Megam client for the target User, if the username
     # is nil the Client is generated for the server_admin
     # username:: _String_ Name of the User
     # [return] _Client_
@@ -109,13 +106,9 @@ class CloudAuth
         end
         token = @server_auth.login_token(expiration_time,user_name)
         if endpoint and endpoint != "-"
-            logger.info { "---------1111111-" }
             #return OpenNebula::Client.new(token,endpoint)
             return Ganeti::Client.new("", "")
         else
-          logger.info { "-------222222--------" }
-          puts "--------------22222222222----------"
-          puts params
             return Ganeti::Client.new(token,@conf[:one_xmlrpc], params)
             #return OpenNebula::Client.new("", "")
         end
@@ -184,7 +177,7 @@ class CloudAuth
             if Time.now.to_i > @upool_expiration_time
                 @logger.info { "Updating user pool cache." }
 
-                @user_pool = OpenNebula::UserPool.new(oneadmin_client)
+                @user_pool = Ganeti::UserPool.new(oneadmin_client)
 
                 rc = @user_pool.info
                 raise rc.message if OpenNebula.is_error?(rc)

@@ -17,8 +17,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#ONE_LOCATION = ENV["ONE_LOCATION"]
-ONE_LOCATION = "/home/rajthilak/code/megam/workspace/ganeti_sunstone"
+ONE_LOCATION = ENV["MEGANETI_HOME_URL"]
 if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"

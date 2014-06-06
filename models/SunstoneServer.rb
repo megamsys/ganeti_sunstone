@@ -1,31 +1,23 @@
-# -------------------------------------------------------------------------- #
-# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
-#                                                                            #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
-# not use this file except in compliance with the License. You may obtain    #
-# a copy of the License at                                                   #
-#                                                                            #
-# http://www.apache.org/licenses/LICENSE-2.0                                 #
-#                                                                            #
-# Unless required by applicable law or agreed to in writing, software        #
-# distributed under the License is distributed on an "AS IS" BASIS,          #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
-# See the License for the specific language governing permissions and        #
-# limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
-
+# Copyright [2013-2014] [Megam Systems]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 require 'common/CloudServer'
-require 'OpenNebulaJSON'
 
-include OpenNebulaJSON
-
-require 'OpenNebulaVNC'
-require 'OpenNebulaJSON/JSONUtils'
-
-include JSONUtils
+require 'MegamVNC'
 class SunstoneServer < CloudServer
   # FLAG that will filter the elements retrieved from the Pools
-  POOL_FILTER = Pool::INFO_ALL
+  #POOL_FILTER = Pool::INFO_ALL
 
   # Secs to sleep between checks to see if image upload to repo is finished
   IMAGE_POLL_SLEEP_TIME = 5
@@ -39,12 +31,11 @@ class SunstoneServer < CloudServer
   ############################################################################
   def get_pool(kind,gid, client=nil, options)
     client = @client if !client
-    if gid == "0"
-      user_flag = Pool::INFO_ALL
-    else
-      user_flag = POOL_FILTER
-    end
-    puts "----------------------get pool----------------------------"
+   # if gid == "0"
+    #  user_flag = Pool::INFO_ALL
+   # else
+      #user_flag = POOL_FILTER
+   # end
     pool = case kind
     when "group"      then Ganeti::Tenants.new(client)
     when "host"       then Ganeti::Hosts.new(client)
@@ -74,7 +65,6 @@ class SunstoneServer < CloudServer
   ############################################################################
   def get_resource(kind, id, options)
     #resource = retrieve_resource(kind, id)
-     puts "----------------------get resourse----------------------------"
     resource = case kind
     when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
@@ -103,7 +93,6 @@ class SunstoneServer < CloudServer
   #
   ############################################################################
   def get_template(kind,id)
-     puts "----------------------get template----------------------------"
     resource = retrieve_resource(kind,id)
     if OpenNebula.is_error?(resource)
       return [404, resource.to_json]
@@ -201,7 +190,6 @@ class SunstoneServer < CloudServer
   ############################################################################
   def perform_action(kind, id, action_json, options)
     #resource = retrieve_resource(kind, id)
-     puts "----------------------perform action----------------------------"
     resource = case kind
     when "group"     then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)
@@ -215,14 +203,9 @@ class SunstoneServer < CloudServer
     else
     error = Error.new("Error: #{kind} resource not supported")
     return error
-    end
-    puts kind
-    puts id
-    puts action_json
+    end   
     res = resource.action(id, action_json)   
-   #resource.call
-   resource.info(id)
-   puts res.inspect
+    resource.info(id)
     if res[:status].to_i != 200
       return [500, resource.info_json]
     else
@@ -400,24 +383,6 @@ class SunstoneServer < CloudServer
   #
   ############################################################################
   def retrieve_resource(kind, id, options= {})
-=begin
-resource = case kind
-when "group"      then GroupJSON.new_with_id(id, @client)
-when "cluster"    then ClusterJSON.new_with_id(id, @client)
-when "host"       then HostJSON.new_with_id(id, @client)
-when "image"      then ImageJSON.new_with_id(id, @client)
-when "vmtemplate" then TemplateJSON.new_with_id(id, @client)
-when "vm"         then VirtualMachineJSON.new_with_id(id, @client)
-when "vnet"       then VirtualNetworkJSON.new_with_id(id, @client)
-when "user"       then UserJSON.new_with_id(id, @client)
-when "acl"        then AclJSON.new_with_id(id, @client)
-when "datastore"  then DatastoreJSON.new_with_id(id, @client)
-when "zone"       then ZoneJSON.new_with_id(id, @client)
-else
-error = Error.new("Error: #{kind} resource not supported")
-return error
-end
-=end
     resource = case kind
     when "group"      then Ganeti::Tenants.new(@client)
     when "host"       then Ganeti::Hosts.new(@client)

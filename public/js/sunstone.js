@@ -1,18 +1,18 @@
- /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* 
+ ** Copyright [2013-2014] [Megam Systems]
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ **
+ ** http://www.apache.org/licenses/LICENSE-2.0
+ **
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ */
 
 /*!
  * jQuery Cookie Plugin v1.4.0
@@ -230,7 +230,7 @@ var Sunstone = {
         delete SunstoneCfg["info_panels"][panel_name][panel_tab_id];
     },
 
-    //Runs a predefined action. Wraps the calls to opennebula.js and
+    //Runs a predefined action. Wraps the calls to megam.js and
     //can be use to run action depending on conditions and notify them
     //if desired. Returns 1 if some problem has been detected: i.e
     //the condition to run the action is not met, the action is not found
@@ -261,9 +261,9 @@ var Sunstone = {
         var err = action_cfg["error"];
 
         //We ease the use of:
-        // * "create" calls to opennebula.js
-        // * "single" element calls to opennebula.js
-        // * "list" (get the pool of elements) calls to opennebula.js
+        // * "create" calls to megam.js
+        // * "single" element calls to megam.js
+        // * "list" (get the pool of elements) calls to megam.js
         // * "monitor_global" (returns monitoring info from a pool of elements
         // * "monitor_single" (returns monitoring info from 1 element)
         // * "multiple" - actions to be run on a given list of elements
