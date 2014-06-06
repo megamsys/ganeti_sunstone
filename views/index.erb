@@ -3,37 +3,37 @@
   <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenNebula Sunstone: Cloud Operations Center</title>
+    <title>Ganeti Sunstone: Cloud Operations Center</title>
     <link href="images/favicon.ico" rel="shortcut icon"></link>
-    <script src="vendor/4.0/jquery-1.11.0.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/4.0/jquery-migrate-1.2.1.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/4.0/jgrowl/jquery.jgrowl.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/4.0/datatables/jquery.dataTables.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.pie.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.resize.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.stack.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/fileuploader/fileuploader.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/4.0/nouislider/jquery.nouislider.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/4.0/jdpicker_1.1/jquery.jdpicker.js"?v=<%= OpenNebula::VERSION %> type="text/javascript"></script>
-    <link href="vendor/4.0/jgrowl/jquery.jgrowl.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
-    <link rel="stylesheet" href="vendor/4.0/fontawesome/css/font-awesome.min.css?v=<%= OpenNebula::VERSION %>"></link>
-    <link href="vendor/4.0/nouislider/nouislider.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
-    <link href="vendor/4.0/jdpicker_1.1/jdpicker.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
+    <script src="vendor/4.0/jquery-1.11.0.min.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/jquery-migrate-1.2.1.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/jgrowl/jquery.jgrowl.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/datatables/jquery.dataTables.min.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/flot/jquery.flot.min.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/flot/jquery.flot.pie.min.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/flot/jquery.flot.resize.min.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/flot/jquery.flot.stack.min.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/fileuploader/fileuploader.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/nouislider/jquery.nouislider.min.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/jdpicker_1.1/jquery.jdpicker.js"?v=<%= Ganeti::VERSION %> type="text/javascript"></script>
+    <link href="vendor/4.0/jgrowl/jquery.jgrowl.css?v=<%= Ganeti::VERSION %>" rel="stylesheet" type="text/css"></link>
+    <link rel="stylesheet" href="vendor/4.0/fontawesome/css/font-awesome.min.css?v=<%= Ganeti::VERSION %>"></link>
+    <link href="vendor/4.0/nouislider/nouislider.css?v=<%= Ganeti::VERSION %>" rel="stylesheet" type="text/css"></link>
+    <link href="vendor/4.0/jdpicker_1.1/jdpicker.css?v=<%= Ganeti::VERSION %>" rel="stylesheet" type="text/css"></link>
     <!--[if lte IE 8]
       <script src="vendor/explorercanvas/excanvas.compiled.js" type="text/javascript"></script>
     -->
 
-    <script src="vendor/4.0/foundation/modernizr.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/foundation.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/foundation/modernizr.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/foundation/foundation.min.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
 
     <% if session[:lang] %>
-      <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+      <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
     <% end %>
     <script src="vendor/4.0/foundation_datatables/datatables.foundation.js" type="text/javascript"></script>
-    <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
-    <script src="js/opennebula.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-    <script src="js/sunstone.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <link href="css/app.css?v=<%= Ganeti::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
+    <script src="js/megam.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
+    <script src="js/sunstone.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
     
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
     <script>
@@ -60,10 +60,10 @@
 
     
     </script>
-    <script src="js/plugins/config-tab.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="js/plugins/config-tab.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
     <!-- enabled tabs: -->
     <% $views_config.available_tabs.each do |tab_name| %>
-        <script src="js/plugins/<%= tab_name %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+        <script src="js/plugins/<%= tab_name %>.js?v=<%= Ganeti::VERSION %>" type="text/javascript"></script>
     <% end %>
     <!-- end tabs -->
   </head>
@@ -85,7 +85,7 @@
       </div>
     </div>
     <div id="footer" class="text-center large-10 columns right">
-      <a href="http://opennebula.org" target="_blank">OpenNebula 4.5.80</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.
+      &copy; 2014 <a href="http://gomegam.com" target="_blank">megam</a>. All rights reserved. 
     </div>
     <div class="large-12 columns" id="dialogs"></div>
   </body>

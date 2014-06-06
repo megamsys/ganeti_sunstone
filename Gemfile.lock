@@ -17,7 +17,7 @@ GEM
     arel (5.0.1.20140414130214)
     bond (0.5.1)
     builder (3.2.2)
-    excon (0.34.0)
+    excon (0.36.0)
     i18n (0.6.9)
     json (1.8.1)
     mini_portile (0.6.0)

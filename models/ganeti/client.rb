@@ -53,7 +53,6 @@ module Ganeti
         @options[:body]=options.to_json
         @options[:method]=method
         res = @con.request(@options)
-        puts res.inspect
         res
       rescue Exception => e
         Error.new(e.message)

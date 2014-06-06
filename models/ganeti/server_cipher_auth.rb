@@ -1,18 +1,17 @@
-# -------------------------------------------------------------------------- #
-# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
-#                                                                            #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
-# not use this file except in compliance with the License. You may obtain    #
-# a copy of the License at                                                   #
-#                                                                            #
-# http://www.apache.org/licenses/LICENSE-2.0                                 #
-#                                                                            #
-# Unless required by applicable law or agreed to in writing, software        #
-# distributed under the License is distributed on an "AS IS" BASIS,          #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
-# See the License for the specific language governing permissions and        #
-# limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# Copyright [2013-2014] [Megam Systems]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 require 'openssl'
 require 'digest/sha1'
@@ -20,12 +19,12 @@ require 'digest/sha1'
 require 'base64'
 require 'fileutils'
 
-module OpenNebula; end
+module Ganeti; end
 
 # Server authentication class. This method can be used by OpenNebula services
 # to let access authenticated users by other means. It is based on OpenSSL 
 # symmetric ciphers
-class OpenNebula::ServerCipherAuth 
+class Ganeti::ServerCipherAuth 
     ###########################################################################
     #Constants with paths to relevant files and defaults
     ###########################################################################
@@ -37,7 +36,7 @@ class OpenNebula::ServerCipherAuth
     def initialize(srv_user, srv_passwd)
         @srv_user   = srv_user
         @srv_passwd = srv_passwd 
-
+        puts "______entry----------------"
         if !srv_passwd.empty?
             @key = Digest::SHA1.hexdigest(@srv_passwd)
         else

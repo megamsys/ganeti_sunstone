@@ -1615,7 +1615,7 @@ var OpenNebula = {
         "resource" : "MARKETPLACE",
 
         "show" : function(params){
-            params.error = function() {
+            params.error = function() {
                 return notifyError("Cannot connect to OpenNebula Marketplace")
             };
             OpenNebula.Action.show(params,OpenNebula.Marketplace.resource);

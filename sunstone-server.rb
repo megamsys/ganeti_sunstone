@@ -1,24 +1,20 @@
 #!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
+# Copyright [2013-2014] [Megam Systems]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-# -------------------------------------------------------------------------- #
-# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
-#                                                                            #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
-# not use this file except in compliance with the License. You may obtain    #
-# a copy of the License at                                                   #
-#                                                                            #
-# http://www.apache.org/licenses/LICENSE-2.0                                 #
-#                                                                            #
-# Unless required by applicable law or agreed to in writing, software        #
-# distributed under the License is distributed on an "AS IS" BASIS,          #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
-# See the License for the specific language governing permissions and        #
-# limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
-
-#ONE_LOCATION = ENV["ONE_LOCATION"]
-ONE_LOCATION = "/home/rajthilak/code/megam/workspace/ganeti_sunstone"
+ONE_LOCATION = ENV["MEGANETI_HOME_URL"]
 if !ONE_LOCATION
   LOG_LOCATION = "/var/log/one"
   VAR_LOCATION = "/var/lib/one"
@@ -127,7 +123,7 @@ $views_config = SunstoneViews.new
 
 #start VNC proxy
 
-$vnc = OpenNebulaVNC.new($conf, logger)
+$vnc = MegamVNC.new($conf, logger)
 
 configure do
   set :run, false
@@ -176,15 +172,6 @@ helpers do
       session[:remember]     = params["remember"]
       session[:display_name] = user[DISPLAY_NAME_XPATH] || user["NAME"]
 
-      logger.info { session[:user] }
-      logger.info { session[:user_id] }
-      logger.info { session[:user_gid]  }
-      logger.info { session[:user_gname]  }
-      logger.info { request.ip }
-      logger.info { params[:remember] }
-      logger.info { session[:display_name] }
-
-
       #User IU options initialization
       #Load options either from user settings or default config.
       # - LANG
@@ -219,16 +206,7 @@ helpers do
       if params[:remember] == "true"
         env['rack.session.options'][:expire_after] = 30*60*60*24-1
       end
-      #serveradmin_client = $cloud_auth.client()
-      #puts "+++++++++++++++++++++++++---------------------------------------------"
-      #puts serveradmin_client
-      #rc = OpenNebula::System.new(serveradmin_client).get_configuration
-      #return [500, rc.message] if OpenNebula.is_error?(rc)
-      #return [500, "Couldn't find out zone identifier"] if !rc['FEDERATION/ZONE_ID']
-
-      #zone = OpenNebula::Zone.new_with_id(rc['FEDERATION/ZONE_ID'].to_i, client)
-      #zone.info
-      #session[:zone_name] = zone.name
+    
       session[:zone_name] = 'Ganeti'
       return [204, ""]
     end
@@ -263,14 +241,7 @@ before do
       if res.data[:status].to_i != 200
       return [500, zpool.to_json]   
     end
-    #return [500, rc.to_json] if OpenNebula.is_error?(rc)
-
-  #  zpool.each{|z|
-   #   if z.name == env['HTTP_ZONE_NAME']
-    #    session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
-     #   session[:zone_name] = env['HTTP_ZONE_NAME']
-    #  end
-   # }
+  
   end
   options = {}
   @client=$cloud_auth.client(session[:user],  #change verify error login page
@@ -291,14 +262,6 @@ after do
   end
 end
 
-##############################################################################
-# Custom routes
-##############################################################################
-if $conf[:routes]
-  $conf[:routes].each { |route|
-    require "routes/#{route}"
-  }
-end
 
 ##############################################################################
 # HTML Requests
@@ -429,20 +392,6 @@ end
 ##############################################################################
 get '/:pool' do
   zone_client = nil
-=begin  
-  zone_res = Ganeti::Clusters.new(@client)
-  cluster = zone_res.info
-  zone = {}
-  if cluster.data[:status] != 200
-    return [500, "server error"] 
-  else
-    zone = JSON.parse(cluster.data[:body])
-  end
-  res = Array.new
-  res << 200
-  res << {"ZONE_POOL" => {"ZONE" => {"ID" => session[:user_gid], "NAME" => zone["name"],"TEMPLATE" => {"ENDPOINT" => "http://localhost:2633/RPC2"}}}}
-=end 
-  #zone_client = $cloud_auth.client(session[:user])
   user_details = {"username" => session[:user], "user_id" => session[:user_id], "group_name" => session[:user_gname], "group_id" => session[:user_gid]}     
   @SunstoneServer.get_pool(params[:pool], session[:user_gid], zone_client, user_details) 
 end
@@ -452,7 +401,6 @@ end
 ##############################################################################
 
 get '/:resource/:id/template' do
-  puts "++++++++++++++++get template+++++++++++++++++++"
   @SunstoneServer.get_template(params[:resource], params[:id])
 end
 
@@ -524,6 +472,5 @@ post '/:resource/:id/action' do
     user_details = {"username" => session[:user], "user_id" => session[:user_id], "group_name" => session[:user_gname], "group_id" => session[:user_gid]}     
    @SunstoneServer.perform_action(params[:resource], params[:id], request.body.read, user_details)
 end
-
 Sinatra::Application.run! if(!defined?(WITH_RACKUP))
 
