@@ -17,6 +17,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+#This is modified by Megam Systems.
+
 ONE_LOCATION = ENV["MEGANETI_HOME_URL"]
 if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"

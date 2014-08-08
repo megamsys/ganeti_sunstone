@@ -1,3 +1,6 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
@@ -13,6 +16,10 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
+#This is modified by Megam Systems.
+
+
 require "excon"
 
 module SunstoneCloudAuth
