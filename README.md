@@ -1,5 +1,7 @@
-#  Ganeti_sunstone
+#  Meganeti
 
+The [OpenNebula](http://opennebula.org) sunstone userinterface code was extended to work with ganeti. This code can be used on an
+experimental level only.
 
 ### Requirements
 
@@ -7,13 +9,12 @@
 > [Sqlite3](https://sqlite.org/)
 
 
-	
 # License
 
 
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
-| **Author:**          | Thomal Alrin (<alrin@megam.co.in>)
+| **Author:**          | OpenNebula Team
 |                      | Rajthilak (<rajthilak@megam.co.in>)
 |		               | KishorekumarNeelamegam (<nkishore@megam.co.in>)
 | **Copyright:**       | Copyright (c) 2012-2013 Megam Systems.
@@ -30,4 +31,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
